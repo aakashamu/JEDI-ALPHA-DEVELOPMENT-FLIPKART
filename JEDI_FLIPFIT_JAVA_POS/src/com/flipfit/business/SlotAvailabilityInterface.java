@@ -6,6 +6,16 @@ package com.flipfit.business;
 /**
  * 
  */
-public interface SlotAvailabilityInterface {
+import com.flipfit.bean.SlotAvailability;
+import java.time.LocalDate;
+import java.util.List;
 
+public interface SlotAvailabilityInterface {
+	SlotAvailability addSlotAvailability(SlotAvailability slotAvailability);
+	SlotAvailability updateSlotAvailability(int id, SlotAvailability slotAvailability);
+	boolean deleteSlotAvailability(int id);
+	SlotAvailability getSlotAvailabilityById(int id);
+	List<SlotAvailability> getAllSlotAvailabilities();
+	List<SlotAvailability> getAvailableSlotsByDate(LocalDate date);
+	List<SlotAvailability> getAvailableSlotsBySlotId(int slotId);
 }
