@@ -16,10 +16,16 @@ public class WaitListService implements WaitListInterface{
 	}
 
 	@Override
-	public boolean removeFromWaitList(int bookingId) {
+	public void removeFromWaitList(int bookingId) {
 		// TODO Auto-generated method stub
 		System.out.println("Booking Id removed from waitlist-->" + bookingId);
-		return true;
+	}
+
+	@Override
+	public boolean updateWaitList() {
+		// TODO Auto-generated method stub
+		System.out.println("Waitlist updated");
+		return false;
 	}
 	
 }
