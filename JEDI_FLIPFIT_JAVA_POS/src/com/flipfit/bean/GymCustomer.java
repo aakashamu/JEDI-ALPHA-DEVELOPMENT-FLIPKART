@@ -6,6 +6,8 @@ package com.flipfit.bean;
 /**
  * 
  */
-public class GymCustomer {
-
+public class GymCustomer extends User{
+	public GymCustomer() {
+        super();
+    }
 }
