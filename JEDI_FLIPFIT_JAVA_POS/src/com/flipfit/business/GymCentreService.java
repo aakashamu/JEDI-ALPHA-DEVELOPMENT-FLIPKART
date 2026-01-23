@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.flipflit.business;
+package com.flipfit.business;
 
 /**
  * 
