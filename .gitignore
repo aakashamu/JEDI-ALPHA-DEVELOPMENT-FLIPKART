@@ -1,0 +1,8 @@
+.metadata/
+JEDI_FLIPFIT_JAVA_POS/.metadata/
+bin/
+*.class
+.settings/
+.project
+.classpath
+.DS_Store
