@@ -4,6 +4,9 @@ package com.flipfit.business;
 
 import com.flipfit.bean.Booking;
 import java.util.List;
+ * 
+ */
+package com.flipfit.business;
 
 /**
  * Interface for Booking Business Logic
