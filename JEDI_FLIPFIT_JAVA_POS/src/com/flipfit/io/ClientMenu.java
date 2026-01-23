@@ -38,6 +38,9 @@ public class ClientMenu {
 		}
 
 		scanner.close();
+		
+		
+		
 	}
 
 	private static void handleLogin(Scanner scanner) {
@@ -55,4 +58,6 @@ public class ClientMenu {
 
 	    System.out.println("Login Successful for " + username + " as Role " + role);
 	}
+	
+
 }
