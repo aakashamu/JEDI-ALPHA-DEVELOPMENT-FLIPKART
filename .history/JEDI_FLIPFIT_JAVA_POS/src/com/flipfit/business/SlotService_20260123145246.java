@@ -72,6 +72,8 @@ public class SlotService implements SlotInterface {
         return (slot != null) ? slot.getSlotInfo() : "Slot not found";
     }
 
+    // ---------- helpers ----------
+
     private void validateSlot(Slot slot) {
         if (slot.getStartTime() == null || slot.getEndTime() == null)
             throw new IllegalArgumentException("Invalid time.");
