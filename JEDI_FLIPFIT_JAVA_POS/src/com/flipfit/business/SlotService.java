@@ -2,7 +2,6 @@ package com.flipfit.business;
 
 import com.flipfit.bean.Slot;
 
-import java.time.LocalTime;
 import java.util.*;
 
 public class SlotService implements SlotInterface {
@@ -13,15 +12,7 @@ public class SlotService implements SlotInterface {
     @Override
     public Slot addSlot(Slot slot) {
 
-        validateSlot(slot);
-
-        // Overlap check
-        for (Slot s : slotDB.values()) {
-            if (isOverlapping(s.getStartTime(), s.getEndTime(),
-                    slot.getStartTime(), slot.getEndTime())) {
-                throw new IllegalArgumentException("Overlapping slot exists.");
-            }
-        }
+        validate(slot);
 
         slot.setSlotId(idCounter++);
         slotDB.put(slot.getSlotId(), slot);
@@ -34,15 +25,7 @@ public class SlotService implements SlotInterface {
         if (!slotDB.containsKey(slotId))
             throw new IllegalArgumentException("Slot not found");
 
-        validateSlot(slot);
-
-        for (Slot s : slotDB.values()) {
-            if (s.getSlotId() != slotId &&
-                isOverlapping(s.getStartTime(), s.getEndTime(),
-                        slot.getStartTime(), slot.getEndTime())) {
-                throw new IllegalArgumentException("Update causes overlapping slot.");
-            }
-        }
+        validate(slot);
 
         slot.setSlotId(slotId);
         slotDB.put(slotId, slot);
@@ -72,19 +55,14 @@ public class SlotService implements SlotInterface {
         return (slot != null) ? slot.getSlotInfo() : "Slot not found";
     }
 
-    private void validateSlot(Slot slot) {
+    private void validate(Slot slot) {
         if (slot.getStartTime() == null || slot.getEndTime() == null)
-            throw new IllegalArgumentException("Invalid time.");
+            throw new IllegalArgumentException("Time cannot be null");
 
         if (!slot.getStartTime().isBefore(slot.getEndTime()))
-            throw new IllegalArgumentException("Start must be before end.");
+            throw new IllegalArgumentException("Start must be before end");
 
         if (slot.getCapacity() <= 0)
-            throw new IllegalArgumentException("Capacity must be > 0.");
-    }
-
-    private boolean isOverlapping(LocalTime s1, LocalTime e1,
-                                  LocalTime s2, LocalTime e2) {
-        return s1.isBefore(e2) && e1.isAfter(s2);
+            throw new IllegalArgumentException("Capacity must be > 0");
     }
 }

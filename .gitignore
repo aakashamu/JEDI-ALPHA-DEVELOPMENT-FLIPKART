@@ -7,3 +7,5 @@ bin/
 .project
 .classpath
 .DS_Store
+.history/
+/.history/
