@@ -6,7 +6,7 @@ import com.flipfit.bean.Booking;
 import java.util.List;
 import java.util.ArrayList;
 
-package com.flipfit.business;
+
 
 /**
  * Implementation of the BookingInterface handling the business logic 

@@ -3,19 +3,20 @@
  */
 package com.flipfit.business;
 
+import java.util.List;
+
+import com.flipfit.bean.GymCentre;
+import com.flipfit.bean.GymCustomer;
+
 /**
  * 
  */
 public interface GymOwnerInterface {
-	String pan;
-	String aadhaar;
-	String gstin;
 	
-	public static void adCentre(GymCentre centre)
-	{}
 	
-	public static List<Customer> viewCustomers()
-	{}
+	public void addCentre(GymCentre centre);
+	
+	public List<GymCustomer> viewCustomers();
 	
 
 }
