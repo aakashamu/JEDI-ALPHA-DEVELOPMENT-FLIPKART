@@ -1,2 +1,0 @@
-INDEX VERSION 1.134+/Users/aakashamar.murthy/Documents/JEDI-ALPHA-DEVELOPMENT-FLIPKART/JEDI_FLIPFIT_JAVA_POS/.metadata/.plugins/org.eclipse.jdt.core
-1344444650.index
