@@ -8,14 +8,19 @@ public class Slot {
     private LocalTime startTime;
     private LocalTime endTime;
     private int capacity;
+    private int centreId;
 
-    public Slot(int slotId, LocalTime startTime, LocalTime endTime, int capacity) {
+    public Slot(int slotId, LocalTime startTime, LocalTime endTime, int capacity,int centreId) {
         this.slotId = slotId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.capacity = capacity;
+        this.centreId=centreId;
     }
-
+    public int getCentreId() { 
+        return centreId; 
+    }
+   public void setCentreId(int centreId) {this.centreId=centreId;}
     public int getSlotId() { return slotId; }
     public void setSlotId(int slotId) { this.slotId = slotId; }
 
@@ -31,6 +36,6 @@ public class Slot {
     public String getSlotInfo() {
         return "Slot ID: " + slotId +
                 " | " + startTime + " - " + endTime +
-                " | Capacity: " + capacity;
+                " | Capacity: " + capacity +"|"+"centreId: "+ centreId;
     }
 }
