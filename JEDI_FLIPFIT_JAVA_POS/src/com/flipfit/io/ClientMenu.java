@@ -1,5 +1,6 @@
 package com.flipfit.io;
 
+import com.flipfit.business.BookingService;
 import com.flipfit.business.GymAdminService;
 import com.flipfit.business.GymCustomerService;
 import com.flipfit.business.UserService;
@@ -90,7 +91,13 @@ public class ClientMenu {
 
 		while (session) {
 			System.out.println("\n--- Customer Dashboard ---");
-			System.out.println("1. View Gym Centres\n2. View Bookings\n3. Book Slot\n4. Cancel Booking\n5. Edit Profile\n6. Logout");
+			System.out.println("1. View Gym Centres");
+			System.out.println("2. View Bookings");
+			System.out.println("3. Book Slot");
+			System.out.println("4. Cancel Booking");
+			System.out.println("5. Edit Profile");
+			System.out.println("6. Booking Management");
+			System.out.println("7. Logout");
 			System.out.print("Choice: ");
 			int choice = scanner.nextInt();
 
@@ -135,6 +142,9 @@ public class ClientMenu {
 			    customerService.editDetails(newName, confirmEmail, newPhone, newCity, newPin);
 			    break;
 			case 6:
+				BookingService.bookingMenu(scanner);
+				break;
+			case 7:
 				session = false;
 				break;
 			}
@@ -228,9 +238,30 @@ public class ClientMenu {
 	}
 	
 	private static void ownerDashboard(Scanner scanner) {
-		System.out.println("\n--- Owner Dashboard ---");
-		System.out.println("Owner dashboard functionality not yet implemented.");
-		// TODO: Implement owner dashboard features
+		boolean ownerSession = true;
+		
+		while (ownerSession) {
+			System.out.println("\n--- Gym Owner Dashboard ---");
+			System.out.println("1. Booking Management");
+		System.out.println("2. View All Bookings");
+		System.out.println("3. Exit to Main Menu");
+			System.out.print("Enter your choice: ");
+			
+			int choice = scanner.nextInt();
+			
+			switch (choice) {
+				case 1:
+					BookingService.bookingMenu(scanner);
+					break;
+					
+				case 2:
+				BookingService bookingService = new BookingService();
+				bookingService.viewAllBookings();
+				break;
+				
+			case 3:
+			}
+		}
 	}
 	
 	private static void adminDashboard(Scanner scanner) {
