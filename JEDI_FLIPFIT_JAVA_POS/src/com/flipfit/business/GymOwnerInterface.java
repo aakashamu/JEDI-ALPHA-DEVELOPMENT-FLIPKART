@@ -1,22 +1,12 @@
-/**
- * 
- */
 package com.flipfit.business;
-
-import java.util.List;
-
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.GymCustomer;
+import java.util.List;
 
-/**
- * 
- */
+
 public interface GymOwnerInterface {
-	
-	
-	public void addCentre(GymCentre centre);
-	
-	public List<GymCustomer> viewCustomers();
-	
-
+    void addCentre(GymCentre centre);
+    List<GymCentre> viewMyCentres();
+    List<GymCustomer> viewCustomers(int gymCentreId);
+    void requestApproval(int gymOwnerId);
 }
