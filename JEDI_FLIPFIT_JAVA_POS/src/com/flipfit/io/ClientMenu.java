@@ -2,6 +2,9 @@ package com.flipfit.io;
 
 import java.util.Scanner;
 
+import com.flipfit.bean.GymCentre;
+import com.flipfit.business.GymCustomerService;
+
 public class ClientMenu {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
@@ -56,8 +59,69 @@ public class ClientMenu {
 		int role = scanner.nextInt();
 
 		System.out.println("Login Successful for " + username + " as Role " + role);
+
+		if (role == 2) {
+			customerDashboard(scanner);
+		}
 	}
-	
+
+	private static void customerDashboard(Scanner scanner) {
+		GymCustomerService customerService = new GymCustomerService();
+		boolean session = true;
+
+		while (session) {
+			System.out.println("\n--- Customer Dashboard ---");
+			System.out.println("1. View Gym Centres\n2. View Bookings\n3. Book Slot\n4. Cancel Booking\n5. Edit Profile\n6. Logout");
+			System.out.print("Choice: ");
+			int choice = scanner.nextInt();
+
+			switch (choice) {
+			case 1:
+				customerService.viewCentres().forEach(g -> System.out.println("ID: " + g.getCentreId() + " | " + g.getName()));
+				break;
+			case 2:
+				customerService.viewBookedSlots().forEach(b -> System.out.println("Booking ID: " + b.getBookingId() + " Status: " + b.getStatus()));
+				break;
+			case 3:
+				System.out.print("Enter Availability ID: ");
+				customerService.bookSlot(scanner.nextInt());
+				break;
+			case 4:
+				System.out.print("Enter Booking ID to cancel: ");
+				customerService.cancelBooking(scanner.nextInt());
+				break;
+			case 5:
+			    scanner.nextLine(); // Clear the buffer after nextInt()
+			    System.out.println("\n--- Edit Your Profile ---");
+			    
+			    // Email is the key used to find the user in the Map
+			    System.out.print("Confirm your Email (unique ID): ");
+			    String confirmEmail = scanner.next();
+			    scanner.nextLine(); // Clear buffer for name input
+			    
+			    System.out.print("Enter New Full Name: ");
+			    String newName = scanner.nextLine();
+			    
+			    System.out.print("Enter New Phone Number: ");
+			    long newPhone = scanner.nextLong();
+			    scanner.nextLine(); // Clear buffer for city input
+			    
+			    System.out.print("Enter New City: ");
+			    String newCity = scanner.nextLine();
+			    
+			    System.out.print("Enter New Pincode: ");
+			    int newPin = scanner.nextInt();
+
+			    // Call the service method with all collected data
+			    customerService.editDetails(newName, confirmEmail, newPhone, newCity, newPin);
+			    break;
+			case 6:
+				session = false;
+				break;
+			}
+		}
+	}
+
 	private static void handleCustomerRegistration(Scanner scanner) {
 		scanner.nextLine();
 		System.out.println("\n--- Gym Admin Registration ---");
@@ -82,7 +146,6 @@ public class ClientMenu {
 
 		System.out.println("Customer account created for: " + name);
 	}
-	
 
 	private static void handleOwnerRegistration(Scanner scanner) {
 		scanner.nextLine();
@@ -109,7 +172,6 @@ public class ClientMenu {
 		System.out.println("Admin account created for: " + name);
 	}
 
-	
 	private static void handleAdminRegistration(Scanner scanner) {
 		scanner.nextLine();
 		System.out.println("\n--- Gym Admin Registration ---");
