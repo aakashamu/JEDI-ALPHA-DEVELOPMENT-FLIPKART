@@ -10,10 +10,16 @@ public class GymOwner extends User {
     private String GSTIN;
     private int isApproved; // 0 for pending, 1 for approved
 
+    // Default Constructor (Needed for certain object initializations)
+    public GymOwner() {
+        super();
+    }
+
+    // Parametrized Constructor (Matches your UML and terminal run requirements)
     public GymOwner(int userId, String fullName, String email, String password,
                     long phoneNumber, String city, int pincode,
                     String PAN, String Aadhaar, String GSTIN) {
-        super(userId, fullName, email, password, phoneNumber, city, pincode); // Now types match
+        super(userId, fullName, email, password, phoneNumber, city, pincode);
         this.PAN = PAN;
         this.Aadhaar = Aadhaar;
         this.GSTIN = GSTIN;

@@ -3,9 +3,10 @@
  */
 package com.flipfit.business;
 
+import java.util.List;
+
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.SlotAvailability;
-import java.util.List;
 
 /**
  * 
