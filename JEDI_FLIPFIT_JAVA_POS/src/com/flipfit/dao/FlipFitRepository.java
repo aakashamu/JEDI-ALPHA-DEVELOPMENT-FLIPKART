@@ -109,6 +109,7 @@ public class FlipFitRepository {
             customerBookings.put(101, new ArrayList<>());
         }
         customerBookings.get(101).add(booking4);
+    }
     
     private static void initializeSampleUsers() {
         // Sample customers
