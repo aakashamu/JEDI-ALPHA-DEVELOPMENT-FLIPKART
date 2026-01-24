@@ -7,13 +7,20 @@ import java.util.*;
  * Centralized Mock Database using Collections
  */
 public class FlipFitRepository {
+
     // Global static lists reachable by all services
-	public static Map<String, GymCustomer> customers = new HashMap<>();
-	public static List<GymCentre> gymCentres = new ArrayList<>();
+    public static Map<String, GymCustomer> customers = new HashMap<>();
+    public static List<GymCentre> gymCentres = new ArrayList<>();
     public static List<Booking> bookings = new ArrayList<>();
     public static List<GymOwner> owners = new ArrayList<>();
     public static Map<String, User> users = new HashMap<>();
-    
+
+    // WaitList Collections (DAO for WaitListService)
+    public static Queue<Integer> waitListQueue = new LinkedList<>();
+    public static Map<Integer, WaitListEntry> waitListMap = new HashMap<>();
+    public static List<WaitListEntry> allWaitListEntries = new ArrayList<>();
+    public static Map<Integer, List<Integer>> slotWaitList = new HashMap<>();
+
     // Booking Collections (DAO for BookingService)
     public static Map<Integer, Booking> bookingsMap = new HashMap<>();
     public static List<Booking> allBookings = new ArrayList<>();
@@ -22,12 +29,16 @@ public class FlipFitRepository {
     static {
         // Initialize sample users for testing
         initializeSampleUsers();
-        
+
         // Initialize all hardcoded data
+        initializeHardcodedWaitList();
         initializeSampleCentres();
         initializeHardcodedBookings();
     }
-    
+
+    // -------------------------------
+    // Sample Centres Initialization
+    // -------------------------------
     private static void initializeSampleCentres() {
         // Initial Hard-coded data for testing centers
         GymCentre center1 = new GymCentre();
@@ -35,7 +46,7 @@ public class FlipFitRepository {
         center1.setName("FlipFit Elite - Koramangala");
         center1.setCity("Bengaluru");
         center1.setApproved(true);
-        
+
         GymCentre center2 = new GymCentre();
         center2.setCentreId(2);
         center2.setName("FlipFit Pro - Indiranagar");
@@ -45,11 +56,59 @@ public class FlipFitRepository {
         gymCentres.add(center1);
         gymCentres.add(center2);
     }
-    
-    /**
-     * Initialize hardcoded booking data for testing
-     */
+
+    // -------------------------------
+    // WaitList Initialization
+    // -------------------------------
+    private static void initializeHardcodedWaitList() {
+
+        // Sample WaitList Entry 1
+        WaitListEntry entry1 = new WaitListEntry();
+        entry1.setWaitlistid(2001);
+        entry1.setPosition(1);
+        entry1.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+
+        // Sample WaitList Entry 2
+        WaitListEntry entry2 = new WaitListEntry();
+        entry2.setWaitlistid(2002);
+        entry2.setPosition(2);
+        entry2.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+
+        // Sample WaitList Entry 3
+        WaitListEntry entry3 = new WaitListEntry();
+        entry3.setWaitlistid(2003);
+        entry3.setPosition(3);
+        entry3.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+
+        // Add to Map
+        waitListMap.put(1005, entry1);
+        waitListMap.put(1006, entry2);
+        waitListMap.put(1007, entry3);
+
+        // Add to List
+        allWaitListEntries.add(entry1);
+        allWaitListEntries.add(entry2);
+        allWaitListEntries.add(entry3);
+
+        // Add to Queue (FIFO order)
+        waitListQueue.offer(1005);
+        waitListQueue.offer(1006);
+        waitListQueue.offer(1007);
+
+        // Organize by availability / slot
+        slotWaitList.put(501, new ArrayList<>());
+        slotWaitList.get(501).add(1005);
+        slotWaitList.get(501).add(1006);
+
+        slotWaitList.put(502, new ArrayList<>());
+        slotWaitList.get(502).add(1007);
+    }
+
+    // -------------------------------
+    // Booking Initialization
+    // -------------------------------
     private static void initializeHardcodedBookings() {
+
         // Sample Booking 1 - Confirmed
         Booking booking1 = new Booking();
         booking1.setBookingId(1001);
@@ -58,13 +117,11 @@ public class FlipFitRepository {
         booking1.setStatus("CONFIRMED");
         booking1.setBookingDate(new java.util.Date());
         booking1.setCreatedAt("2026-01-20 10:30:00");
+
         bookingsMap.put(1001, booking1);
         allBookings.add(booking1);
-        if (!customerBookings.containsKey(101)) {
-            customerBookings.put(101, new ArrayList<>());
-        }
-        customerBookings.get(101).add(booking1);
-        
+        customerBookings.computeIfAbsent(101, k -> new ArrayList<>()).add(booking1);
+
         // Sample Booking 2 - Confirmed
         Booking booking2 = new Booking();
         booking2.setBookingId(1002);
@@ -73,13 +130,11 @@ public class FlipFitRepository {
         booking2.setStatus("CONFIRMED");
         booking2.setBookingDate(new java.util.Date());
         booking2.setCreatedAt("2026-01-21 11:00:00");
+
         bookingsMap.put(1002, booking2);
         allBookings.add(booking2);
-        if (!customerBookings.containsKey(102)) {
-            customerBookings.put(102, new ArrayList<>());
-        }
-        customerBookings.get(102).add(booking2);
-        
+        customerBookings.computeIfAbsent(102, k -> new ArrayList<>()).add(booking2);
+
         // Sample Booking 3 - Cancelled
         Booking booking3 = new Booking();
         booking3.setBookingId(1003);
@@ -88,13 +143,11 @@ public class FlipFitRepository {
         booking3.setStatus("CANCELLED");
         booking3.setBookingDate(new java.util.Date());
         booking3.setCreatedAt("2026-01-22 09:15:00");
+
         bookingsMap.put(1003, booking3);
         allBookings.add(booking3);
-        if (!customerBookings.containsKey(101)) {
-            customerBookings.put(101, new ArrayList<>());
-        }
-        customerBookings.get(101).add(booking3);
-        
+        customerBookings.computeIfAbsent(101, k -> new ArrayList<>()).add(booking3);
+
         // Sample Booking 4 - Confirmed
         Booking booking4 = new Booking();
         booking4.setBookingId(1004);
@@ -103,15 +156,17 @@ public class FlipFitRepository {
         booking4.setStatus("CONFIRMED");
         booking4.setBookingDate(new java.util.Date());
         booking4.setCreatedAt("2026-01-23 14:45:00");
+
         bookingsMap.put(1004, booking4);
         allBookings.add(booking4);
-        if (!customerBookings.containsKey(101)) {
-            customerBookings.put(101, new ArrayList<>());
-        }
-        customerBookings.get(101).add(booking4);
+        customerBookings.computeIfAbsent(101, k -> new ArrayList<>()).add(booking4);
     }
-    
+
+    // -------------------------------
+    // Users Initialization
+    // -------------------------------
     private static void initializeSampleUsers() {
+
         // Sample customers
         GymCustomer customer1 = new GymCustomer();
         customer1.setUserId(101);
@@ -121,20 +176,20 @@ public class FlipFitRepository {
         customer1.setPhoneNumber(7091234567L);
         customer1.setCity("Bengaluru");
         customer1.setPincode(560001);
-        customers.put("ananya@gmail.com", customer1);
-        users.put("ananya@gmail.com", customer1);
-        
+        customers.put(customer1.getEmail(), customer1);
+        users.put(customer1.getEmail(), customer1);
+
         GymCustomer customer2 = new GymCustomer();
         customer2.setUserId(102);
         customer2.setFullName("Supriya Nalla");
-        customer2.setEmail("surpiya@gmail.com");
+        customer2.setEmail("supriya@gmail.com");
         customer2.setPassword("password@456");
         customer2.setPhoneNumber(7094561234L);
         customer2.setCity("Hyderabad");
         customer2.setPincode(500008);
-        customers.put("supriya@gmail.com", customer2);
-        users.put("supriya@gmail.com", customer2);
-        
+        customers.put(customer2.getEmail(), customer2);
+        users.put(customer2.getEmail(), customer2);
+
         // Sample owners
         GymOwner owner1 = new GymOwner();
         owner1.setUserId(201);
@@ -148,8 +203,8 @@ public class FlipFitRepository {
         owner1.setAadhaar("123456789012");
         owner1.setGSTIN("29ABCDE1234F1ZV");
         owners.add(owner1);
-        users.put("sam@gmail.com", owner1);
-        
+        users.put(owner1.getEmail(), owner1);
+
         GymOwner owner2 = new GymOwner();
         owner2.setUserId(202);
         owner2.setFullName("Sujitha");
@@ -162,19 +217,21 @@ public class FlipFitRepository {
         owner2.setAadhaar("345678901234");
         owner2.setGSTIN("07FGHIJ5678K2ZL");
         owners.add(owner2);
-        users.put("sujitha@gmail.com", owner2);
+        users.put(owner2.getEmail(), owner2);
     }
-    
-    // User management methods
+
+    // -------------------------------
+    // User Management Methods
+    // -------------------------------
     public static User getUserByEmail(String email) {
         return users.get(email);
     }
-    
+
     public static boolean validateUser(String email, String password) {
         User user = users.get(email);
         return user != null && user.getPassword().equals(password);
     }
-    
+
     public static void addUser(User user) {
         users.put(user.getEmail(), user);
         if (user instanceof GymCustomer customer) {
@@ -183,7 +240,7 @@ public class FlipFitRepository {
             owners.add(owner);
         }
     }
-    
+
     public static boolean userExists(String email) {
         return users.containsKey(email);
     }
