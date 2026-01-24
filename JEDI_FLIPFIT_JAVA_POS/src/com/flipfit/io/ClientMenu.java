@@ -3,96 +3,146 @@ package com.flipfit.io;
 import java.util.Scanner;
 
 public class ClientMenu {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int choice;
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		int choice;
 
-        do {
-            System.out.println("\nWelcome to the Flipfit Application for GYM");
-            System.out.println("1. Login");
-            System.out.println("2. Registration of the GymCustomer");
-            System.out.println("3. Registration of the GymOwner");
-            System.out.println("4. Registration of the GymAdmin");
-            System.out.println("5. Change Password");
-            System.out.println("6. Exit");
-            System.out.print("Enter your choice: ");
+		System.out.println("\nWelcome to the Flipfit Application for GYM");
+		System.out.println("1. Login");
+		System.out.println("2. Registration of the GymCustomer");
+		System.out.println("3. Registration of the GymOwner");
+		System.out.println("4. Registration of the GymAdmin");
+		System.out.println("5. Change Password");
+		System.out.println("6. Exit");
+		System.out.print("Enter your choice: ");
 
-            choice = scanner.nextInt();
+		choice = scanner.nextInt();
 
-            switch (choice) {
-                case 1:
-                    handleLogin(scanner);
-                    break;
-                case 2:
-                    System.out.println("Redirecting to GymCustomer Registration...");
-                    break;
-                case 3:
-                    System.out.println("Redirecting to GymOwner Registration...");
-                    break;
-                case 4:
-                    handleAdminRegistration(scanner);
-                    break;
-                case 5:
-                    handleChangePassword(scanner);
-                    break;
-                case 6:
-                    System.out.println("Exiting Application. Goodbye!");
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
-        } while (choice != 6);
+		switch (choice) {
+		case 1:
+			handleLogin(scanner);
+			break;
+		case 2:
+			handleCustomerRegistration(scanner);
+			break;
+		case 3:
+			handleOwnerRegistration(scanner);
+			break;
+		case 4:
+			handleAdminRegistration(scanner);
+			break;
+		case 5:
+			handleChangePassword(scanner);
+			break;
+		case 6:
+			System.out.println("Exiting Application. Goodbye!");
+			break;
+		default:
+			System.out.println("Invalid choice. Please try again.");
+		}
 
-        scanner.close();
-    }
+		scanner.close();
+	}
 
-    private static void handleLogin(Scanner scanner) {
-        scanner.nextLine(); 
-        System.out.print("Username: ");
-        String username = scanner.nextLine(); 
-        System.out.print("Password: ");
-        String password = scanner.nextLine(); 
-        
-        System.out.println("Role: 1. GYM Owner 2. Gym Customer 3. Gym Admin");
-        System.out.print("Enter Role Choice: ");
-        int role = scanner.nextInt();
+	private static void handleLogin(Scanner scanner) {
+		scanner.nextLine();
+		System.out.print("Username: ");
+		String username = scanner.nextLine();
+		System.out.print("Password: ");
+		String password = scanner.nextLine();
 
-        System.out.println("Login Successful for " + username + " as Role " + role);
-    }
+		System.out.println("Role: 1. GYM Owner 2. Gym Customer 3. Gym Admin");
+		System.out.print("Enter Role Choice: ");
+		int role = scanner.nextInt();
 
-    private static void handleAdminRegistration(Scanner scanner) {
-        scanner.nextLine(); 
-        System.out.println("\n--- Gym Admin Registration ---");
-        
-        System.out.print("Full Name: ");
-        String name = scanner.nextLine();
-        
-        System.out.print("Email: ");
-        String email = scanner.next();
-        
-        System.out.print("Password: ");
-        String pass = scanner.next();
-        
-        System.out.print("Phone Number: ");
-        long phone = scanner.nextLong();
-        
-        System.out.print("City: ");
-        String city = scanner.next();
-        
-        System.out.print("Pincode: ");
-        int pincode = scanner.nextInt();
+		System.out.println("Login Successful for " + username + " as Role " + role);
+	}
+	
+	private static void handleCustomerRegistration(Scanner scanner) {
+		scanner.nextLine();
+		System.out.println("\n--- Gym Admin Registration ---");
 
-        System.out.println("Admin account created for: " + name);
-    }
+		System.out.print("Full Name: ");
+		String name = scanner.nextLine();
 
-    private static void handleChangePassword(Scanner scanner) {
-        scanner.nextLine();
-        System.out.print("Enter Username: ");
-        String user = scanner.nextLine();
-        System.out.print("Enter Old Password: ");
-        String oldPass = scanner.nextLine();
-        System.out.print("Enter New Password: ");
-        String newPass = scanner.nextLine();
-        System.out.println("Password updated successfully.");
-    }
+		System.out.print("Email: ");
+		String email = scanner.next();
+
+		System.out.print("Password: ");
+		String pass = scanner.next();
+
+		System.out.print("Phone Number: ");
+		long phone = scanner.nextLong();
+
+		System.out.print("City: ");
+		String city = scanner.next();
+
+		System.out.print("Pincode: ");
+		int pincode = scanner.nextInt();
+
+		System.out.println("Customer account created for: " + name);
+	}
+	
+
+	private static void handleOwnerRegistration(Scanner scanner) {
+		scanner.nextLine();
+		System.out.println("\n--- Gym Owner Registration ---");
+
+		System.out.print("Full Name: ");
+		String name = scanner.nextLine();
+
+		System.out.print("Email: ");
+		String email = scanner.next();
+
+		System.out.print("Password: ");
+		String pass = scanner.next();
+
+		System.out.print("Phone Number: ");
+		long phone = scanner.nextLong();
+
+		System.out.print("City: ");
+		String city = scanner.next();
+
+		System.out.print("Pincode: ");
+		int pincode = scanner.nextInt();
+
+		System.out.println("Admin account created for: " + name);
+	}
+
+	
+	private static void handleAdminRegistration(Scanner scanner) {
+		scanner.nextLine();
+		System.out.println("\n--- Gym Admin Registration ---");
+
+		System.out.print("Full Name: ");
+		String name = scanner.nextLine();
+
+		System.out.print("Email: ");
+		String email = scanner.next();
+
+		System.out.print("Password: ");
+		String pass = scanner.next();
+
+		System.out.print("Phone Number: ");
+		long phone = scanner.nextLong();
+
+		System.out.print("City: ");
+		String city = scanner.next();
+
+		System.out.print("Pincode: ");
+		int pincode = scanner.nextInt();
+
+		System.out.println("Admin account created for: " + name);
+	}
+
+	private static void handleChangePassword(Scanner scanner) {
+		scanner.nextLine();
+		System.out.print("Enter Username: ");
+		String user = scanner.nextLine();
+		System.out.print("Enter Old Password: ");
+		String oldPass = scanner.nextLine();
+		System.out.print("Enter New Password: ");
+		String newPass = scanner.nextLine();
+		System.out.println("Password updated successfully.");
+	}
 }
