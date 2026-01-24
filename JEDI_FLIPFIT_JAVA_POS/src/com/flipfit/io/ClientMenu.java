@@ -2,6 +2,9 @@ package com.flipfit.io;
 
 import java.util.Scanner;
 
+import com.flipfit.bean.GymCentre;
+import com.flipfit.business.GymCustomerService;
+
 public class ClientMenu {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
@@ -56,8 +59,50 @@ public class ClientMenu {
 		int role = scanner.nextInt();
 
 		System.out.println("Login Successful for " + username + " as Role " + role);
+		
+		if(role == 2) {
+			customerDashboard(scanner);
+		}
 	}
-	
+
+	private static void customerDashboard(Scanner scanner) {
+		// Initialize inside the method
+		GymCustomerService customerService = new GymCustomerService();
+		boolean session = true;
+
+		while (session) {
+			System.out.println("\n--- Customer Dashboard ---");
+			System.out.println("1. View Gym Centres");
+			System.out.println("2. View Bookings");
+			System.out.println("3. Book Slot");
+			System.out.println("4. Cancel Bookings");
+			System.out.println("5. Edit Profile");
+			System.out.println("6. Logout");
+			System.out.print("Choice: ");
+			int choice = scanner.nextInt();
+
+			switch (choice) {
+			case 1:
+				System.out.println("\nAvailable Gyms:");
+				// Use the local instance
+				for (com.flipfit.bean.GymCentre g : customerService.viewCentres()) {
+					System.out.println("ID: " + g.getCentreId() + " | Name: " + g.getName());
+				}
+				break;
+			case 2:
+				System.out.print("Enter Availability ID: ");
+				int id = scanner.nextInt();
+				customerService.bookSlot(id);
+				break;
+			case 3:
+				session = false; // Ends the loop and the method
+				break;
+			default:
+				System.out.println("Invalid choice.");
+			}
+		}
+	}
+
 	private static void handleCustomerRegistration(Scanner scanner) {
 		scanner.nextLine();
 		System.out.println("\n--- Gym Admin Registration ---");
@@ -82,7 +127,6 @@ public class ClientMenu {
 
 		System.out.println("Customer account created for: " + name);
 	}
-	
 
 	private static void handleOwnerRegistration(Scanner scanner) {
 		scanner.nextLine();
@@ -109,7 +153,6 @@ public class ClientMenu {
 		System.out.println("Admin account created for: " + name);
 	}
 
-	
 	private static void handleAdminRegistration(Scanner scanner) {
 		scanner.nextLine();
 		System.out.println("\n--- Gym Admin Registration ---");
