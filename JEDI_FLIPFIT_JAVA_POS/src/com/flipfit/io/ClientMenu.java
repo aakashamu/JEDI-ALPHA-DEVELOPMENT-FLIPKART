@@ -1,5 +1,6 @@
 package com.flipfit.io;
 
+import com.flipfit.business.GymAdminService;
 import com.flipfit.business.GymCustomerService;
 import com.flipfit.business.UserService;
 import java.util.Scanner;
@@ -233,8 +234,71 @@ public class ClientMenu {
 	}
 	
 	private static void adminDashboard(Scanner scanner) {
-		System.out.println("\n--- Admin Dashboard ---");
-		System.out.println("Admin dashboard functionality not yet implemented.");
-		// TODO: Implement admin dashboard features
+		GymAdminService adminService = new GymAdminService();
+		boolean adminSession = true;
+		
+		while (adminSession) {
+			System.out.println("\n--- Gym Admin Dashboard ---");
+			System.out.println("1. Validate Gym Owner");
+			System.out.println("2. Approve Gym Centre");
+			System.out.println("3. Delete Gym Owner");
+			System.out.println("4. View Customer Metrics");
+			System.out.println("5. View Gym Metrics");
+			System.out.println("6. Exit to Main Menu");
+			System.out.print("Enter your choice: ");
+			
+			int choice = scanner.nextInt();
+			
+			switch (choice) {
+				case 1:
+					System.out.print("Enter Gym Owner ID to validate: ");
+					int ownerId = scanner.nextInt();
+					boolean validated = adminService.validateGymOwner(ownerId);
+					if (validated) {
+						System.out.println("Gym Owner validation successful!");
+					} else {
+						System.out.println("Gym Owner validation failed!");
+					}
+					break;
+					
+				case 2:
+					System.out.print("Enter Centre ID to approve: ");
+					int centreId = scanner.nextInt();
+					boolean approved = adminService.approveCentre(centreId);
+					if (approved) {
+						System.out.println("Centre approval successful!");
+					} else {
+						System.out.println("Centre approval failed!");
+					}
+					break;
+					
+				case 3:
+					System.out.print("Enter Gym Owner ID to delete: ");
+					int deleteOwnerId = scanner.nextInt();
+					boolean deleted = adminService.deleteOwner(deleteOwnerId);
+					if (deleted) {
+						System.out.println("Gym Owner deletion successful!");
+					} else {
+						System.out.println("Gym Owner deletion failed!");
+					}
+					break;
+					
+				case 4:
+					adminService.viewCustomerMetrics();
+					break;
+					
+				case 5:
+					adminService.viewGymMetrics();
+					break;
+					
+				case 6:
+					adminSession = false;
+					System.out.println("Exiting Admin Dashboard...");
+					break;
+					
+				default:
+					System.out.println("Invalid choice. Please try again.");
+			}
+		}
 	}
 }

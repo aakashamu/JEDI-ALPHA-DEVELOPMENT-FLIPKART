@@ -68,9 +68,9 @@ public class FlipFitRepository {
         owner1.setPhoneNumber(9876543212L);
         owner1.setCity("Pune");
         owner1.setPincode(560034);
-        owner1.setPan("ABCDE1234F");
+        owner1.setPAN("ABCDE1234F");
         owner1.setAadhaar("123456789012");
-        owner1.setGstin("29ABCDE1234F1ZV");
+        owner1.setGSTIN("29ABCDE1234F1ZV");
         owners.add(owner1);
         users.put("sam@gmail.com", owner1);
         
@@ -82,9 +82,9 @@ public class FlipFitRepository {
         owner2.setPhoneNumber(9876543343L);
         owner2.setCity("Delhi");
         owner2.setPincode(110001);
-        owner2.setPan("FGHIJ5678K");
+        owner2.setPAN("FGHIJ5678K");
         owner2.setAadhaar("345678901234");
-        owner2.setGstin("07FGHIJ5678K2ZL");
+        owner2.setGSTIN("07FGHIJ5678K2ZL");
         owners.add(owner2);
         users.put("sujitha@gmail.com", owner2);
     }
