@@ -1,9 +1,8 @@
 package com.flipfit.io;
 
-import java.util.Scanner;
-
-import com.flipfit.bean.GymCentre;
 import com.flipfit.business.GymCustomerService;
+import com.flipfit.business.UserService;
+import java.util.Scanner;
 
 public class ClientMenu {
 	public static void main(String[] args) {
@@ -49,19 +48,38 @@ public class ClientMenu {
 
 	private static void handleLogin(Scanner scanner) {
 		scanner.nextLine();
-		System.out.print("Username: ");
-		String username = scanner.nextLine();
+		System.out.print("Email: ");
+		String email = scanner.nextLine();
 		System.out.print("Password: ");
 		String password = scanner.nextLine();
 
-		System.out.println("Role: 1. GYM Owner 2. Gym Customer 3. Gym Admin");
-		System.out.print("Enter Role Choice: ");
-		int role = scanner.nextInt();
+		// Use UserService for authentication
+		UserService userService = new UserService();
+		boolean loginSuccess = userService.login(email, password);
 
-		System.out.println("Login Successful for " + username + " as Role " + role);
+		if (loginSuccess) {
+			System.out.println("Login Successful for " + email);
+			
+			// Show role selection after successful login
+			System.out.println("Role: 1. GYM Owner 2. Gym Customer 3. Gym Admin");
+			System.out.print("Enter Role Choice: ");
+			int role = scanner.nextInt();
 
-		if (role == 2) {
-			customerDashboard(scanner);
+			switch (role) {
+				case 1:
+					ownerDashboard(scanner);
+					break;
+				case 2:
+					customerDashboard(scanner);
+					break;
+				case 3:
+					adminDashboard(scanner);
+					break;
+				default:
+					System.out.println("Invalid role choice.");
+			}
+		} else {
+			System.out.println("Login Failed. Invalid email or password.");
 		}
 	}
 
@@ -206,5 +224,17 @@ public class ClientMenu {
 		System.out.print("Enter New Password: ");
 		String newPass = scanner.nextLine();
 		System.out.println("Password updated successfully.");
+	}
+	
+	private static void ownerDashboard(Scanner scanner) {
+		System.out.println("\n--- Owner Dashboard ---");
+		System.out.println("Owner dashboard functionality not yet implemented.");
+		// TODO: Implement owner dashboard features
+	}
+	
+	private static void adminDashboard(Scanner scanner) {
+		System.out.println("\n--- Admin Dashboard ---");
+		System.out.println("Admin dashboard functionality not yet implemented.");
+		// TODO: Implement admin dashboard features
 	}
 }
