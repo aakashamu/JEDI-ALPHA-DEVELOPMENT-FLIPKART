@@ -13,12 +13,19 @@ public class FlipFitRepository {
     public static List<Booking> bookings = new ArrayList<>();
     public static List<GymOwner> owners = new ArrayList<>();
     public static Map<String, User> users = new HashMap<>();
+    
+    // WaitList Collections (DAO for WaitListService)
+    public static Queue<Integer> waitListQueue = new LinkedList<>();
+    public static Map<Integer, WaitListEntry> waitListMap = new HashMap<>();
+    public static List<WaitListEntry> allWaitListEntries = new ArrayList<>();
+    public static Map<Integer, List<Integer>> slotWaitList = new HashMap<>();
 
     static {
         // Initialize sample users for testing
         initializeSampleUsers();
         
-        // Initial Hard-coded data for testing centers
+        // Initialize all hardcoded data
+        initializeHardcodedWaitList();
         GymCentre center1 = new GymCentre();
         center1.setCentreId(1);
         center1.setName("FlipFit Elite - Koramangala");
@@ -34,8 +41,52 @@ public class FlipFitRepository {
         gymCentres.add(center1);
         gymCentres.add(center2);
     }
-    
-    private static void initializeSampleUsers() {
+        /**
+     * Initialize hardcoded waitlist data for testing
+     */
+    private static void initializeHardcodedWaitList() {
+        // Sample WaitList Entry 1
+        WaitListEntry entry1 = new WaitListEntry();
+        entry1.setWaitlistid(2001);
+        entry1.setPosition(1);
+        entry1.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        
+        // Sample WaitList Entry 2
+        WaitListEntry entry2 = new WaitListEntry();
+        entry2.setWaitlistid(2002);
+        entry2.setPosition(2);
+        entry2.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        
+        // Sample WaitList Entry 3
+        WaitListEntry entry3 = new WaitListEntry();
+        entry3.setWaitlistid(2003);
+        entry3.setPosition(3);
+        entry3.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        
+        // Add to Map
+        waitListMap.put(1005, entry1);
+        waitListMap.put(1006, entry2);
+        waitListMap.put(1007, entry3);
+        
+        // Add to List
+        allWaitListEntries.add(entry1);
+        allWaitListEntries.add(entry2);
+        allWaitListEntries.add(entry3);
+        
+        // Add to Queue (FIFO order)
+        waitListQueue.offer(1005);
+        waitListQueue.offer(1006);
+        waitListQueue.offer(1007);
+        
+        // Organize by availability/slot
+        slotWaitList.put(501, new ArrayList<>());
+        slotWaitList.get(501).add(1005);
+        slotWaitList.get(501).add(1006);
+        
+        slotWaitList.put(502, new ArrayList<>());
+        slotWaitList.get(502).add(1007);
+    }
+        private static void initializeSampleUsers() {
         // Sample customers
         GymCustomer customer1 = new GymCustomer();
         customer1.setUserId(101);
