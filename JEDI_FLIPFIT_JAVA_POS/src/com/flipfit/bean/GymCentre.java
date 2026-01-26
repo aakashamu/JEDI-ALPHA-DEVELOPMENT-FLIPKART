@@ -14,6 +14,7 @@ public class GymCentre {
     private String state;
     private int pincode;
     private boolean approved;
+    private int ownerId;  // Track which owner registered this centre
 
     // Getters and Setters
     public int getCentreId() { return centreId; }
@@ -33,5 +34,7 @@ public class GymCentre {
 
     public boolean isApproved() { return approved; }
     public void setApproved(boolean approved) { this.approved = approved; }
-
+    
+    public int getOwnerId() { return ownerId; }
+    public void setOwnerId(int ownerId) { this.ownerId = ownerId; }
 }

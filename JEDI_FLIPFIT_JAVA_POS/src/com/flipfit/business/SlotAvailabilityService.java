@@ -12,7 +12,7 @@ import java.util.*;
 
 public class SlotAvailabilityService implements SlotAvailabilityInterface {
 	private static final Map<Integer, SlotAvailability> slotAvailabilityDB = new HashMap<>();
-	private static int idCounter = 1;
+	private static int idCounter = 2001;  // Start from 2001 to avoid conflicts
 
 	@Override
 	public SlotAvailability addSlotAvailability(SlotAvailability slotAvailability) {

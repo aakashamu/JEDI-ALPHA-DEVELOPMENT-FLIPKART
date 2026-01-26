@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.flipfit.business;
 
 import com.flipfit.bean.User;
@@ -10,10 +7,23 @@ import java.util.Map;
 
 public class UserService implements UserInterface {
     
+    private static String currentLoggedInUserEmail = null;
     private static final Map<String, User> loggedInUsers = new HashMap<>();
     
     @Override
     public boolean login(String email, String password) {
+        // Validate email
+        if (email == null || email.isEmpty()) {
+            System.out.println("ERROR: Email cannot be empty");
+            return false;
+        }
+        
+        // Validate password
+        if (password == null || password.isEmpty()) {
+            System.out.println("ERROR: Password cannot be empty");
+            return false;
+        }
+        
         // Check if user is already logged in
         if (loggedInUsers.containsKey(email)) {
             System.out.println("User " + email + " is already logged in");
@@ -22,7 +32,7 @@ public class UserService implements UserInterface {
         
         // Validate user credentials using repository
         if (!FlipFitRepository.validateUser(email, password)) {
-            System.out.println("Invalid email or password for user: " + email);
+            System.out.println("ERROR: Invalid email or password for user: " + email);
             return false;
         }
         
@@ -30,26 +40,26 @@ public class UserService implements UserInterface {
         User user = FlipFitRepository.getUserByEmail(email);
         if (user != null) {
             loggedInUsers.put(email, user);
-            System.out.println("User " + email + " logged in successfully");
+            currentLoggedInUserEmail = email;
+            System.out.println("✓ User " + email + " logged in successfully");
             return true;
         }
         
-        System.out.println("User not found: " + email);
+        System.out.println("ERROR: User not found: " + email);
         return false;
     }
 
     @Override
     public void logout() {
-        if (loggedInUsers.isEmpty()) {
-            System.out.println("No users are currently logged in");
+        if (currentLoggedInUserEmail == null || currentLoggedInUserEmail.isEmpty()) {
+            System.out.println("ERROR: No user is currently logged in");
             return;
         }
         
-        // For simplicity, logout the first logged in user
-        // In a real implementation, you'd track the current user session
-        String userEmail = loggedInUsers.keySet().iterator().next();
+        String userEmail = currentLoggedInUserEmail;
         loggedInUsers.remove(userEmail);
-        System.out.println("User " + userEmail + " logged out successfully");
+        currentLoggedInUserEmail = null;
+        System.out.println("✓ User " + userEmail + " logged out successfully");
     }
     
     public static User getCurrentUser(String email) {
@@ -58,5 +68,13 @@ public class UserService implements UserInterface {
     
     public static boolean isUserLoggedIn(String email) {
         return loggedInUsers.containsKey(email);
+    }
+    
+    public static String getCurrentLoggedInUser() {
+        return currentLoggedInUserEmail;
+    }
+    
+    public static void setCurrentLoggedInUser(String email) {
+        currentLoggedInUserEmail = email;
     }
 }
