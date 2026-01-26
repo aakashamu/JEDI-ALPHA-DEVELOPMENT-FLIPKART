@@ -8,6 +8,11 @@ package com.flipfit.business;
  */
 public interface GymAdminInterface {
 	/**
+	 * Views all gym owners
+	 */
+	public void viewAllGymOwners();
+	
+	/**
 	 * Validates a Gym Owner
 	 */
 	public boolean validateGymOwner(int ownerId);

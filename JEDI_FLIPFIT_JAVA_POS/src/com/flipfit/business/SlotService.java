@@ -7,7 +7,7 @@ import java.util.*;
 public class SlotService implements SlotInterface {
 
     private static final Map<Integer, Slot> slotDB = new HashMap<>();
-    private static int idCounter = 1;
+    private static int idCounter = 513;  // Start after hardcoded slots (501-512)
 
     @Override
     public Slot addSlot(Slot slot) {

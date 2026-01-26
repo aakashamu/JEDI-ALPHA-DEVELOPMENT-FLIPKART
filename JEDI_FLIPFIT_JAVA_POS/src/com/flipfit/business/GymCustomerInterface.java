@@ -30,4 +30,9 @@ public interface GymCustomerInterface {
      * Updates the customer's personal profile information.
      */
     public void editDetails(String fullName, String email, long phoneNumber, String city, int pincode);
+
+    /**
+     * Displays the customer's current profile information.
+     */
+    public void viewProfile();
 }

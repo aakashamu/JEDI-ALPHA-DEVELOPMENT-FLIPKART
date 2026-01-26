@@ -39,6 +39,7 @@ public class GymOwnerFlipfitMenu {
 
                     // 3. Add it to your service
                     gymOwnerService.addCentre(newCentre);
+                    break;
 
                 case 2:
                     System.out.println("--- Your Gym Centres ---");
