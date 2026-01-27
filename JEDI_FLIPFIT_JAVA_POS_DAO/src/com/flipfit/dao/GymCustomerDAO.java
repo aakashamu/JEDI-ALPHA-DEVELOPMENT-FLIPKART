@@ -1,15 +1,16 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.User;
-import com.flipfit.client.TestConnection; // Import the class that has the connection logic
+import com.flipfit.utils.DBConnection;
 import java.sql.*;
 
 public class GymCustomerDAO implements GymCustomerInterfaceDAO {
 
     @Override
     public void registerCustomer(String fullName, String email, String password, Long phoneNumber, String city, String state, int pincode) {
-        Connection conn = TestConnection.getConnection(); // Changed to TestConnection
+        Connection conn = null;
         try {
+            conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
             String userQuery = "INSERT INTO User (fullName, email, password, phoneNumber, city, state, pincode, roleId) VALUES (?, ?, ?, ?, ?, ?, ?, 2)";
             PreparedStatement userStmt = conn.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS);
@@ -36,6 +37,8 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
         } catch (SQLException e) {
             try { if(conn != null) conn.rollback(); } catch (SQLException se) { se.printStackTrace(); }
             e.printStackTrace();
+        } finally {
+            try { if(conn != null) conn.close(); } catch (SQLException se) { se.printStackTrace(); }
         }
     }
 
@@ -43,7 +46,7 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
     public boolean isUserValid(String email, String password) {
         String query = "SELECT * FROM User WHERE email = ? AND password = ? AND roleId = 2";
         // Fixed: Use TestConnection.getConnection() instead of DBConnection
-        try (Connection conn = TestConnection.getConnection(); 
+        try (Connection conn = DBConnection.getConnection(); 
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
@@ -59,8 +62,7 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
     public User getCustomerById(int userId) {
         User user = new User();
         String query = "SELECT * FROM User WHERE userId = ?";
-        // Fixed: Use TestConnection.getConnection() instead of DBConnection
-        try (Connection conn = TestConnection.getConnection(); 
+        try (Connection conn = DBConnection.getConnection(); 
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
@@ -68,6 +70,11 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
                 user.setUserId(rs.getInt("userId"));
                 user.setFullName(rs.getString("fullName"));
                 user.setEmail(rs.getString("email"));
+                user.setPhoneNumber(rs.getLong("phoneNumber"));
+                user.setCity(rs.getString("city"));
+                user.setState(rs.getString("state"));
+                user.setPincode(rs.getInt("pincode"));
+                user.setRoleId(rs.getInt("roleId"));
             }
         } catch (SQLException e) {
             e.printStackTrace();

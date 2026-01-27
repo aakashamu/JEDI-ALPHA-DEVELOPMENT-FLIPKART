@@ -3,12 +3,36 @@ package com.flipfit.business;
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.GymOwner;
 import com.flipfit.dao.FlipFitRepository;
+import com.flipfit.dao.GymAdminDAOImpl;
+import com.flipfit.dao.GymCentreDAOImpl;
 import java.util.List;
 
 public class GymAdminService implements GymAdminInterface {
 	
+	private GymAdminDAOImpl adminDAO = new GymAdminDAOImpl();
+
+	/**
+	 * Register a new gym admin - saves to database via DAO
+	 */
+	public void registerAdmin(String fullName, String email, String password, Long phoneNumber, 
+	                          String city, String state, int pincode) {
+		adminDAO.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
+	}
+	
 	@Override
 	public void viewAllGymOwners() {
+		// Load owners from database and sync with repository
+		java.util.List<GymOwner> dbOwners = adminDAO.getAllOwners();
+		
+		// Clear and reload the in-memory repository with database data
+		FlipFitRepository.owners.clear();
+		FlipFitRepository.owners.addAll(dbOwners);
+		
+		// Also update the users map
+		for (GymOwner owner : dbOwners) {
+			FlipFitRepository.users.put(owner.getEmail(), owner);
+		}
+		
 		if (FlipFitRepository.owners.isEmpty()) {
 			System.out.println("\nNo gym owners registered yet.");
 			return;
@@ -60,24 +84,43 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// Refresh repository from DB
+		viewAllGymOwners();
+		
+		// First, approve in database
+		boolean dbSuccess = adminDAO.approveOwner(ownerId);
+		if (!dbSuccess) {
+			System.out.println("ERROR: Failed to approve owner in database");
+			return false;
+		}
+		
+		// Then update in-memory repository
 		for (GymOwner owner : FlipFitRepository.owners) {
 			if (owner.getUserId() == ownerId) {
 				if (owner.getIsApproved() == 1) {
-					System.out.println("Owner " + ownerId + " is already approved");
+					System.out.println("Owner " + ownerId + " (" + owner.getFullName() + ") is already approved");
 					return true;
 				} else {
 					owner.setIsApproved(1);
-					System.out.println("✓ Owner " + ownerId + " (" + owner.getFullName() + ") approved successfully");
+					System.out.println("✓ Gym Owner " + ownerId + " (" + owner.getFullName() + ") approved successfully");
 					return true;
 				}
 			}
 		}
 		
-		System.out.println("ERROR: Owner with ID " + ownerId + " not found");
+		System.out.println("ERROR: Gym Owner with ID " + ownerId + " not found");
 		return false;
 	}
 	
 	public void viewPendingCentres() {
+		// Load centres from database and sync with repository
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		List<GymCentre> dbCentres = centreDAO.selectAllGymCentres();
+		
+		// Clear and reload the in-memory repository with database data
+		FlipFitRepository.gymCentres.clear();
+		FlipFitRepository.gymCentres.addAll(dbCentres);
+		
 		List<GymCentre> pendingCentres = FlipFitRepository.gymCentres.stream()
 			.filter(centre -> !centre.isApproved())
 			.toList();
@@ -103,6 +146,14 @@ public class GymAdminService implements GymAdminInterface {
 	}
 	
 	public void viewAllCentres() {
+		// Load centres from database and sync with repository
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		List<GymCentre> dbCentres = centreDAO.selectAllGymCentres();
+		
+		// Clear and reload the in-memory repository with database data
+		FlipFitRepository.gymCentres.clear();
+		FlipFitRepository.gymCentres.addAll(dbCentres);
+		
 		System.out.println("\n========== ALL GYM CENTRES ==========");
 		System.out.println("Total Centres: " + FlipFitRepository.gymCentres.size());
 		System.out.println("-----------------------------------------");
@@ -124,6 +175,9 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// Refresh repository from DB to ensure we have latest IDs
+		viewAllGymOwners();
+		
 		for (GymOwner owner : FlipFitRepository.owners) {
 			if (owner.getUserId() == ownerId) {
 				System.out.println("✓ Gym Owner " + ownerId + " (" + owner.getFullName() + ") validated successfully");
@@ -142,6 +196,14 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// Refresh repository from DB
+		viewAllCentres();
+		
+		// First, approve in database
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		centreDAO.updateGymCentreApproval(centreId, true);
+		
+		// Then update in-memory repository
 		for (GymCentre centre : FlipFitRepository.gymCentres) {
 			if (centre.getCentreId() == centreId) {
 				if (centre.isApproved()) {
@@ -166,6 +228,14 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// First, delete from database
+		boolean dbSuccess = adminDAO.deleteOwner(ownerId);
+		if (!dbSuccess) {
+			System.out.println("ERROR: Failed to delete owner from database");
+			return false;
+		}
+		
+		// Then remove from in-memory repository
 		for (int i = 0; i < FlipFitRepository.owners.size(); i++) {
 			GymOwner owner = FlipFitRepository.owners.get(i);
 			if (owner.getUserId() == ownerId) {
@@ -182,13 +252,25 @@ public class GymAdminService implements GymAdminInterface {
 	
 	@Override
 	public void viewCustomerMetrics() {
+		// Load from DB
+		List<com.flipfit.bean.GymCustomer> allCustomers = adminDAO.getAllCustomers();
+		List<com.flipfit.bean.Booking> allBookings = adminDAO.getAllBookings();
+		
+		// Sync repository
+		FlipFitRepository.customers.clear();
+		for(com.flipfit.bean.GymCustomer c : allCustomers) {
+			FlipFitRepository.customers.put(c.getEmail(), c);
+		}
+		FlipFitRepository.allBookings.clear();
+		FlipFitRepository.allBookings.addAll(allBookings);
+
 		System.out.println("\n--- Customer Metrics ---");
-		System.out.println("Total Customers: " + FlipFitRepository.customers.size());
-		System.out.println("Total Bookings: " + FlipFitRepository.allBookings.size());
+		System.out.println("Total Customers: " + allCustomers.size());
+		System.out.println("Total Bookings: " + allBookings.size());
 		
 		// Show customers by city
 		System.out.println("\nCustomers by City:");
-		FlipFitRepository.customers.values().stream()
+		allCustomers.stream()
 			.collect(java.util.stream.Collectors.groupingBy(
 				customer -> customer.getCity(),
 				java.util.stream.Collectors.counting()
@@ -200,22 +282,33 @@ public class GymAdminService implements GymAdminInterface {
 	
 	@Override
 	public void viewGymMetrics() {
+		// Load from DB
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		List<GymCentre> allCentres = centreDAO.selectAllGymCentres();
+		List<GymOwner> allOwners = adminDAO.getAllOwners();
+		
+		// Sync repository
+		FlipFitRepository.gymCentres.clear();
+		FlipFitRepository.gymCentres.addAll(allCentres);
+		FlipFitRepository.owners.clear();
+		FlipFitRepository.owners.addAll(allOwners);
+
 		System.out.println("\n--- Gym Metrics ---");
-		System.out.println("Total Gym Centres: " + FlipFitRepository.gymCentres.size());
-		System.out.println("Total Gym Owners: " + FlipFitRepository.owners.size());
+		System.out.println("Total Gym Centres: " + allCentres.size());
+		System.out.println("Total Gym Owners: " + allOwners.size());
 		
 		// Show approved vs pending centres
-		long approvedCentres = FlipFitRepository.gymCentres.stream()
+		long approvedCentres = allCentres.stream()
 			.filter(GymCentre::isApproved)
 			.count();
-		long pendingCentres = FlipFitRepository.gymCentres.size() - approvedCentres;
+		long pendingCentres = allCentres.size() - approvedCentres;
 		
 		System.out.println("Approved Centres: " + approvedCentres);
 		System.out.println("Pending Centres: " + pendingCentres);
 		
 		// Show all centres with their status
 		System.out.println("\nAll Centres:");
-		FlipFitRepository.gymCentres.forEach(centre -> {
+		allCentres.forEach(centre -> {
 			String status = centre.isApproved() ? "✓ Approved" : "⚠ Pending";
 			int ownerId = centre.getOwnerId();
 			String ownerInfo = (ownerId > 0) ? "Owner ID: " + ownerId : "No Owner";
@@ -226,7 +319,7 @@ public class GymAdminService implements GymAdminInterface {
 		
 		// Show centres by city
 		System.out.println("\nCentres by City:");
-		FlipFitRepository.gymCentres.stream()
+		allCentres.stream()
 			.collect(java.util.stream.Collectors.groupingBy(
 				centre -> centre.getCity(),
 				java.util.stream.Collectors.counting()

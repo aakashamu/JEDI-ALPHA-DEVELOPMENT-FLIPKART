@@ -13,6 +13,8 @@ public class SlotAvailability {
 	private int slotId;
 	private LocalDate date;
 	private boolean isAvailable;
+	private int seatsAvailable;
+	private int seatsTotal;
 
 	public SlotAvailability() {}
 
@@ -21,6 +23,15 @@ public class SlotAvailability {
 		this.slotId = slotId;
 		this.date = date;
 		this.isAvailable = isAvailable;
+	}
+
+	public SlotAvailability(int id, int slotId, LocalDate date, int seatsAvailable, int seatsTotal) {
+		this.id = id;
+		this.slotId = slotId;
+		this.date = date;
+		this.seatsAvailable = seatsAvailable;
+		this.seatsTotal = seatsTotal;
+		this.isAvailable = seatsAvailable > 0;
 	}
 
 	public int getId() {
@@ -53,5 +64,21 @@ public class SlotAvailability {
 
 	public void setAvailable(boolean available) {
 		isAvailable = available;
+	}
+
+	public int getSeatsAvailable() {
+		return seatsAvailable;
+	}
+
+	public void setSeatsAvailable(int seatsAvailable) {
+		this.seatsAvailable = seatsAvailable;
+	}
+
+	public int getSeatsTotal() {
+		return seatsTotal;
+	}
+
+	public void setSeatsTotal(int seatsTotal) {
+		this.seatsTotal = seatsTotal;
 	}
 }

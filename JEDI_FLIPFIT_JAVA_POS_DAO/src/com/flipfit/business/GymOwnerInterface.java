@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface GymOwnerInterface {
     void addCentre(GymCentre centre);
+    boolean registerNewCentre(String centreName, String city, int numberOfSlots, int slotCapacity);
     List<GymCentre> viewMyCentres();
     List<GymCustomer> viewCustomers(int gymCentreId);
     void requestApproval(int gymOwnerId);
+    void setupSlotsForExistingCentre(int centreId, int numSlots, int capacity);
 }

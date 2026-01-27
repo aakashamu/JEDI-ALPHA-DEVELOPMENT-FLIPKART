@@ -26,36 +26,16 @@ public class WaitListService implements WaitListInterface {
     public boolean addToWaitList(int bookingId) {
         System.out.println("\n========== ADD TO WAIT LIST ==========");
         
-        // Check if booking already in wait list
-        if (FlipFitRepository.waitListMap.containsKey(bookingId)) {
-            System.out.println("ERROR: Booking " + bookingId + " is already in wait list");
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        boolean success = waitlistDAO.addToWaitList(bookingId);
+        
+        if (success) {
+            System.out.println("SUCCESS: Booking " + bookingId + " added to wait list in database");
+            return true;
+        } else {
+            System.out.println("ERROR: Failed to add booking " + bookingId + " to wait list");
             return false;
         }
-        
-        // Get next position
-        int position = FlipFitRepository.allWaitListEntries.size() + 1;
-        
-        // Create new wait list entry
-        WaitListEntry entry = new WaitListEntry();
-        entry.setWaitlistid(2000 + position);
-        entry.setPosition(position);
-        entry.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
-        
-        // Add to Map
-        FlipFitRepository.waitListMap.put(bookingId, entry);
-        
-        // Add to List
-        FlipFitRepository.allWaitListEntries.add(entry);
-        
-        // Add to Queue (FIFO)
-        FlipFitRepository.waitListQueue.offer(bookingId);
-        
-        System.out.println("SUCCESS: Booking " + bookingId + " added to wait list");
-        System.out.println("Position: " + position);
-        System.out.println("Current Wait List Size: " + FlipFitRepository.waitListQueue.size());
-        System.out.println("=====================================\n");
-        
-        return true;
     }
     
     /**
@@ -67,32 +47,10 @@ public class WaitListService implements WaitListInterface {
     public void removeFromWaitList(int bookingId) {
         System.out.println("\n========== REMOVE FROM WAIT LIST ==========");
         
-        // Check if booking exists in wait list
-        if (!FlipFitRepository.waitListMap.containsKey(bookingId)) {
-            System.out.println("ERROR: Booking " + bookingId + " not found in wait list");
-            return;
-        }
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        waitlistDAO.removeFromWaitList(bookingId);
         
-        // Get the entry
-        WaitListEntry entry = FlipFitRepository.waitListMap.get(bookingId);
-        int position = entry.getPosition();
-        
-        // Remove from Map
-        FlipFitRepository.waitListMap.remove(bookingId);
-        
-        // Remove from List
-        FlipFitRepository.allWaitListEntries.remove(entry);
-        
-        // Remove from Queue
-        FlipFitRepository.waitListQueue.remove(bookingId);
-        
-        // Update positions of remaining entries
-        updatePositions();
-        
-        System.out.println("SUCCESS: Booking " + bookingId + " removed from wait list");
-        System.out.println("Was at position: " + position);
-        System.out.println("Current Wait List Size: " + FlipFitRepository.waitListQueue.size());
-        System.out.println("==========================================\n");
+        System.out.println("SUCCESS: Booking " + bookingId + " removed from wait list in database");
     }
     
     /**
@@ -115,24 +73,56 @@ public class WaitListService implements WaitListInterface {
     public boolean updateWaitList() {
         System.out.println("\n========== UPDATE WAIT LIST ==========");
         
-        if (FlipFitRepository.waitListQueue.isEmpty()) {
-            System.out.println("Wait list is empty. No updates needed.");
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        boolean success = waitlistDAO.updateWaitList();
+        
+        if (success) {
+            System.out.println("Wait list updated successfully in database");
+            return true;
+        } else {
+            System.out.println("Wait list is empty or update failed");
             return false;
         }
+    }
+
+    /**
+     * Promote the first person in the waitlist for a specific availability
+     * 
+     * @param availabilityId Availability ID to promote from
+     * @return true if someone was promoted, false otherwise
+     */
+    @Override
+    public boolean promoteFromWaitList(int availabilityId) {
+        System.out.println("\n========== PROMOTE FROM WAIT LIST ==========");
         
-        // Get first person in queue
-        Integer nextBookingId = FlipFitRepository.waitListQueue.peek();
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
         
-        System.out.println("Processing booking ID: " + nextBookingId);
-        System.out.println("Position 1 will be offered the available slot...");
+        // 1. Get the first pending entry for this availability
+        WaitListEntry entry = waitlistDAO.getFirstPendingWaitlistEntry(availabilityId);
         
-        // Remove from wait list
-        removeFromWaitList(nextBookingId);
+        if (entry != null) {
+            System.out.println("Found candidate for promotion: Booking ID " + entry.getBookingId());
+            
+            // 2. Confirm the booking
+            if (bookingDAO.confirmWaitlistBooking(entry.getBookingId())) {
+                System.out.println("SUCCESS: Booking " + entry.getBookingId() + " confirmed!");
+                
+                // 3. Remove from waitlist
+                waitlistDAO.removeFromWaitListByBookingId(entry.getBookingId());
+                
+                // 4. Update remaining positions
+                waitlistDAO.updateWaitlistPositions(availabilityId);
+                
+                return true;
+            } else {
+                System.out.println("ERROR: Failed to confirm waitlisted booking " + entry.getBookingId());
+            }
+        } else {
+            System.out.println("No one on waitlist for Availability ID: " + availabilityId);
+        }
         
-        System.out.println("Booking " + nextBookingId + " has been processed and offered a slot");
-        System.out.println("=====================================\n");
-        
-        return true;
+        return false;
     }
     
     /**
@@ -141,18 +131,18 @@ public class WaitListService implements WaitListInterface {
     public void viewWaitList() {
         System.out.println("\n========== WAIT LIST VIEW ==========");
         
-        if (FlipFitRepository.waitListQueue.isEmpty()) {
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        List<WaitListEntry> entries = waitlistDAO.getAllWaitListEntries();
+        
+        if (entries.isEmpty()) {
             System.out.println("Wait list is empty");
         } else {
-            System.out.println("Total Entries: " + FlipFitRepository.waitListQueue.size());
+            System.out.println("Total Entries: " + entries.size());
             System.out.println("-----------------------------------------");
             
-            int position = 1;
-            for (Integer bookingId : FlipFitRepository.waitListQueue) {
-                WaitListEntry entry = FlipFitRepository.waitListMap.get(bookingId);
-                System.out.println("Position " + position + ": Booking ID " + bookingId +
-                                 " | Added: " + entry.getCreatedAt());
-                position++;
+            for (WaitListEntry entry : entries) {
+                System.out.println("Position " + entry.getPosition() + 
+                                 " | Created: " + entry.getCreatedAt());
             }
         }
         System.out.println("====================================\n");
@@ -167,13 +157,14 @@ public class WaitListService implements WaitListInterface {
     public int getWaitListPosition(int bookingId) {
         System.out.println("\n========== CHECK WAIT LIST POSITION ==========");
         
-        if (!FlipFitRepository.waitListMap.containsKey(bookingId)) {
-            System.out.println("Booking " + bookingId + " is not in wait list");
-            return -1;
-        }
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        int position = waitlistDAO.getWaitListPosition(bookingId);
         
-        int position = FlipFitRepository.waitListMap.get(bookingId).getPosition();
-        System.out.println("Booking " + bookingId + " is at position " + position + " in wait list");
+        if (position > 0) {
+            System.out.println("Booking " + bookingId + " is at position " + position + " in wait list");
+        } else {
+            System.out.println("Booking " + bookingId + " is not in wait list");
+        }
         System.out.println("=======================================\n");
         
         return position;
@@ -185,7 +176,8 @@ public class WaitListService implements WaitListInterface {
      * @return total wait list count
      */
     public int getWaitListCount() {
-        return FlipFitRepository.waitListQueue.size();
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        return waitlistDAO.getAllWaitListEntries().size();
     }
     
     /**

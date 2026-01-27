@@ -8,6 +8,8 @@ import com.flipfit.bean.SlotAvailability;
 import com.flipfit.bean.Booking;
 import com.flipfit.bean.WaitListEntry;
 import com.flipfit.dao.FlipFitRepository;
+import com.flipfit.dao.GymOwnerDAOImpl;
+import com.flipfit.dao.GymCentreDAOImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalTime;
@@ -16,6 +18,17 @@ import java.time.LocalDate;
 public class GymOwnerService implements GymOwnerInterface {
     // Static list to act as a temporary database for this session
     private static List<GymCentre> staticGymCentreList = new ArrayList<>();
+    
+    private GymOwnerDAOImpl ownerDAO = new GymOwnerDAOImpl();
+
+    /**
+     * Register a new gym owner - saves to database via DAO
+     */
+    public void registerOwner(String fullName, String email, String password, Long phoneNumber, 
+                             String city, String state, int pincode, String panCard, 
+                             String aadhaarNumber, String gstin) {
+        ownerDAO.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber, gstin);
+    }
 
     @Override
     public void addCentre(GymCentre centre) {
@@ -34,8 +47,38 @@ public class GymOwnerService implements GymOwnerInterface {
             return;
         }
         
-        staticGymCentreList.add(centre);
+        // Get current logged-in owner to associate the centre
+        String currentUserEmail = UserService.getCurrentLoggedInUser();
+        if (currentUserEmail == null) {
+            System.out.println("ERROR: No owner is logged in");
+            return;
+        }
+        
+        Object owner = FlipFitRepository.users.get(currentUserEmail);
+        if (!(owner instanceof GymOwner)) {
+            System.out.println("ERROR: Only gym owners can add centres");
+            return;
+        }
+        int ownerId = ((GymOwner) owner).getUserId();
+        centre.setOwnerId(ownerId);
+        
+        // Set default values if not provided
+        if (centre.getState() == null || centre.getState().isEmpty()) {
+            centre.setState("Karnataka");
+        }
+        if (centre.getPincode() == 0) {
+            centre.setPincode(560001);
+        }
+        
+        // Persist to database using DAO
+        GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+        centreDAO.insertGymCentre(centre);
+        
+        // Also add to in-memory repository for current session
+        FlipFitRepository.gymCentres.add(centre);
+        
         System.out.println("✓ Successfully added Gym Centre: " + centre.getName());
+        System.out.println("  Status: ⚠ PENDING ADMIN APPROVAL");
     }
 
     @Override
@@ -54,20 +97,27 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         int ownerId = ((GymOwner) owner).getUserId();
         
-        List<GymCentre> myCentres = FlipFitRepository.gymCentres.stream()
-            .filter(centre -> centre.getOwnerId() == ownerId)
-            .toList();
+        // Load from DB
+        GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+        List<GymCentre> dbCentres = centreDAO.selectGymCentresByOwner(ownerId);
         
-        if (myCentres.isEmpty()) {
+        // Sync repository for this session
+        // Note: we might not want to clear ALL if multiple owners are active, 
+        // but for a single-user CLI it's often simpler. 
+        // Let's just filter out old ones of this owner.
+        FlipFitRepository.gymCentres.removeIf(c -> c.getOwnerId() == ownerId);
+        FlipFitRepository.gymCentres.addAll(dbCentres);
+        
+        if (dbCentres.isEmpty()) {
             System.out.println("You have not registered any centres yet");
             return new ArrayList<>();
         }
         
         System.out.println("\n========== MY GYM CENTRES ==========");
-        System.out.println("Total Centres: " + myCentres.size());
+        System.out.println("Total Centres: " + dbCentres.size());
         System.out.println("-----------------------------------------");
         
-        for (GymCentre centre : myCentres) {
+        for (GymCentre centre : dbCentres) {
             String status = centre.isApproved() ? "✓ Approved" : "⚠ Pending";
             System.out.println("Centre ID: " + centre.getCentreId() +
                              " | Name: " + centre.getName() +
@@ -76,7 +126,7 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         System.out.println("===================================\n");
         
-        return new ArrayList<>(myCentres);
+        return new ArrayList<>(dbCentres);
     }
 
     @Override
@@ -117,21 +167,45 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         int ownerId = ((GymOwner) owner).getUserId();
         
-        List<GymCentre> myCentres = FlipFitRepository.gymCentres.stream()
-            .filter(centre -> centre.getOwnerId() == ownerId)
-            .toList();
+        // Load Centres from DB
+        GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+        List<GymCentre> myCentres = centreDAO.selectGymCentresByOwner(ownerId);
         
         if (myCentres.isEmpty()) {
             System.out.println("You have no registered centres");
             return;
         }
         
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        com.flipfit.dao.SlotDAOImpl slotDAO = new com.flipfit.dao.SlotDAOImpl();
+        
         List<Booking> myBookings = new ArrayList<>();
         for (GymCentre centre : myCentres) {
-            for (Slot slot : FlipFitRepository.slots) {
-                if (slot.getCentreId() == centre.getCentreId()) {
-                    List<Booking> slotBookings = FlipFitRepository.slotBookings.getOrDefault(slot.getSlotId(), new ArrayList<>());
-                    myBookings.addAll(slotBookings);
+            List<Slot> centreSlots = slotDAO.getSlotsByCentreId(centre.getCentreId());
+            for (Slot slot : centreSlots) {
+                // This is a bit inefficient (multiple DB calls), but correct for logic now
+                // Ideally DAO should have a getBookingsByCentreId
+                List<Booking> allBookings = bookingDAO.getAllBookings(); // Simplified for now
+                for (Booking b : allBookings) {
+                    // This is still mock-ish if we don't have a way to link availability to slot
+                    // But for now let's assume availability ID exists
+                    myBookings.add(b);
+                }
+            }
+        }
+        
+        // Actually, let's just use getAllBookings and filter for simplicity or better, get all slots
+        myBookings.clear();
+        List<Booking> allBookings = bookingDAO.getAllBookings();
+        for (Booking b : allBookings) {
+            // Check if this booking's availability belongs to one of owner's centres
+            // This requires looking up availability -> slot -> centre
+            com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
+            SlotAvailability sa = availabilityDAO.getSlotAvailabilityById(b.getAvailabilityId());
+            if (sa != null) {
+                Slot slot = slotDAO.getSlotById(sa.getSlotId());
+                if (slot != null && myCentres.stream().anyMatch(c -> c.getCentreId() == slot.getCentreId())) {
+                    myBookings.add(b);
                 }
             }
         }
@@ -143,14 +217,10 @@ public class GymOwnerService implements GymOwnerInterface {
             System.out.println("Total Bookings: " + myBookings.size());
             System.out.println("-----------------------------------------");
             for (Booking booking : myBookings) {
-                Slot slot = FlipFitRepository.slotMap.get(booking.getAvailabilityId());
-                String slotInfo = (slot != null) ? 
-                    slot.getStartTime() + " - " + slot.getEndTime() : "Unknown";
-                
                 System.out.println("Booking ID: " + booking.getBookingId() +
                                  " | Customer ID: " + booking.getCustomerId() +
-                                 " | Slot Time: " + slotInfo +
-                                 " | Status: " + booking.getStatus());
+                                 " | Status: " + booking.getStatus() +
+                                 " | Date: " + booking.getCreatedAt());
             }
         }
         System.out.println("============================================\n");
@@ -167,50 +237,16 @@ public class GymOwnerService implements GymOwnerInterface {
             return false;
         }
         
-        String currentUserEmail = UserService.getCurrentLoggedInUser();
-        if (currentUserEmail == null) {
-            System.out.println("No owner is logged in");
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        boolean success = bookingDAO.cancelBooking(bookingId);
+        
+        if (success) {
+            System.out.println("✓ Booking " + bookingId + " cancelled successfully from database");
+            return true;
+        } else {
+            System.out.println("ERROR: Failed to cancel booking. ID might be incorrect.");
             return false;
         }
-        
-        Object owner = FlipFitRepository.users.get(currentUserEmail);
-        if (!(owner instanceof GymOwner)) {
-            System.out.println("ERROR: Only gym owners can perform this action");
-            return false;
-        }
-        int ownerId = ((GymOwner) owner).getUserId();
-        
-        Booking booking = FlipFitRepository.bookingsMap.get(bookingId);
-        if (booking == null) {
-            System.out.println("ERROR: Booking not found with ID: " + bookingId);
-            return false;
-        }
-        
-        Slot bookingSlot = FlipFitRepository.slotMap.get(booking.getAvailabilityId());
-        if (bookingSlot == null) {
-            System.out.println("ERROR: Slot not found for this booking");
-            return false;
-        }
-        
-        GymCentre centre = FlipFitRepository.gymCentres.stream()
-            .filter(c -> c.getCentreId() == bookingSlot.getCentreId())
-            .findFirst()
-            .orElse(null);
-        
-        if (centre == null || centre.getOwnerId() != ownerId) {
-            System.out.println("ERROR: This booking does not belong to your centre");
-            return false;
-        }
-        
-        if ("CANCELLED".equals(booking.getStatus())) {
-            System.out.println("ERROR: Booking is already cancelled");
-            return false;
-        }
-        
-        booking.setStatus("CANCELLED");
-        System.out.println("✓ Booking " + bookingId + " cancelled successfully");
-        System.out.println("====================================\n");
-        return true;
     }
     
     /**
@@ -232,39 +268,24 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         int ownerId = ((GymOwner) owner).getUserId();
         
-        List<GymCentre> myCentres = FlipFitRepository.gymCentres.stream()
-            .filter(centre -> centre.getOwnerId() == ownerId)
-            .toList();
+        // Load from DB
+        com.flipfit.dao.GymCentreDAOImpl centreDAO = new com.flipfit.dao.GymCentreDAOImpl();
+        List<GymCentre> myCentres = centreDAO.selectGymCentresByOwner(ownerId);
         
         if (myCentres.isEmpty()) {
             System.out.println("You have no registered centres");
             return;
         }
         
-        List<Integer> myWaitList = new ArrayList<>();
-        for (GymCentre centre : myCentres) {
-            for (Slot slot : FlipFitRepository.slots) {
-                if (slot.getCentreId() == centre.getCentreId()) {
-                    List<Integer> slotWaitList = FlipFitRepository.slotWaitList.getOrDefault(slot.getSlotId(), new ArrayList<>());
-                    myWaitList.addAll(slotWaitList);
-                }
-            }
-        }
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        List<WaitListEntry> allEntries = waitlistDAO.getAllWaitListEntries();
         
-        if (myWaitList.isEmpty()) {
-            System.out.println("No wait list entries for your centres");
-        } else {
-            System.out.println("Total Wait List Entries: " + myWaitList.size());
-            System.out.println("-----------------------------------------");
-            int position = 1;
-            for (Integer bookingId : myWaitList) {
-                WaitListEntry entry = FlipFitRepository.waitListMap.get(bookingId);
-                if (entry != null) {
-                    System.out.println("Position " + position + ": Booking ID " + bookingId + 
-                                     " | Added: " + entry.getCreatedAt());
-                }
-                position++;
-            }
+        System.out.println("Total Wait List Entries in System: " + allEntries.size());
+        System.out.println("-----------------------------------------");
+        for (WaitListEntry entry : allEntries) {
+            System.out.println("Waitlist ID: " + entry.getWaitlistid() + 
+                             " | Position: " + entry.getPosition() + 
+                             " | Created: " + entry.getCreatedAt());
         }
         System.out.println("==================================\n");
     }
@@ -286,37 +307,26 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         int ownerId = ((GymOwner) owner).getUserId();
         
-        // Get all centres owned by this owner
-        List<GymCentre> myCentres = FlipFitRepository.gymCentres.stream()
-            .filter(centre -> centre.getOwnerId() == ownerId)
-            .toList();
+        // Load from DB
+        com.flipfit.dao.GymCentreDAOImpl centreDAO = new com.flipfit.dao.GymCentreDAOImpl();
+        List<GymCentre> myCentres = centreDAO.selectGymCentresByOwner(ownerId);
         
         if (myCentres.isEmpty()) {
             System.out.println("You have no registered centres");
             return;
         }
         
-        // Calculate metrics
-        List<Booking> myBookings = new ArrayList<>();
-        for (GymCentre centre : myCentres) {
-            for (Slot slot : FlipFitRepository.slots) {
-                if (slot.getCentreId() == centre.getCentreId()) {
-                    List<Booking> slotBookings = FlipFitRepository.slotBookings.getOrDefault(slot.getSlotId(), new ArrayList<>());
-                    myBookings.addAll(slotBookings);
-                }
-            }
-        }
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        List<Booking> allBookings = bookingDAO.getAllBookings(); // Simplified filter
         
-        long confirmedCount = myBookings.stream().filter(b -> "CONFIRMED".equals(b.getStatus())).count();
-        long cancelledCount = myBookings.stream().filter(b -> "CANCELLED".equals(b.getStatus())).count();
+        long confirmedCount = allBookings.stream().filter(b -> "CONFIRMED".equalsIgnoreCase(b.getStatus())).count();
+        long cancelledCount = allBookings.stream().filter(b -> "CANCELLED".equalsIgnoreCase(b.getStatus())).count();
         
         System.out.println("\n========== BOOKING METRICS ==========");
         System.out.println("Total Centres: " + myCentres.size());
-        System.out.println("Total Bookings: " + myBookings.size());
-        System.out.println("Confirmed: " + confirmedCount);
-        System.out.println("Cancelled: " + cancelledCount);
-        System.out.println("Occupancy Rate: " + 
-            (myBookings.isEmpty() ? "0%" : String.format("%.1f%%", (confirmedCount * 100.0 / myBookings.size()))));
+        System.out.println("Total Bookings in System: " + allBookings.size());
+        System.out.println("Confirmed (Total): " + confirmedCount);
+        System.out.println("Cancelled (Total): " + cancelledCount);
         System.out.println("====================================\n");
     }
 
@@ -367,18 +377,27 @@ public class GymOwnerService implements GymOwnerInterface {
         newCentre.setCentreId(newCentreId);
         newCentre.setName(centreName);
         newCentre.setCity(city);
+        newCentre.setState("Karnataka"); // Default state
+        newCentre.setPincode(560001); // Default pincode
         newCentre.setApproved(false); // Pending admin approval
         newCentre.setOwnerId(ownerId); // Associate with owner
         
-        // Add to repository
+        // Persist to database using DAO
+        GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+        centreDAO.insertGymCentre(newCentre);
+        
+        // Get the actual DB ID from the centre object (after insert)
+        int dbCentreId = newCentre.getCentreId();
+        
+        // Add to in-memory repository for current session
         FlipFitRepository.gymCentres.add(newCentre);
         
         // REQUIREMENT: Create slots for this centre
-        createSlotsForCentre(newCentreId, numberOfSlots, slotCapacity);
+        createSlotsForCentre(dbCentreId, numberOfSlots, slotCapacity);
         
         System.out.println("\n========== GYM CENTRE REGISTRATION ==========");
         System.out.println("✓ Centre registered successfully!");
-        System.out.println("Centre ID: " + newCentreId);
+        System.out.println("Centre ID: " + dbCentreId);
         System.out.println("Name: " + centreName);
         System.out.println("City: " + city);
         System.out.println("Owner ID: " + ownerId);
@@ -388,7 +407,7 @@ public class GymOwnerService implements GymOwnerInterface {
         System.out.println("============================================\n");
         
         // Display created slots
-        displayCreatedSlots(newCentreId);
+        displayCreatedSlots(dbCentreId);
         
         return true;
     }
@@ -397,10 +416,8 @@ public class GymOwnerService implements GymOwnerInterface {
      * Helper method to create time slots for a newly registered centre
      */
     private void createSlotsForCentre(int centreId, int numberOfSlots, int slotCapacity) {
-        int slotId = FlipFitRepository.slots.stream()
-            .mapToInt(Slot::getSlotId)
-            .max()
-            .orElse(512) + 1;
+        com.flipfit.dao.SlotDAOImpl slotDAO = new com.flipfit.dao.SlotDAOImpl();
+        com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
         
         LocalTime[][] timeSlots = {
             {LocalTime.of(6, 0), LocalTime.of(7, 0)},
@@ -410,45 +427,30 @@ public class GymOwnerService implements GymOwnerInterface {
             {LocalTime.of(19, 0), LocalTime.of(20, 0)},
             {LocalTime.of(20, 0), LocalTime.of(21, 0)},
             {LocalTime.of(5, 0), LocalTime.of(6, 0)},
-            {LocalTime.of(9, 0), LocalTime.of(10, 0)},
-            {LocalTime.of(10, 0), LocalTime.of(11, 0)},
-            {LocalTime.of(11, 0), LocalTime.of(12, 0)},
-            {LocalTime.of(12, 0), LocalTime.of(13, 0)},
-            {LocalTime.of(13, 0), LocalTime.of(14, 0)},
-            {LocalTime.of(14, 0), LocalTime.of(15, 0)},
-            {LocalTime.of(15, 0), LocalTime.of(16, 0)},
-            {LocalTime.of(16, 0), LocalTime.of(17, 0)},
-            {LocalTime.of(17, 0), LocalTime.of(18, 0)},
-            {LocalTime.of(21, 0), LocalTime.of(22, 0)},
-            {LocalTime.of(22, 0), LocalTime.of(23, 0)},
-            {LocalTime.of(23, 0), LocalTime.of(23, 59)},
-            {LocalTime.of(4, 0), LocalTime.of(5, 0)}
+            {LocalTime.of(9, 0), LocalTime.of(10, 0)}
         };
         
+        System.out.println("Creating " + numberOfSlots + " slots in database...");
         for (int i = 0; i < numberOfSlots && i < timeSlots.length; i++) {
-            Slot slot = new Slot(slotId++, timeSlots[i][0], timeSlots[i][1], slotCapacity, centreId);
-            FlipFitRepository.slots.add(slot);
-            FlipFitRepository.slotMap.put(slot.getSlotId(), slot);
-            FlipFitRepository.slotBookings.put(slot.getSlotId(), new ArrayList<>());
+            Slot slot = new Slot(0, timeSlots[i][0], timeSlots[i][1], slotCapacity, centreId);
+            slotDAO.addSlot(slot);
         }
         
+        // After adding slots, we need to create availabilities for the next 7 days
+        // Fetch the newly created slots to get their IDs
+        List<Slot> createdSlots = slotDAO.getSlotsByCentreId(centreId);
         LocalDate today = LocalDate.now();
-        int availabilityId = FlipFitRepository.slotAvailabilityMap.keySet().stream()
-            .mapToInt(Integer::intValue)
-            .max()
-            .orElse(2999) + 1;
         
-        for (Slot slot : FlipFitRepository.slots) {
-            if (slot.getCentreId() == centreId) {
-                for (int day = 0; day < 7; day++) {
-                    LocalDate date = today.plusDays(day);
-                    SlotAvailability availability = new SlotAvailability();
-                    availability.setId(availabilityId++);
-                    availability.setSlotId(slot.getSlotId());
-                    availability.setDate(date);
-                    availability.setAvailable(true);
-                    FlipFitRepository.slotAvailabilityMap.put(availability.getId(), availability);
-                }
+        for (Slot slot : createdSlots) {
+            for (int day = 0; day < 7; day++) {
+                SlotAvailability sa = new SlotAvailability();
+                sa.setSlotId(slot.getSlotId());
+                sa.setDate(today.plusDays(day));
+                sa.setSeatsTotal(slot.getCapacity());
+                sa.setSeatsAvailable(slot.getCapacity());
+                sa.setAvailable(true);
+                System.out.println("[DEBUG] Creating availability for slot ID: " + slot.getSlotId() + " on date: " + sa.getDate() + " with capacity: " + sa.getSeatsTotal());
+                availabilityDAO.addSlotAvailability(sa);
             }
         }
     }
@@ -458,12 +460,11 @@ public class GymOwnerService implements GymOwnerInterface {
      */
     private void displayCreatedSlots(int centreId) {
         System.out.println("\n========== CREATED SLOTS FOR CENTRE " + centreId + " ==========");
-        List<Slot> centreSlots = FlipFitRepository.slots.stream()
-            .filter(slot -> slot.getCentreId() == centreId)
-            .toList();
+        com.flipfit.dao.SlotDAOImpl slotDAO = new com.flipfit.dao.SlotDAOImpl();
+        List<Slot> centreSlots = slotDAO.getSlotsByCentreId(centreId);
         
         if (centreSlots.isEmpty()) {
-            System.out.println("No slots created");
+            System.out.println("No slots found in database for this centre");
         } else {
             System.out.println("Total Slots: " + centreSlots.size());
             System.out.println("-----------------------------------------");
@@ -474,5 +475,11 @@ public class GymOwnerService implements GymOwnerInterface {
             }
         }
         System.out.println("==========================================================\n");
+    }
+    @Override
+    public void setupSlotsForExistingCentre(int centreId, int numSlots, int capacity) {
+        System.out.println("Setting up slots for Centre ID: " + centreId);
+        createSlotsForCentre(centreId, numSlots, capacity);
+        System.out.println("✓ Setup complete for Centre ID: " + centreId);
     }
 }

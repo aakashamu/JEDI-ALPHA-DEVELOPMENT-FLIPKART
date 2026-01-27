@@ -35,4 +35,9 @@ public interface GymCustomerInterface {
      * Displays the customer's current profile information.
      */
     public void viewProfile();
+
+    /**
+     * Lists all available slots for a given gym centre.
+     */
+    public void viewAvailableSlots(int centreId);
 }
