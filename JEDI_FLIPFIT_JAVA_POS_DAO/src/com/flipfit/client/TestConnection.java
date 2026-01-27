@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class TestConnection {
     // This method allows other classes to get the connection
     public static Connection getConnection() {
-        String url = "jdbc:mysql://localhost:3306/flipfit_db"; // Match your DB name exactly
+        String url = "jdbc:mysql://localhost:3306/FlipFitDB"; // Match your DB name exactly
         String user = "root";
-        String password = "purae9If!@#%"; 
+        String password = "root"; 
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

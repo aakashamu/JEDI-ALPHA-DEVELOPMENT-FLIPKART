@@ -5,6 +5,7 @@ import com.flipfit.business.GymAdminService;
 import com.flipfit.business.GymCustomerService;
 import com.flipfit.business.UserService;
 import com.flipfit.business.WaitListService;
+import com.flipfit.dao.GymCustomerDAO;
 import java.util.Scanner;
 
 public class ClientMenu {
@@ -288,19 +289,21 @@ public class ClientMenu {
         System.out.println("\n--- Gym Customer Registration ---");
 
         System.out.print("Full Name: ");
-        scanner.nextLine();
+        String fullName = scanner.nextLine();
         System.out.print("Email: ");
-        scanner.next();
+        String email = scanner.nextLine();
         System.out.print("Password: ");
-        scanner.next();
+        String password = scanner.nextLine();
         System.out.print("Phone Number: ");
-        scanner.nextLong();
+        Long phoneNumber = scanner.nextLong();
+        scanner.nextLine();
         System.out.print("City: ");
-        scanner.next();
+        String city = scanner.nextLine();
         System.out.print("Pincode: ");
-        scanner.nextInt();
+        int pincode = scanner.nextInt();
 
-        System.out.println("Customer account created successfully.");
+        GymCustomerDAO gymCustomerDAO = new GymCustomerDAO();
+        gymCustomerDAO.registerCustomer(fullName, email, password, phoneNumber, city, "", pincode);
     }
 
     private static void handleOwnerRegistration(Scanner scanner) {

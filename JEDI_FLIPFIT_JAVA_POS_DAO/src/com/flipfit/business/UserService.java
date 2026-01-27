@@ -2,6 +2,7 @@ package com.flipfit.business;
 
 import com.flipfit.bean.User;
 import com.flipfit.dao.FlipFitRepository;
+import com.flipfit.dao.UserDAO;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ public class UserService implements UserInterface {
     
     private static String currentLoggedInUserEmail = null;
     private static final Map<String, User> loggedInUsers = new HashMap<>();
+    private static UserDAO userDAO = new UserDAO();
     
     @Override
     public boolean login(String email, String password) {
@@ -30,14 +32,14 @@ public class UserService implements UserInterface {
             return true;
         }
         
-        // Validate user credentials using repository
-        if (!FlipFitRepository.validateUser(email, password)) {
+        // Validate user credentials using UserDAO (from database)
+        if (!userDAO.login(email, password)) {
             System.out.println("ERROR: Invalid email or password for user: " + email);
             return false;
         }
         
-        // Get user from repository
-        User user = FlipFitRepository.getUserByEmail(email);
+        // Get user from database
+        User user = userDAO.getUserDetails(email);
         if (user != null) {
             loggedInUsers.put(email, user);
             currentLoggedInUserEmail = email;

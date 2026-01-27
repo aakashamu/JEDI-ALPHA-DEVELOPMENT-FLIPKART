@@ -14,7 +14,9 @@ public class User {
     private String password;
     private long phoneNumber;
     private String city;
+    private String state;
     private int pincode;
+    private int roleId;
 
     // Default constructor
     public User() {
@@ -87,6 +89,22 @@ public class User {
 
     public void setPincode(int pincode) {
         this.pincode = pincode;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public int getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
     // Methods as per class diagram

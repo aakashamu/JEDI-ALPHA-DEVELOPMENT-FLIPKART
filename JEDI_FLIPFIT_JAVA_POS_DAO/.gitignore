@@ -1,0 +1,23 @@
+# IDE Configuration
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+
+# Build artifacts
+target/
+bin/
+*.class
+*.jar
+
+# Dependencies
+lib/
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+
+# Maven
+.m2/
