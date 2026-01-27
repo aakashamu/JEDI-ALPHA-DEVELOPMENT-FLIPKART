@@ -19,9 +19,10 @@ public class FlipFitRepository {
     public static List<Slot> slots = new ArrayList<>();
     public static Map<Integer, Slot> slotMap = new HashMap<>(); // slotId -> Slot
     public static Map<Integer, List<Booking>> slotBookings = new HashMap<>(); // slotId -> List of bookings
-    
+
     // SlotAvailability Collections (DAO for Date-aware availability)
-    public static Map<Integer, SlotAvailability> slotAvailabilityMap = new HashMap<>(); // availabilityId -> SlotAvailability
+    public static Map<Integer, SlotAvailability> slotAvailabilityMap = new HashMap<>(); // availabilityId ->
+                                                                                        // SlotAvailability
 
     // WaitList Collections (DAO for WaitListService)
     public static Queue<Integer> waitListQueue = new LinkedList<>();
@@ -33,6 +34,11 @@ public class FlipFitRepository {
     public static Map<Integer, Booking> bookingsMap = new HashMap<>();
     public static List<Booking> allBookings = new ArrayList<>();
     public static Map<Integer, List<Booking>> customerBookings = new HashMap<>();
+
+    // Notification Collections (DAO for NotificationService)
+    public static Map<Integer, Notification> notificationMap = new HashMap<>(); // notificationId -> Notification
+    public static Map<Integer, List<Notification>> userNotifications = new HashMap<>(); // userId -> List of
+                                                                                        // Notifications
 
     static {
         // Initialize sample users for testing
@@ -75,13 +81,13 @@ public class FlipFitRepository {
         Slot slot1 = new Slot(501, java.time.LocalTime.of(6, 0), java.time.LocalTime.of(7, 0), 10, 1);
         Slot slot2 = new Slot(502, java.time.LocalTime.of(7, 0), java.time.LocalTime.of(8, 0), 10, 1);
         Slot slot3 = new Slot(503, java.time.LocalTime.of(8, 0), java.time.LocalTime.of(9, 0), 10, 1);
-        
+
         slots.addAll(List.of(slot1, slot2, slot3));
-        
+
         slotMap.put(501, slot1);
         slotMap.put(502, slot2);
         slotMap.put(503, slot3);
-        
+
         for (Slot slot : slots) {
             slotBookings.put(slot.getSlotId(), new ArrayList<>());
         }
@@ -93,17 +99,17 @@ public class FlipFitRepository {
     private static void initializeSlotAvailability() {
         java.time.LocalDate today = java.time.LocalDate.now();
         int availabilityId = 3000;
-        
+
         for (Slot slot : slots) {
             for (int day = 0; day < 7; day++) {
                 java.time.LocalDate date = today.plusDays(day);
-                
+
                 SlotAvailability availability = new SlotAvailability();
                 availability.setId(availabilityId++);
                 availability.setSlotId(slot.getSlotId());
                 availability.setDate(date);
                 availability.setAvailable(true);
-                
+
                 slotAvailabilityMap.put(availability.getId(), availability);
             }
         }
