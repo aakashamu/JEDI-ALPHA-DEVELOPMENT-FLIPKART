@@ -10,7 +10,7 @@ public class DBConnection {
     // Database credentials
     private static final String URL = "jdbc:mysql://localhost:3306/FlipFitDB";
     private static final String USER = "root";
-    private static final String PASSWORD = "Niu2Xei2!@#%";
+    private static final String PASSWORD = "password";
 
     /**
      * Establishes a connection to the database
