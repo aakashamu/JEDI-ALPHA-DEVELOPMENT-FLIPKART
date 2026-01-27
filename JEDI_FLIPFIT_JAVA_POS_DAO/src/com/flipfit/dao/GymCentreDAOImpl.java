@@ -7,8 +7,8 @@ import java.util.List;
 
 public class GymCentreDAOImpl implements GymCentreDAO {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/FlipFitDB";
-    private static final String USER = "root"; // Set your MySQL username
-    private static final String PASS = "ayurvati#439"; // Set your MySQL password
+    private static final String USER = "root";
+    private static final String PASS = "ayurvati#439";
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, USER, PASS);
