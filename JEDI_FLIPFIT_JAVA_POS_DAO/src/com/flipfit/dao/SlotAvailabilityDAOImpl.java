@@ -17,8 +17,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             
             stmt.setInt(1, slotAvailability.getSlotId());
             stmt.setDate(2, Date.valueOf(slotAvailability.getDate()));
-            stmt.setInt(3, 10); // Default total capacity
-            stmt.setInt(4, slotAvailability.isAvailable() ? 10 : 0);
+            stmt.setInt(3, slotAvailability.getSeatsTotal()); // Use bean value instead of hardcoded 10
+            stmt.setInt(4, slotAvailability.isAvailable() ? slotAvailability.getSeatsTotal() : 0);
             
             stmt.executeUpdate();
             System.out.println("Slot availability added successfully!");
@@ -35,7 +35,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             
             stmt.setInt(1, slotAvailability.getSlotId());
             stmt.setDate(2, Date.valueOf(slotAvailability.getDate()));
-            stmt.setInt(3, slotAvailability.isAvailable() ? 10 : 0);
+            stmt.setInt(3, slotAvailability.isAvailable() ? slotAvailability.getSeatsTotal() : 0);
             stmt.setInt(4, id);
             
             return stmt.executeUpdate() > 0;

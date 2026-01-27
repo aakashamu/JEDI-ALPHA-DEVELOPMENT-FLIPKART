@@ -1,11 +1,10 @@
 package com.flipfit.dao;
 
+import java.util.List;
 import com.flipfit.bean.GymCentre;
+import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
-
-import com.flipfit.utils.DBConnection;
 
 public class GymCentreDAOImpl implements GymCentreDAO {
     

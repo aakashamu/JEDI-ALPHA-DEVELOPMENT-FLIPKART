@@ -84,6 +84,46 @@ public class WaitListService implements WaitListInterface {
             return false;
         }
     }
+
+    /**
+     * Promote the first person in the waitlist for a specific availability
+     * 
+     * @param availabilityId Availability ID to promote from
+     * @return true if someone was promoted, false otherwise
+     */
+    @Override
+    public boolean promoteFromWaitList(int availabilityId) {
+        System.out.println("\n========== PROMOTE FROM WAIT LIST ==========");
+        
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        
+        // 1. Get the first pending entry for this availability
+        WaitListEntry entry = waitlistDAO.getFirstPendingWaitlistEntry(availabilityId);
+        
+        if (entry != null) {
+            System.out.println("Found candidate for promotion: Booking ID " + entry.getBookingId());
+            
+            // 2. Confirm the booking
+            if (bookingDAO.confirmWaitlistBooking(entry.getBookingId())) {
+                System.out.println("SUCCESS: Booking " + entry.getBookingId() + " confirmed!");
+                
+                // 3. Remove from waitlist
+                waitlistDAO.removeFromWaitListByBookingId(entry.getBookingId());
+                
+                // 4. Update remaining positions
+                waitlistDAO.updateWaitlistPositions(availabilityId);
+                
+                return true;
+            } else {
+                System.out.println("ERROR: Failed to confirm waitlisted booking " + entry.getBookingId());
+            }
+        } else {
+            System.out.println("No one on waitlist for Availability ID: " + availabilityId);
+        }
+        
+        return false;
+    }
     
     /**
      * View all wait list entries

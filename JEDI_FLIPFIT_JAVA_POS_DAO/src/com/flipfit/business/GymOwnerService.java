@@ -446,7 +446,10 @@ public class GymOwnerService implements GymOwnerInterface {
                 SlotAvailability sa = new SlotAvailability();
                 sa.setSlotId(slot.getSlotId());
                 sa.setDate(today.plusDays(day));
+                sa.setSeatsTotal(slot.getCapacity());
+                sa.setSeatsAvailable(slot.getCapacity());
                 sa.setAvailable(true);
+                System.out.println("[DEBUG] Creating availability for slot ID: " + slot.getSlotId() + " on date: " + sa.getDate() + " with capacity: " + sa.getSeatsTotal());
                 availabilityDAO.addSlotAvailability(sa);
             }
         }
