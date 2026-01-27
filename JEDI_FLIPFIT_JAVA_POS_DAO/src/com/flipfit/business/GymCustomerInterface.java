@@ -19,12 +19,13 @@ public interface GymCustomerInterface {
     /**
      * Books a specific slot based on the availability ID.
      */
-    public Booking bookSlot(int slotAvailabilityId);
+    public Booking bookSlot(int slotAvailabilityId)
+            throws com.flipfit.exception.SlotNotAvailableException, com.flipfit.exception.BookingNotDoneException;
 
     /**
      * Cancels an existing booking.
      */
-    public boolean cancelBooking(int bookingId);
+    public boolean cancelBooking(int bookingId) throws com.flipfit.exception.BookingNotDoneException;
 
     /**
      * Updates the customer's personal profile information.

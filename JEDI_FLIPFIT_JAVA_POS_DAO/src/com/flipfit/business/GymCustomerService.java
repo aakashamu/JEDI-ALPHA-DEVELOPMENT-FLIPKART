@@ -8,6 +8,8 @@ import com.flipfit.bean.SlotAvailability;
 import com.flipfit.bean.WaitListEntry;
 import com.flipfit.dao.FlipFitRepository;
 import com.flipfit.dao.GymCustomerDAO;
+import com.flipfit.exception.BookingNotDoneException;
+import com.flipfit.exception.SlotNotAvailableException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,47 +20,43 @@ public class GymCustomerService implements GymCustomerInterface {
     /**
      * Register a new customer - saves to database via DAO
      */
-    public void registerCustomer(String fullName, String email, String password, Long phoneNumber, String city, String state, int pincode) {
+    public void registerCustomer(String fullName, String email, String password, Long phoneNumber, String city,
+            String state, int pincode) {
         customerDAO.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
     }
 
     private static String getCurrentUserEmail() {
-        // Get the first logged-in user (simplified session management)
-        // In a real implementation, you'd have proper session tracking
         return UserService.getCurrentLoggedInUser();
     }
 
     @Override
     public List<GymCentre> viewCentres() {
-        // Load from DB
         com.flipfit.dao.GymCentreDAOImpl centreDAO = new com.flipfit.dao.GymCentreDAOImpl();
         List<GymCentre> allCentres = centreDAO.selectAllGymCentres();
-        
-        // Sync repository
+
         FlipFitRepository.gymCentres.clear();
         FlipFitRepository.gymCentres.addAll(allCentres);
 
-        // REQUIREMENT: Customers should only see APPROVED centres
         List<GymCentre> approvedCentres = allCentres.stream()
-            .filter(GymCentre::isApproved)
-            .toList();
-        
+                .filter(GymCentre::isApproved)
+                .toList();
+
         if (approvedCentres.isEmpty()) {
             System.out.println("No gym centres available");
             return new ArrayList<>();
         }
-        
+
         System.out.println("\n========== ALL GYM CENTRES ==========");
         System.out.println("Total Centres: " + approvedCentres.size());
         System.out.println("-----------------------------------------");
-        
+
         for (GymCentre centre : approvedCentres) {
             System.out.println("Centre ID: " + centre.getCentreId() +
-                             " | Name: " + centre.getName() +
-                             " | City: " + centre.getCity());
+                    " | Name: " + centre.getName() +
+                    " | City: " + centre.getCity());
         }
         System.out.println("===================================\n");
-        
+
         return new ArrayList<>(approvedCentres);
     }
 
@@ -69,53 +67,49 @@ public class GymCustomerService implements GymCustomerInterface {
             System.out.println("No customer is currently logged in");
             return new ArrayList<>();
         }
-        
+
         GymCustomer currentCustomer = FlipFitRepository.customers.get(currentUserEmail);
         if (currentCustomer == null) {
             System.out.println("Customer profile not found");
             return new ArrayList<>();
         }
 
-        // Load from DB
         com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
         List<Booking> dbBookings = bookingDAO.getCustomerBookings(currentCustomer.getUserId());
 
-        // Sync repository
         FlipFitRepository.customerBookings.put(currentCustomer.getUserId(), new ArrayList<>(dbBookings));
-        
+
         System.out.println("\n========== YOUR BOOKINGS ==========");
         if (dbBookings.isEmpty()) {
             System.out.println("You have no bookings yet.");
         } else {
             for (Booking b : dbBookings) {
-                System.out.println("Booking ID: " + b.getBookingId() + 
-                                 " | Availability ID: " + b.getAvailabilityId() +
-                                 " | Status: " + b.getStatus() +
-                                 " | Date: " + b.getCreatedAt());
+                System.out.println("Booking ID: " + b.getBookingId() +
+                        " | Availability ID: " + b.getAvailabilityId() +
+                        " | Status: " + b.getStatus() +
+                        " | Date: " + b.getCreatedAt());
             }
         }
         System.out.println("===================================\n");
-        
+
         return dbBookings;
     }
 
     @Override
-    public Booking bookSlot(int slotAvailabilityId) {
+    public Booking bookSlot(int slotAvailabilityId)
+            throws SlotNotAvailableException, BookingNotDoneException {
         if (slotAvailabilityId <= 0) {
-            System.out.println("ERROR: Invalid slot availability ID");
-            return null;
+            throw new SlotNotAvailableException("ERROR: Invalid slot availability ID");
         }
-        
+
         String currentUserEmail = getCurrentUserEmail();
         if (currentUserEmail == null) {
-            System.out.println("No customer is currently logged in");
-            return null;
+            throw new BookingNotDoneException("No customer is currently logged in");
         }
-        
+
         GymCustomer currentCustomer = FlipFitRepository.customers.get(currentUserEmail);
         if (currentCustomer == null) {
-            System.out.println("Customer profile not found");
-            return null;
+            throw new BookingNotDoneException("Customer profile not found");
         }
 
         com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
@@ -123,43 +117,42 @@ public class GymCustomerService implements GymCustomerInterface {
 
         SlotAvailability availability = availabilityDAO.getSlotAvailabilityById(slotAvailabilityId);
         if (availability == null) {
-            System.out.println("ERROR: Slot Availability not found with ID: " + slotAvailabilityId);
-            return null;
+            throw new SlotNotAvailableException(
+                    "ERROR: Slot Availability not found with ID: " + slotAvailabilityId);
         }
 
         Slot slot = slotDAO.getSlotById(availability.getSlotId());
         if (slot == null) {
-            System.out.println("ERROR: Slot not found with ID: " + availability.getSlotId());
-            return null;
+            throw new SlotNotAvailableException(
+                    "ERROR: Slot not found with ID: " + availability.getSlotId());
         }
-        
-        // Check if seats are available for this specific availability
+
         if (availability.getSeatsAvailable() <= 0) {
             System.out.println("⚠ Slot is FULL for this availability (ID: " + slotAvailabilityId + ")");
             System.out.println("Adding you to the waitlist...");
-            
-            // Add to waitlist
+
             com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
             com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
-            
+
             Booking pendingBooking = bookingDAO.createPendingBooking(currentCustomer.getUserId(), slotAvailabilityId);
             if (pendingBooking != null) {
-                int waitlistPosition = waitlistDAO.addToWaitList(pendingBooking.getBookingId(), currentCustomer.getUserId(), slotAvailabilityId);
+                int waitlistPosition = waitlistDAO.addToWaitList(pendingBooking.getBookingId(),
+                        currentCustomer.getUserId(), slotAvailabilityId);
                 System.out.println("✓ Added to waitlist at position: " + waitlistPosition);
-                System.out.println("You will be notified when a seat becomes available.");
                 return pendingBooking;
             } else {
-                System.out.println("ERROR: Failed to add to waitlist.");
-                return null;
+                throw new BookingNotDoneException("ERROR: Failed to add to waitlist.");
             }
         }
-        
-        List<Booking> customerExistingBookings = FlipFitRepository.customerBookings.getOrDefault(currentCustomer.getUserId(), new ArrayList<>());
-        
+
+        List<Booking> customerExistingBookings = FlipFitRepository.customerBookings
+                .getOrDefault(currentCustomer.getUserId(), new ArrayList<>());
+
         List<Booking> conflictingBookings = new ArrayList<>();
         for (Booking existingBooking : customerExistingBookings) {
             if ("CONFIRMED".equals(existingBooking.getStatus())) {
-                SlotAvailability existingSA = availabilityDAO.getSlotAvailabilityById(existingBooking.getAvailabilityId());
+                SlotAvailability existingSA = availabilityDAO
+                        .getSlotAvailabilityById(existingBooking.getAvailabilityId());
                 if (existingSA != null) {
                     Slot existingSlot = slotDAO.getSlotById(existingSA.getSlotId());
                     if (existingSlot != null && slotsOverlap(slot, existingSlot)) {
@@ -168,66 +161,109 @@ public class GymCustomerService implements GymCustomerInterface {
                 }
             }
         }
-        
+
         if (!conflictingBookings.isEmpty()) {
             System.out.println("INFO: Found conflicting bookings. Removing old bookings from database...");
             for (Booking conflictingBooking : conflictingBookings) {
-                // IMPORTANT: Actually cancel in DB to restore seats and update status
                 this.cancelBooking(conflictingBooking.getBookingId());
                 System.out.println("Cancelled conflicting booking ID: " + conflictingBooking.getBookingId());
             }
         }
-        
-        // Persist to database
+
         com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
         Booking newBooking = bookingDAO.createBooking(currentCustomer.getUserId(), slotAvailabilityId);
-        
+
         if (newBooking != null) {
-            // Decrement available seats by 1 in database
             availabilityDAO.decrementSeats(slotAvailabilityId);
-            
-            // Also sync in-memory repository for current session
+
             FlipFitRepository.allBookings.add(newBooking);
             FlipFitRepository.bookingsMap.put(newBooking.getBookingId(), newBooking);
-            FlipFitRepository.customerBookings.computeIfAbsent(currentCustomer.getUserId(), k -> new ArrayList<>()).add(newBooking);
+            FlipFitRepository.customerBookings.computeIfAbsent(currentCustomer.getUserId(), k -> new ArrayList<>())
+                    .add(newBooking);
             FlipFitRepository.slotBookings.computeIfAbsent(slotAvailabilityId, k -> new ArrayList<>()).add(newBooking);
-            
+
             System.out.println("✓ Booking successful! ID: " + newBooking.getBookingId());
             System.out.println("Slot Time: " + slot.getStartTime() + " - " + slot.getEndTime());
             return newBooking;
         } else {
-            System.out.println("ERROR: Failed to create booking in database.");
-            return null;
+            throw new BookingNotDoneException("ERROR: Failed to create booking in database.");
         }
     }
-    
-    /**
-     * Check if two slots overlap in time - MUST be in same centre
-     * REQUIREMENT: Prevent double booking of overlapping time slots
-     */
+
     private boolean slotsOverlap(Slot slot1, Slot slot2) {
         boolean sameCentre = slot1.getCentreId() == slot2.getCentreId();
-        boolean timeOverlap = !(slot1.getEndTime().isBefore(slot2.getStartTime()) || 
-                                slot2.getEndTime().isBefore(slot1.getStartTime()));
-        
+        boolean timeOverlap = !(slot1.getEndTime().isBefore(slot2.getStartTime()) ||
+                slot2.getEndTime().isBefore(slot1.getStartTime()));
         return sameCentre && timeOverlap;
     }
-    
 
+    private void removeBookingCompletely(int bookingId) {
+        Booking booking = FlipFitRepository.bookingsMap.remove(bookingId);
+        if (booking != null) {
+            FlipFitRepository.allBookings.removeIf(b -> b.getBookingId() == bookingId);
+            FlipFitRepository.customerBookings.values()
+                    .forEach(bookings -> bookings.removeIf(b -> b.getBookingId() == bookingId));
+            FlipFitRepository.slotBookings.values()
+                    .forEach(bookings -> bookings.removeIf(b -> b.getBookingId() == bookingId));
+        }
+    }
 
     @Override
-    public boolean cancelBooking(int bookingId) {
+    public boolean cancelBooking(int bookingId) throws BookingNotDoneException {
         if (bookingId <= 0) {
-            System.out.println("ERROR: Invalid booking ID");
-            return false;
+            throw new BookingNotDoneException("ERROR: Invalid booking ID");
         }
-        
-        // Use BookingService to handle cancellation consistently
-        BookingService bookingService = new BookingService();
-        boolean success = bookingService.cancelBooking(bookingId);
-        
-        if (success) {
-            // Additional cleanup in memory repository for customer service context
+
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        boolean dbSuccess = bookingDAO.cancelBooking(bookingId);
+
+        if (dbSuccess) {
+            Booking booking = bookingDAO.getBookingById(bookingId);
+            System.out.println("[DEBUG] Fetched booking from DB: " + booking);
+
+            if (booking != null) {
+                String originalStatus = booking.getStatus();
+                System.out.println("[DEBUG] Original status from database: " + originalStatus);
+
+                if ("CONFIRMED".equals(originalStatus)) {
+                    System.out.println("[DEBUG] Entered CONFIRMED branch");
+                    int availabilityId = booking.getAvailabilityId();
+                    System.out.println("[DEBUG] Cancelled booking from availability: " + availabilityId);
+                    com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
+                    availabilityDAO.incrementSeats(availabilityId);
+
+                    com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+                    WaitListEntry nextInLine = waitlistDAO.getFirstPendingWaitlistEntry(availabilityId);
+                    System.out.println("[DEBUG] nextInLine result: " + nextInLine);
+                    if (nextInLine != null) {
+                        System.out.println("[DEBUG] Promoting booking ID: " + nextInLine.getBookingId());
+                        boolean promoted = bookingDAO.confirmWaitlistBooking(nextInLine.getBookingId());
+                        System.out.println("[DEBUG] Promotion result: " + promoted);
+
+                        if (promoted) {
+                            waitlistDAO.removeFromWaitList(nextInLine.getBookingId());
+                            System.out.println("[DEBUG] Removed booking " + nextInLine.getBookingId() + " from waitlist");
+                            waitlistDAO.updateWaitlistPositions(availabilityId);
+                            System.out.println("[DEBUG] Updated waitlist positions for availability: " + availabilityId);
+                            System.out.println("✓ Customer at position #1 has been promoted from waitlist!");
+                        }
+                    } else {
+                        System.out.println("[DEBUG] No pending bookings found for availability: " + availabilityId);
+                    }
+                } else {
+                    System.out.println("[DEBUG] Original status was: " + originalStatus + ", not CONFIRMED");
+                }
+
+                if ("PENDING".equals(originalStatus)) {
+                    com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+                    waitlistDAO.removeFromWaitList(bookingId);
+                    System.out.println("✓ Removed from waitlist.");
+                }
+            } else {
+                System.out.println("[DEBUG] Booking not found in database!");
+            }
+
+            // Sync repository for current session
             String currentUserEmail = getCurrentUserEmail();
             if (currentUserEmail != null) {
                 GymCustomer customer = FlipFitRepository.customers.get(currentUserEmail);
@@ -238,52 +274,46 @@ public class GymCustomerService implements GymCustomerInterface {
                     }
                 }
             }
+            System.out.println("✓ Booking cancelled successfully! ID: " + bookingId);
             return true;
+        } else {
+            throw new BookingNotDoneException("ERROR: Failed to cancel booking in database.");
         }
-        
-        return false;
     }
 
     @Override
     public void editDetails(String fullName, String email, long phoneNumber, String city, int pincode) {
-        // Input validation
         if (email == null || email.isEmpty()) {
             System.out.println("ERROR: Email cannot be empty");
             return;
         }
-        
         if (fullName == null || fullName.isEmpty()) {
             System.out.println("ERROR: Full name cannot be empty");
             return;
         }
-        
         if (phoneNumber <= 0 || String.valueOf(phoneNumber).length() < 10) {
             System.out.println("ERROR: Invalid phone number");
             return;
         }
-        
         if (city == null || city.isEmpty()) {
             System.out.println("ERROR: City cannot be empty");
             return;
         }
-        
         if (pincode <= 0 || String.valueOf(pincode).length() != 6) {
             System.out.println("ERROR: Invalid pincode (must be 6 digits)");
             return;
         }
-        
-        // Sync with DB
+
         com.flipfit.dao.UserDAO userDAO = new com.flipfit.dao.UserDAO();
         com.flipfit.bean.User user = userDAO.getUserDetails(email);
-        
+
         if (user != null) {
             user.setFullName(fullName);
             user.setPhoneNumber(phoneNumber);
             user.setCity(city);
             user.setPincode(pincode);
             userDAO.updateProfile(user);
-            
-            // Also update in-memory repository
+
             GymCustomer customer = FlipFitRepository.customers.get(email);
             if (customer != null) {
                 customer.setFullName(fullName);
@@ -299,19 +329,18 @@ public class GymCustomerService implements GymCustomerInterface {
 
     @Override
     public void viewProfile() {
-        // Get current logged-in customer
         String currentUserEmail = getCurrentUserEmail();
         if (currentUserEmail == null) {
             System.out.println("No customer is currently logged in");
             return;
         }
-        
+
         GymCustomer customer = FlipFitRepository.customers.get(currentUserEmail);
         if (customer == null) {
             System.out.println("ERROR: Customer profile not found");
             return;
         }
-        
+
         System.out.println("\n========== YOUR PROFILE ==========");
         System.out.println("User ID: " + customer.getUserId());
         System.out.println("Full Name: " + customer.getFullName());
@@ -340,30 +369,29 @@ public class GymCustomerService implements GymCustomerInterface {
 
         System.out.println("\n--- AVAILABLE SLOTS ---");
         System.out.println(String.format("%-15s | %-8s | %-20s | %-12s | %-15s | %-12s",
-            "Availability ID", "Slot ID", "Time", "Date", "Seats Available", "Waitlist #"));
+                "Availability ID", "Slot ID", "Time", "Date", "Seats Available", "Waitlist #"));
         System.out.println("-".repeat(90));
-        
+
         boolean foundAny = false;
         for (Slot slot : slots) {
             List<SlotAvailability> availabilities = availabilityDAO.getAvailableSlotsBySlotId(slot.getSlotId());
             for (SlotAvailability sa : availabilities) {
-                // Show all slots including those with 0 seats
                 int seatsAvailable = sa.getSeatsAvailable();
                 int waitlistCount = waitlistDAO.getWaitlistCountByAvailabilityId(sa.getId());
-                
+
                 String seatDisplay = seatsAvailable > 0 ? String.valueOf(seatsAvailable) : "FULL";
                 String waitlistDisplay = waitlistCount > 0 ? String.valueOf(waitlistCount) : "-";
-                
+
                 System.out.println(String.format("%-15d | %-8d | %-20s | %-12s | %-15s | %-12s",
-                    sa.getId(), slot.getSlotId(),
-                    slot.getStartTime() + " - " + slot.getEndTime(),
-                    sa.getDate(),
-                    seatDisplay,
-                    waitlistDisplay));
+                        sa.getId(), slot.getSlotId(),
+                        slot.getStartTime() + " - " + slot.getEndTime(),
+                        sa.getDate(),
+                        seatDisplay,
+                        waitlistDisplay));
                 foundAny = true;
             }
         }
-        
+
         if (!foundAny) {
             System.out.println("No slots found for this centre.");
         }

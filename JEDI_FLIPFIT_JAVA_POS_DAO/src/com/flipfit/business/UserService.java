@@ -7,37 +7,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserService implements UserInterface {
-    
+
     private static String currentLoggedInUserEmail = null;
     private static final Map<String, User> loggedInUsers = new HashMap<>();
-    
+
     @Override
-    public boolean login(String email, String password) {
+    public boolean login(String email, String password) throws com.flipfit.exception.UserNotFoundException {
         // Validate email
         if (email == null || email.isEmpty()) {
-            System.out.println("ERROR: Email cannot be empty");
-            return false;
+            throw new com.flipfit.exception.UserNotFoundException("ERROR: Email cannot be empty");
         }
-        
+
         // Validate password
         if (password == null || password.isEmpty()) {
-            System.out.println("ERROR: Password cannot be empty");
-            return false;
+            throw new com.flipfit.exception.UserNotFoundException("ERROR: Password cannot be empty");
         }
-        
+
         // Validate user credentials using database
         UserDAO userDAO = new UserDAO();
         if (!userDAO.login(email, password)) {
-            System.out.println("ERROR: Invalid email or password for user: " + email);
-            return false;
+            throw new com.flipfit.exception.UserNotFoundException(
+                    "ERROR: Invalid email or password for user: " + email);
         }
-        
+
         // Always reload user from database to ensure proper role-specific object
         User user = userDAO.getUserDetails(email);
         if (user != null) {
             // Load role-specific user object based on roleId
             User roleSpecificUser = loadRoleSpecificUser(user);
-            
+
             // Update in-memory repository for current session (remove old, add new)
             FlipFitRepository.users.put(email, roleSpecificUser);
             loggedInUsers.put(email, roleSpecificUser);
@@ -45,17 +43,17 @@ public class UserService implements UserInterface {
             System.out.println("✓ User " + email + " logged in successfully");
             return true;
         }
-        
-        System.out.println("ERROR: User not found: " + email);
-        return false;
+
+        throw new com.flipfit.exception.UserNotFoundException("ERROR: User not found: " + email);
     }
-    
+
     /**
-     * Load role-specific user object (GymOwner, GymCustomer, GymAdmin) from database
+     * Load role-specific user object (GymOwner, GymCustomer, GymAdmin) from
+     * database
      */
     private User loadRoleSpecificUser(User baseUser) {
         int roleId = baseUser.getRoleId();
-        
+
         // Role 1 = Admin, Role 2 = Customer, Role 3 = Owner
         if (roleId == 3) {
             // Load GymOwner details
@@ -69,7 +67,7 @@ public class UserService implements UserInterface {
                 owner.setState(baseUser.getState());
                 owner.setPincode(baseUser.getPincode());
                 owner.setPhoneNumber(baseUser.getPhoneNumber());
-                
+
                 FlipFitRepository.owners.add(owner);
                 return owner;
             }
@@ -82,7 +80,7 @@ public class UserService implements UserInterface {
                 customer.setUserId(customerUser.getUserId());
                 customer.setFullName(customerUser.getFullName());
                 customer.setEmail(customerUser.getEmail());
-                
+
                 // Copy base fields
                 customer.setRoleId(roleId);
                 customer.setPassword(baseUser.getPassword());
@@ -90,12 +88,12 @@ public class UserService implements UserInterface {
                 customer.setCity(baseUser.getCity());
                 customer.setState(baseUser.getState());
                 customer.setPincode(baseUser.getPincode());
-                
+
                 FlipFitRepository.customers.put(customer.getEmail(), customer);
                 return customer;
             }
         }
-        
+
         // For admin or if role-specific loading fails, return base user
         return baseUser;
     }
@@ -106,25 +104,25 @@ public class UserService implements UserInterface {
             System.out.println("ERROR: No user is currently logged in");
             return;
         }
-        
+
         String userEmail = currentLoggedInUserEmail;
         loggedInUsers.remove(userEmail);
         currentLoggedInUserEmail = null;
         System.out.println("✓ User " + userEmail + " logged out successfully");
     }
-    
+
     public static User getCurrentUser(String email) {
         return loggedInUsers.get(email);
     }
-    
+
     public static boolean isUserLoggedIn(String email) {
         return loggedInUsers.containsKey(email);
     }
-    
+
     public static String getCurrentLoggedInUser() {
         return currentLoggedInUserEmail;
     }
-    
+
     public static void setCurrentLoggedInUser(String email) {
         currentLoggedInUserEmail = email;
     }
