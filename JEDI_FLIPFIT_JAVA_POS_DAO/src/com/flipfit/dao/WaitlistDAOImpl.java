@@ -44,6 +44,105 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
     }
 
+    /**
+     * Add to waitlist with customer and availability info
+     * Gets booking info and determines position based on pending bookings for that availability
+     */
+    public int addToWaitList(int bookingId, int customerId, int availabilityId) {
+        String posQuery = "SELECT COUNT(*) as cnt FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ?";
+        String insertQuery = "INSERT INTO Waitlist (bookingId, position, createdAt) VALUES (?, ?, ?)";
+        
+        try (Connection conn = DBConnection.getConnection()) {
+            int position = 1;
+            try (PreparedStatement posStmt = conn.prepareStatement(posQuery)) {
+                posStmt.setInt(1, availabilityId);
+                try (ResultSet rs = posStmt.executeQuery()) {
+                    if (rs.next()) {
+                        position = rs.getInt("cnt") + 1;
+                    }
+                }
+            }
+            
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                insertStmt.setInt(1, bookingId);
+                insertStmt.setInt(2, position);
+                insertStmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+                
+                insertStmt.executeUpdate();
+                return position;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    /**
+     * Get waitlist count for a specific availability
+     */
+    public int getWaitlistCountByAvailabilityId(int availabilityId) {
+        String query = "SELECT COUNT(*) as cnt FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, availabilityId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("cnt");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Get first pending waitlist entry for an availability
+     */
+    public WaitListEntry getFirstPendingWaitlistEntry(int availabilityId) {
+        String query = "SELECT w.*, b.userId, b.availabilityId FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING' ORDER BY w.position ASC LIMIT 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, availabilityId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    WaitListEntry entry = new WaitListEntry();
+                    entry.setWaitlistid(rs.getInt("waitlistId"));
+                    entry.setBookingId(rs.getInt("bookingId"));
+                    entry.setCustomerId(rs.getInt("userId"));
+                    entry.setAvailabilityId(rs.getInt("availabilityId"));
+                    entry.setPosition(rs.getInt("position"));
+                    entry.setStatus("PENDING");
+                    entry.setCreatedAt(rs.getTimestamp("createdAt"));
+                    return entry;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("[ERROR] SQLException in getFirstPendingWaitlistEntry: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Update waitlist entry status
+     */
+    public boolean updateWaitlistStatus(int waitlistId, String status) {
+        String query = "UPDATE Waitlist SET status = ? WHERE waitlistId = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, status);
+            stmt.setInt(2, waitlistId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     @Override
     public void removeFromWaitList(int bookingId) {
         String deleteQuery = "DELETE FROM Waitlist WHERE bookingId = ?";
@@ -58,6 +157,21 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             // Note: Multiple statements might require session handling or a simpler loop
             updatePositions(conn);
             
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Remove from waitlist by booking ID
+     */
+    public void removeFromWaitListByBookingId(int bookingId) {
+        String deleteQuery = "DELETE FROM Waitlist WHERE bookingId = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
+            
+            stmt.setInt(1, bookingId);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -143,4 +257,38 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return -1;
     }
-}
+
+    /**
+     * Update waitlist positions for a specific availability after promotion
+     * This shifts all remaining positions down by 1
+     */
+    public void updateWaitlistPositions(int availabilityId) {
+        String selectQuery = "SELECT w.waitlistId FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING' ORDER BY w.position ASC";
+        String updateQuery = "UPDATE Waitlist SET position = ? WHERE waitlistId = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
+            
+            selectStmt.setInt(1, availabilityId);
+            List<Integer> waitlistIds = new ArrayList<>();
+            try (ResultSet rs = selectStmt.executeQuery()) {
+                while (rs.next()) {
+                    waitlistIds.add(rs.getInt("waitlistId"));
+                }
+            }
+            
+            // Update each position sequentially
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                for (int i = 0; i < waitlistIds.size(); i++) {
+                    updateStmt.setInt(1, i + 1);
+                    updateStmt.setInt(2, waitlistIds.get(i));
+                    updateStmt.addBatch();
+                }
+                updateStmt.executeBatch();
+                System.out.println("[DEBUG] Updated " + waitlistIds.size() + " waitlist positions for availability: " + availabilityId);
+            }
+        } catch (SQLException e) {
+            System.out.println("[ERROR] SQLException in updateWaitlistPositions: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }}

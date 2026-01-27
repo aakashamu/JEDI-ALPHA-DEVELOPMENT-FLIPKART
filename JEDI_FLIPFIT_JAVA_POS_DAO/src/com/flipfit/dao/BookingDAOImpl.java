@@ -175,4 +175,47 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return bookings;
     }
+
+    /**
+     * Confirm a booking that was on waitlist
+     */
+    public boolean confirmWaitlistBooking(int bookingId) {
+        String query = "UPDATE Booking SET status = 'CONFIRMED' WHERE bookingId = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, bookingId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Get booking by ID from database
+     */
+    public Booking getBookingById(int bookingId) {
+        String query = "SELECT * FROM Booking WHERE bookingId = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, bookingId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Booking booking = new Booking();
+                    booking.setBookingId(rs.getInt("bookingId"));
+                    booking.setCustomerId(rs.getInt("userId"));
+                    booking.setAvailabilityId(rs.getInt("availabilityId"));
+                    booking.setStatus(rs.getString("status"));
+                    booking.setBookingDate(rs.getDate("bookingDate"));
+                    booking.setCreatedAt(rs.getString("createdAt"));
+                    return booking;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

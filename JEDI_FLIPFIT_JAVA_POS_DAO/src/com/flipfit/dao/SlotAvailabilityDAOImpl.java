@@ -73,6 +73,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
                 sa.setId(rs.getInt("availabilityId"));
                 sa.setSlotId(rs.getInt("slotId"));
                 sa.setDate(rs.getDate("date").toLocalDate());
+                sa.setSeatsAvailable(rs.getInt("seatsAvailable"));
+                sa.setSeatsTotal(rs.getInt("seatsTotal"));
                 sa.setAvailable(rs.getInt("seatsAvailable") > 0);
                 return sa;
             }
@@ -131,7 +133,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
     @Override
     public List<SlotAvailability> getAvailableSlotsBySlotId(int slotId) {
         List<SlotAvailability> list = new ArrayList<>();
-        String query = "SELECT * FROM SlotAvailability WHERE slotId = ? AND seatsAvailable > 0";
+        // Get ALL slots including those with 0 seats for waitlist display
+        String query = "SELECT * FROM SlotAvailability WHERE slotId = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
@@ -143,7 +146,9 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
                 sa.setId(rs.getInt("availabilityId"));
                 sa.setSlotId(rs.getInt("slotId"));
                 sa.setDate(rs.getDate("date").toLocalDate());
-                sa.setAvailable(true);
+                sa.setSeatsAvailable(rs.getInt("seatsAvailable"));
+                sa.setSeatsTotal(rs.getInt("seatsTotal"));
+                sa.setAvailable(rs.getInt("seatsAvailable") > 0);
                 list.add(sa);
             }
         } catch (SQLException e) {

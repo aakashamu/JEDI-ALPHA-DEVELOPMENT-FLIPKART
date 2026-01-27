@@ -5,6 +5,7 @@ import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.GymCustomer;
 import com.flipfit.bean.Slot;
 import com.flipfit.bean.SlotAvailability;
+import com.flipfit.bean.WaitListEntry;
 import com.flipfit.dao.FlipFitRepository;
 import com.flipfit.dao.GymCustomerDAO;
 import java.util.ArrayList;
@@ -132,9 +133,25 @@ public class GymCustomerService implements GymCustomerInterface {
             return null;
         }
         
-        if (!availability.isAvailable()) {
-            System.out.println("ERROR: Slot is not available on " + availability.getDate());
-            return null;
+        // Check if seats are available for this specific availability
+        if (availability.getSeatsAvailable() <= 0) {
+            System.out.println("⚠ Slot is FULL for this availability (ID: " + slotAvailabilityId + ")");
+            System.out.println("Adding you to the waitlist...");
+            
+            // Add to waitlist
+            com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+            com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+            
+            Booking pendingBooking = bookingDAO.createPendingBooking(currentCustomer.getUserId(), slotAvailabilityId);
+            if (pendingBooking != null) {
+                int waitlistPosition = waitlistDAO.addToWaitList(pendingBooking.getBookingId(), currentCustomer.getUserId(), slotAvailabilityId);
+                System.out.println("✓ Added to waitlist at position: " + waitlistPosition);
+                System.out.println("You will be notified when a seat becomes available.");
+                return pendingBooking;
+            } else {
+                System.out.println("ERROR: Failed to add to waitlist.");
+                return null;
+            }
         }
         
         List<Booking> customerExistingBookings = FlipFitRepository.customerBookings.getOrDefault(currentCustomer.getUserId(), new ArrayList<>());
@@ -158,33 +175,6 @@ public class GymCustomerService implements GymCustomerInterface {
                 removeBookingCompletely(conflictingBooking.getBookingId());
                 System.out.println("Cancelled conflicting booking ID: " + conflictingBooking.getBookingId());
             }
-        }
-        
-        List<Booking> slotExistingBookings = FlipFitRepository.slotBookings.getOrDefault(slotAvailabilityId, new ArrayList<>());
-        long confirmedBookingsInSlot = slotExistingBookings.stream()
-            .filter(booking -> "CONFIRMED".equals(booking.getStatus()))
-            .count();
-        
-        if (confirmedBookingsInSlot >= slot.getCapacity()) {
-            System.out.println("ERROR: Slot is full. Capacity: " + slot.getCapacity() + ", Booked: " + confirmedBookingsInSlot);
-            System.out.println("Adding you to the waitlist...");
-            
-            // Create a PENDING booking record for the waitlist
-            com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
-            Booking pendingBooking = bookingDAO.createPendingBooking(currentCustomer.getUserId(), slotAvailabilityId);
-            
-            if (pendingBooking != null) {
-                // Add to waitlist with the booking ID
-                WaitListService waitListService = new WaitListService();
-                if (waitListService.addToWaitList(pendingBooking.getBookingId())) {
-                    System.out.println("✓ Added to waitlist with Booking ID: " + pendingBooking.getBookingId());
-                    System.out.println("You will be notified when a slot becomes available.");
-                    return pendingBooking;
-                }
-            }
-            
-            System.out.println("ERROR: Failed to add you to the waitlist.");
-            return null;
         }
         
         // Persist to database
@@ -248,25 +238,58 @@ public class GymCustomerService implements GymCustomerInterface {
         boolean dbSuccess = bookingDAO.cancelBooking(bookingId);
         
         if (dbSuccess) {
-            // Update in-memory repository and restore slot availability
-            Booking booking = FlipFitRepository.bookingsMap.get(bookingId);
+            // Fetch booking from database to get its details
+            Booking booking = bookingDAO.getBookingById(bookingId);
+            System.out.println("[DEBUG] Fetched booking from DB: " + booking);
+            
             if (booking != null) {
                 String originalStatus = booking.getStatus();
-                booking.setStatus("CANCELLED");
+                System.out.println("[DEBUG] Original status from database: " + originalStatus);
                 
-                // If it was a CONFIRMED booking, restore slot availability
+                // If it was a CONFIRMED booking, restore slot availability and promote from waitlist
                 if ("CONFIRMED".equals(originalStatus)) {
+                    System.out.println("[DEBUG] Entered CONFIRMED branch");
                     int availabilityId = booking.getAvailabilityId();
+                    System.out.println("[DEBUG] Cancelled booking from availability: " + availabilityId);
                     com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
                     availabilityDAO.incrementSeats(availabilityId);
+                    
+                    // Promote first customer from waitlist
+                    com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+                    WaitListEntry nextInLine = waitlistDAO.getFirstPendingWaitlistEntry(availabilityId);
+                    System.out.println("[DEBUG] nextInLine result: " + nextInLine);
+                    if (nextInLine != null) {
+                        System.out.println("[DEBUG] Promoting booking ID: " + nextInLine.getBookingId());
+                        // Update booking status to CONFIRMED
+                        boolean promoted = bookingDAO.confirmWaitlistBooking(nextInLine.getBookingId());
+                        System.out.println("[DEBUG] Promotion result: " + promoted);
+                        
+                        if (promoted) {
+                            // Remove the promoted booking from waitlist
+                            waitlistDAO.removeFromWaitList(nextInLine.getBookingId());
+                            System.out.println("[DEBUG] Removed booking " + nextInLine.getBookingId() + " from waitlist");
+                            
+                            // Update positions for remaining waitlist entries
+                            waitlistDAO.updateWaitlistPositions(availabilityId);
+                            System.out.println("[DEBUG] Updated waitlist positions for availability: " + availabilityId);
+                            
+                            System.out.println("✓ Customer at position #1 has been promoted from waitlist!");
+                        }
+                    } else {
+                        System.out.println("[DEBUG] No pending bookings found for availability: " + availabilityId);
+                    }
+                } else {
+                    System.out.println("[DEBUG] Original status was: " + originalStatus + ", not CONFIRMED");
                 }
                 
                 // If it was a PENDING booking (waitlist), remove from waitlist
                 if ("PENDING".equals(originalStatus)) {
-                    WaitListService waitListService = new WaitListService();
-                    waitListService.removeFromWaitList(bookingId);
+                    com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+                    waitlistDAO.removeFromWaitList(bookingId);
                     System.out.println("✓ Removed from waitlist.");
                 }
+            } else {
+                System.out.println("[DEBUG] Booking not found in database!");
             }
             System.out.println("✓ Booking cancelled successfully! ID: " + bookingId);
             return true;
@@ -362,6 +385,7 @@ public class GymCustomerService implements GymCustomerInterface {
 
         com.flipfit.dao.SlotDAOImpl slotDAO = new com.flipfit.dao.SlotDAOImpl();
         com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
+        com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
 
         List<Slot> slots = slotDAO.getSlotsByCentreId(centreId);
         if (slots.isEmpty()) {
@@ -370,23 +394,34 @@ public class GymCustomerService implements GymCustomerInterface {
         }
 
         System.out.println("\n--- AVAILABLE SLOTS ---");
+        System.out.println(String.format("%-15s | %-8s | %-20s | %-12s | %-15s | %-12s",
+            "Availability ID", "Slot ID", "Time", "Date", "Seats Available", "Waitlist #"));
+        System.out.println("-".repeat(90));
+        
         boolean foundAny = false;
         for (Slot slot : slots) {
             List<SlotAvailability> availabilities = availabilityDAO.getAvailableSlotsBySlotId(slot.getSlotId());
             for (SlotAvailability sa : availabilities) {
-                if (sa.isAvailable()) {
-                    System.out.println("Availability ID: " + sa.getId() + 
-                                     " | Slot ID: " + slot.getSlotId() +
-                                     " | Time: " + slot.getStartTime() + " - " + slot.getEndTime() +
-                                     " | Date: " + sa.getDate());
-                    foundAny = true;
-                }
+                // Show all slots including those with 0 seats
+                int seatsAvailable = sa.getSeatsAvailable();
+                int waitlistCount = waitlistDAO.getWaitlistCountByAvailabilityId(sa.getId());
+                
+                String seatDisplay = seatsAvailable > 0 ? String.valueOf(seatsAvailable) : "FULL";
+                String waitlistDisplay = waitlistCount > 0 ? String.valueOf(waitlistCount) : "-";
+                
+                System.out.println(String.format("%-15d | %-8d | %-20s | %-12s | %-15s | %-12s",
+                    sa.getId(), slot.getSlotId(),
+                    slot.getStartTime() + " - " + slot.getEndTime(),
+                    sa.getDate(),
+                    seatDisplay,
+                    waitlistDisplay));
+                foundAny = true;
             }
         }
         
         if (!foundAny) {
-            System.out.println("No available slots found for this centre at the moment.");
+            System.out.println("No slots found for this centre.");
         }
-        System.out.println("-----------------------\n");
+        System.out.println("-".repeat(90) + "\n");
     }
 }
