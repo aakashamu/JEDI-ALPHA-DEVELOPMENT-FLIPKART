@@ -136,4 +136,10 @@ public class UserService implements UserInterface {
     public static void setCurrentLoggedInUser(String email) {
         currentLoggedInUserEmail = email;
     }
+
+    @Override
+    public boolean updatePassword(String email, String oldPassword, String newPassword) {
+        UserDAO userDAO = new UserDAO();
+        return userDAO.changePassword(email, oldPassword, newPassword);
+    }
 }

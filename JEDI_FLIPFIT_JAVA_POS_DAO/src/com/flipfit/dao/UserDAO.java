@@ -75,4 +75,22 @@ public class UserDAO implements UserInterfaceDAO {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public boolean changePassword(String email, String oldPassword, String newPassword) {
+        String query = "UPDATE User SET password = ? WHERE email = ? AND password = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, newPassword);
+            stmt.setString(2, email);
+            stmt.setString(3, oldPassword);
+            
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

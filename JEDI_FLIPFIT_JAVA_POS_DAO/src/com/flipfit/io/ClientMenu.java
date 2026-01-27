@@ -422,12 +422,18 @@ public class ClientMenu {
 
     private static void handleChangePassword(Scanner scanner) {
         scanner.nextLine();
-        System.out.print("Enter Username: ");
-        scanner.nextLine();
+        System.out.print("Enter Email: ");
+        String email = scanner.nextLine();
         System.out.print("Enter Old Password: ");
-        scanner.nextLine();
+        String oldPassword = scanner.nextLine();
         System.out.print("Enter New Password: ");
-        scanner.nextLine();
-        System.out.println("Password updated successfully.");
+        String newPassword = scanner.nextLine();
+        
+        UserService userService = new UserService();
+        if (userService.updatePassword(email, oldPassword, newPassword)) {
+            System.out.println("✓ Password updated successfully.");
+        } else {
+            System.out.println("❌ Failed to update password. Please check your email and old password.");
+        }
     }
 }
