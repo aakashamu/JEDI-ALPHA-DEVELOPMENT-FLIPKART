@@ -25,12 +25,6 @@ public class UserService implements UserInterface {
             return false;
         }
         
-        // Check if user is already logged in
-        if (loggedInUsers.containsKey(email)) {
-            System.out.println("User " + email + " is already logged in");
-            return true;
-        }
-        
         // Validate user credentials using database
         UserDAO userDAO = new UserDAO();
         if (!userDAO.login(email, password)) {
@@ -38,16 +32,14 @@ public class UserService implements UserInterface {
             return false;
         }
         
-        // Get user details from database
+        // Always reload user from database to ensure proper role-specific object
         User user = userDAO.getUserDetails(email);
         if (user != null) {
             // Load role-specific user object based on roleId
             User roleSpecificUser = loadRoleSpecificUser(user);
             
-            // Add to in-memory repository for current session
+            // Update in-memory repository for current session (remove old, add new)
             FlipFitRepository.users.put(email, roleSpecificUser);
-            
-            // Add to logged in users
             loggedInUsers.put(email, roleSpecificUser);
             currentLoggedInUserEmail = email;
             System.out.println("✓ User " + email + " logged in successfully");

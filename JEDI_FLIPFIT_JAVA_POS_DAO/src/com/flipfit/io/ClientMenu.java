@@ -110,9 +110,9 @@ public class ClientMenu {
             System.out.println("3. Book Slot");
             System.out.println("4. Cancel Booking");
             System.out.println("5. Edit Profile");
-            System.out.println("6. Booking Management");
-            System.out.println("7. Wait List Management");
-            System.out.println("8. Logout");
+            // System.out.println("6. Booking Management");
+            // System.out.println("7. Wait List Management");
+            System.out.println("6. Logout");
             System.out.print("Choice: ");
 
             int choice = scanner.nextInt();
@@ -168,15 +168,15 @@ public class ClientMenu {
                     customerService.editDetails(newName, confirmEmail, newPhone, newCity, newPin);
                     break;
 
+                // case 6:
+                //     BookingService.bookingMenu(scanner);
+                //     break;
+
+                // case 7:
+                //     WaitListService.waitListMenu(scanner);
+                //     break;
+
                 case 6:
-                    BookingService.bookingMenu(scanner);
-                    break;
-
-                case 7:
-                    WaitListService.waitListMenu(scanner);
-                    break;
-
-                case 8:
                     System.out.println("\n✓ Logging out... Returning to main menu.");
                     session = false;
                     break;

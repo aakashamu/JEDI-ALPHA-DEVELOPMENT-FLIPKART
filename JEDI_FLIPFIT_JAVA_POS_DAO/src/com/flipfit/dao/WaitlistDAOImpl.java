@@ -10,6 +10,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
 
     @Override
     public boolean addToWaitList(int bookingId) {
+        System.out.println("[DEBUG] addToWaitList called with bookingId=" + bookingId);
         // Need to calculate position: next available position
         String posQuery = "SELECT COUNT(*) FROM Waitlist";
         String insertQuery = "INSERT INTO Waitlist (bookingId, position, createdAt) VALUES (?, ?, ?)";
@@ -23,14 +24,21 @@ public class WaitlistDAOImpl implements WaitlistDAO {
                 }
             }
             
+            System.out.println("[DEBUG] Current waitlist count: " + currentCount + ", New position will be: " + (currentCount + 1));
+            
             try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
                 insertStmt.setInt(1, bookingId);
                 insertStmt.setInt(2, currentCount + 1);
                 insertStmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
                 
-                return insertStmt.executeUpdate() > 0;
+                System.out.println("[DEBUG] Executing waitlist insert for bookingId=" + bookingId);
+                int affectedRows = insertStmt.executeUpdate();
+                System.out.println("[DEBUG] Waitlist insert affected rows: " + affectedRows);
+                
+                return affectedRows > 0;
             }
         } catch (SQLException e) {
+            System.out.println("[ERROR] SQLException in addToWaitList: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

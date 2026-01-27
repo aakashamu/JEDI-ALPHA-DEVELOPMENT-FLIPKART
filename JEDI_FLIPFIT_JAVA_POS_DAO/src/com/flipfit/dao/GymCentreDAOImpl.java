@@ -16,17 +16,40 @@ public class GymCentreDAOImpl implements GymCentreDAO {
     @Override
     public void insertGymCentre(GymCentre centre) {
         String sql = "INSERT INTO GymCentre (centreName, city, state, ownerId, isApproved) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(true); // Ensure autocommit is on
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, centre.getName());
             pstmt.setString(2, centre.getCity());
             pstmt.setString(3, centre.getState());
             pstmt.setInt(4, centre.getOwnerId());
             pstmt.setInt(5, centre.isApproved() ? 1 : 0);
             int rows = pstmt.executeUpdate();
-            System.out.println(rows + " gym centre inserted successfully.");
+            
+            // Get the generated centre ID
+            if (rows > 0) {
+                ResultSet generatedKeys = pstmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    int centreId = generatedKeys.getInt(1);
+                    centre.setCentreId(centreId);
+                    System.out.println(rows + " gym centre inserted successfully with ID: " + centreId);
+                }
+                generatedKeys.close();
+            }
+            pstmt.close();
         } catch (SQLException e) {
+            System.out.println("Error inserting centre: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

@@ -151,4 +151,36 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return list;
     }
+
+    /**
+     * Decrement seats available by 1 when booking is made
+     */
+    public boolean decrementSeats(int availabilityId) {
+        String query = "UPDATE SlotAvailability SET seatsAvailable = seatsAvailable - 1 WHERE availabilityId = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, availabilityId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Increment seats available by 1 when booking is cancelled
+     */
+    public boolean incrementSeats(int availabilityId) {
+        String query = "UPDATE SlotAvailability SET seatsAvailable = seatsAvailable + 1 WHERE availabilityId = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, availabilityId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

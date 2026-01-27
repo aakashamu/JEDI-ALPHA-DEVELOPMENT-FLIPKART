@@ -46,6 +46,54 @@ public class BookingDAOImpl implements BookingDAO {
         return null;
     }
 
+    /**
+     * Create a PENDING booking for waitlist
+     */
+    public Booking createPendingBooking(int customerId, int availabilityId) {
+        System.out.println("[DEBUG] createPendingBooking called with customerId=" + customerId + ", availabilityId=" + availabilityId);
+        String query = "INSERT INTO Booking (userId, availabilityId, status, bookingDate, createdAt) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            
+            String status = "PENDING";
+            java.util.Date now = new java.util.Date();
+            java.sql.Date sqlDate = new java.sql.Date(now.getTime());
+            String createdAt = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now);
+            
+            stmt.setInt(1, customerId);
+            stmt.setInt(2, availabilityId);
+            stmt.setString(3, status);
+            stmt.setDate(4, sqlDate);
+            stmt.setString(5, createdAt);
+            
+            System.out.println("[DEBUG] Executing PENDING booking insert...");
+            int affectedRows = stmt.executeUpdate();
+            System.out.println("[DEBUG] Affected rows: " + affectedRows);
+            
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int bookingId = generatedKeys.getInt(1);
+                        System.out.println("[DEBUG] PENDING Booking created with ID: " + bookingId);
+                        Booking booking = new Booking();
+                        booking.setBookingId(bookingId);
+                        booking.setCustomerId(customerId);
+                        booking.setAvailabilityId(availabilityId);
+                        booking.setStatus(status);
+                        booking.setBookingDate(now);
+                        booking.setCreatedAt(createdAt);
+                        return booking;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("[ERROR] SQLException in createPendingBooking: " + e.getMessage());
+            e.printStackTrace();
+        }
+        System.out.println("[ERROR] createPendingBooking returning null");
+        return null;
+    }
+
     @Override
     public boolean cancelBooking(int bookingId) {
         String query = "UPDATE Booking SET status = 'CANCELLED' WHERE bookingId = ?";

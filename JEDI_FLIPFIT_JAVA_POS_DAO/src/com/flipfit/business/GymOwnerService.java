@@ -386,15 +386,18 @@ public class GymOwnerService implements GymOwnerInterface {
         GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
         centreDAO.insertGymCentre(newCentre);
         
+        // Get the actual DB ID from the centre object (after insert)
+        int dbCentreId = newCentre.getCentreId();
+        
         // Add to in-memory repository for current session
         FlipFitRepository.gymCentres.add(newCentre);
         
         // REQUIREMENT: Create slots for this centre
-        createSlotsForCentre(newCentreId, numberOfSlots, slotCapacity);
+        createSlotsForCentre(dbCentreId, numberOfSlots, slotCapacity);
         
         System.out.println("\n========== GYM CENTRE REGISTRATION ==========");
         System.out.println("✓ Centre registered successfully!");
-        System.out.println("Centre ID: " + newCentreId);
+        System.out.println("Centre ID: " + dbCentreId);
         System.out.println("Name: " + centreName);
         System.out.println("City: " + city);
         System.out.println("Owner ID: " + ownerId);
@@ -404,7 +407,7 @@ public class GymOwnerService implements GymOwnerInterface {
         System.out.println("============================================\n");
         
         // Display created slots
-        displayCreatedSlots(newCentreId);
+        displayCreatedSlots(dbCentreId);
         
         return true;
     }

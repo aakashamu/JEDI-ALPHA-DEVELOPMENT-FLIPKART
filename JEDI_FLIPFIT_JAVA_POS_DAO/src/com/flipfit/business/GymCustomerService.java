@@ -169,10 +169,21 @@ public class GymCustomerService implements GymCustomerInterface {
             System.out.println("ERROR: Slot is full. Capacity: " + slot.getCapacity() + ", Booked: " + confirmedBookingsInSlot);
             System.out.println("Adding you to the waitlist...");
             
-            WaitListService waitListService = new WaitListService();
-            int tempBookingId = 9000 + (int)(System.currentTimeMillis() % 1000);
-            waitListService.addToWaitList(tempBookingId);
+            // Create a PENDING booking record for the waitlist
+            com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+            Booking pendingBooking = bookingDAO.createPendingBooking(currentCustomer.getUserId(), slotAvailabilityId);
             
+            if (pendingBooking != null) {
+                // Add to waitlist with the booking ID
+                WaitListService waitListService = new WaitListService();
+                if (waitListService.addToWaitList(pendingBooking.getBookingId())) {
+                    System.out.println("✓ Added to waitlist with Booking ID: " + pendingBooking.getBookingId());
+                    System.out.println("You will be notified when a slot becomes available.");
+                    return pendingBooking;
+                }
+            }
+            
+            System.out.println("ERROR: Failed to add you to the waitlist.");
             return null;
         }
         
@@ -181,6 +192,9 @@ public class GymCustomerService implements GymCustomerInterface {
         Booking newBooking = bookingDAO.createBooking(currentCustomer.getUserId(), slotAvailabilityId);
         
         if (newBooking != null) {
+            // Decrement available seats by 1 in database
+            availabilityDAO.decrementSeats(slotAvailabilityId);
+            
             // Also sync in-memory repository for current session
             FlipFitRepository.allBookings.add(newBooking);
             FlipFitRepository.bookingsMap.put(newBooking.getBookingId(), newBooking);
@@ -234,10 +248,25 @@ public class GymCustomerService implements GymCustomerInterface {
         boolean dbSuccess = bookingDAO.cancelBooking(bookingId);
         
         if (dbSuccess) {
-            // Update in-memory repository
+            // Update in-memory repository and restore slot availability
             Booking booking = FlipFitRepository.bookingsMap.get(bookingId);
             if (booking != null) {
+                String originalStatus = booking.getStatus();
                 booking.setStatus("CANCELLED");
+                
+                // If it was a CONFIRMED booking, restore slot availability
+                if ("CONFIRMED".equals(originalStatus)) {
+                    int availabilityId = booking.getAvailabilityId();
+                    com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
+                    availabilityDAO.incrementSeats(availabilityId);
+                }
+                
+                // If it was a PENDING booking (waitlist), remove from waitlist
+                if ("PENDING".equals(originalStatus)) {
+                    WaitListService waitListService = new WaitListService();
+                    waitListService.removeFromWaitList(bookingId);
+                    System.out.println("✓ Removed from waitlist.");
+                }
             }
             System.out.println("✓ Booking cancelled successfully! ID: " + bookingId);
             return true;
