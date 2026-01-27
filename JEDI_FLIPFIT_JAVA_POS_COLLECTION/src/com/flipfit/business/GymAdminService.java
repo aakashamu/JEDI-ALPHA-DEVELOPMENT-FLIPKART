@@ -3,7 +3,9 @@ package com.flipfit.business;
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.GymOwner;
 import com.flipfit.dao.FlipFitRepository;
+import com.flipfit.dao.GymAdminDAO;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GymAdminService implements GymAdminInterface {
 	
@@ -54,6 +56,20 @@ public class GymAdminService implements GymAdminInterface {
 		System.out.println("===================================\n");
 	}
 	
+	/**
+	 * Returns a list of pending GymOwners. Tries DB first; falls back to in-memory repository if DB fetch fails or is empty.
+	 */
+	public List<GymOwner> getPendingOwners() {
+		GymAdminDAO dao = new GymAdminDAO();
+		List<GymOwner> fromDb = dao.getPendingOwnersFromDB();
+		if (fromDb != null && !fromDb.isEmpty()) {
+			return fromDb;
+		}
+		return FlipFitRepository.owners.stream()
+				.filter(owner -> owner.getIsApproved() == 0)
+				.collect(Collectors.toList());
+	}
+	
 	public boolean approveOwner(int ownerId) {
 		if (ownerId <= 0) {
 			System.out.println("ERROR: Invalid owner ID");
@@ -102,6 +118,20 @@ public class GymAdminService implements GymAdminInterface {
 		System.out.println("===================================\n");
 	}
 	
+	/**
+	 * Returns a list of pending GymCentre objects. Tries DB first; falls back to in-memory repository if DB fetch fails or is empty.
+	 */
+	public List<GymCentre> getPendingCentres() {
+		GymAdminDAO dao = new GymAdminDAO();
+		List<GymCentre> fromDb = dao.getPendingCentresFromDB();
+		if (fromDb != null && !fromDb.isEmpty()) {
+			return fromDb;
+		}
+		return FlipFitRepository.gymCentres.stream()
+				.filter(centre -> !centre.isApproved())
+				.collect(Collectors.toList());
+	}
+
 	public void viewAllCentres() {
 		System.out.println("\n========== ALL GYM CENTRES ==========");
 		System.out.println("Total Centres: " + FlipFitRepository.gymCentres.size());
