@@ -6,6 +6,8 @@ import com.flipfit.business.GymCustomerService;
 import com.flipfit.business.GymOwnerService;
 import com.flipfit.business.UserService;
 import com.flipfit.business.WaitListService;
+import com.flipfit.business.NotificationService;
+import com.flipfit.exception.*;
 import java.util.Scanner;
 
 public class ClientMenu {
@@ -65,7 +67,12 @@ public class ClientMenu {
         String password = scanner.nextLine();
 
         UserService userService = new UserService();
-        boolean loginSuccess = userService.login(email, password);
+        boolean loginSuccess = false;
+        try {
+            loginSuccess = userService.login(email, password);
+        } catch (UserNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
 
         if (loginSuccess) {
             com.flipfit.bean.User user = UserService.getCurrentUser(email);
@@ -73,10 +80,11 @@ public class ClientMenu {
                 System.out.println("ERROR: Session error. Please try logging in again.");
                 return;
             }
-            
+
             int roleId = user.getRoleId();
-            System.out.println("✓ Login Successful. Role detected: " + (roleId == 1 ? "Admin" : (roleId == 2 ? "Customer" : "Owner")));
-            
+            System.out.println("✓ Login Successful. Role detected: "
+                    + (roleId == 1 ? "Admin" : (roleId == 2 ? "Customer" : "Owner")));
+
             // DB Roles: 1 = Admin, 2 = Customer, 3 = Owner
             switch (roleId) {
                 case 3:
@@ -131,17 +139,46 @@ public class ClientMenu {
                     System.out.print("Enter Centre ID to see available slots: ");
                     int centreId = scanner.nextInt();
                     customerService.viewAvailableSlots(centreId);
-                    
-                    System.out.print("Enter Availability ID to book (or 0 to go back): ");
+
+                    System.out.println("Enter Availability ID to book (or 0 to go back): ");
                     int availabilityId = scanner.nextInt();
                     if (availabilityId > 0) {
-                        customerService.bookSlot(availabilityId);
+                        try {
+                            customerService.bookSlot(availabilityId);
+                            NotificationService notificationService = new NotificationService();
+                            // GymCustomerService custService = new GymCustomerService(); // Removed unused
+                            // variable
+                            // We need to get the user ID. Since we are in the dashboard,
+                            // we can get the current user from UserService.
+                            String currentUserEmail = UserService.getCurrentLoggedInUser();
+                            com.flipfit.bean.User currentUser = com.flipfit.dao.FlipFitRepository.users
+                                    .get(currentUserEmail);
+                            if (currentUser != null) {
+                                notificationService.sendNotification(currentUser.getUserId(),
+                                        "You have successfully booked a slot.");
+                            }
+                        } catch (SlotNotAvailableException | BookingNotDoneException e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
                     break;
 
                 case 4:
                     System.out.print("Enter Booking ID to cancel: ");
-                    customerService.cancelBooking(scanner.nextInt());
+                    int bookingIdToCancel = scanner.nextInt();
+                    try {
+                        customerService.cancelBooking(bookingIdToCancel);
+                        NotificationService notificationService = new NotificationService();
+                        String currentUserEmail = UserService.getCurrentLoggedInUser();
+                        com.flipfit.bean.User currentUser = com.flipfit.dao.FlipFitRepository.users
+                                .get(currentUserEmail);
+                        if (currentUser != null) {
+                            notificationService.sendNotification(currentUser.getUserId(),
+                                    "You have cancelled your booking.");
+                        }
+                    } catch (BookingNotDoneException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 5:
@@ -169,12 +206,12 @@ public class ClientMenu {
                     break;
 
                 // case 6:
-                //     BookingService.bookingMenu(scanner);
-                //     break;
+                // BookingService.bookingMenu(scanner);
+                // break;
 
                 // case 7:
-                //     WaitListService.waitListMenu(scanner);
-                //     break;
+                // WaitListService.waitListMenu(scanner);
+                // break;
 
                 case 6:
                     System.out.println("\n✓ Logging out... Returning to main menu.");
@@ -219,7 +256,7 @@ public class ClientMenu {
                     int slots = scanner.nextInt();
                     System.out.print("Enter Capacity per Slot: ");
                     int capacity = scanner.nextInt();
-                    
+
                     ownerService.registerNewCentre(name, city, slots, capacity);
                     break;
 
@@ -291,27 +328,33 @@ public class ClientMenu {
                     adminService.viewAllGymOwners();
                     System.out.print("Enter Gym Owner ID to validate: ");
                     int ownerId = scanner.nextInt();
-                    System.out.println(adminService.validateGymOwner(ownerId)
-                            ? "Gym Owner validation successful!"
-                            : "Gym Owner validation failed!");
+                    try {
+                        adminService.validateGymOwner(ownerId);
+                    } catch (UserNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 2:
                     adminService.viewAllCentres();
                     System.out.print("Enter Centre ID to approve: ");
                     int centreId = scanner.nextInt();
-                    System.out.println(adminService.approveCentre(centreId)
-                            ? "Centre approval successful!"
-                            : "Centre approval failed!");
+                    try {
+                        adminService.approveCentre(centreId);
+                    } catch (IssueWithApprovalException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 3:
                     adminService.viewAllGymOwners();
                     System.out.print("Enter Gym Owner ID to delete: ");
                     int deleteOwnerId = scanner.nextInt();
-                    System.out.println(adminService.deleteOwner(deleteOwnerId)
-                            ? "Gym Owner deletion successful!"
-                            : "Gym Owner deletion failed!");
+                    try {
+                        adminService.deleteOwner(deleteOwnerId);
+                    } catch (UserNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 4:
@@ -391,7 +434,8 @@ public class ClientMenu {
 
         // Actually register the owner in the database
         GymOwnerService ownerService = new GymOwnerService();
-        ownerService.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber, gstin);
+        ownerService.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber,
+                gstin);
     }
 
     private static void handleAdminRegistration(Scanner scanner) {
@@ -428,7 +472,7 @@ public class ClientMenu {
         String oldPassword = scanner.nextLine();
         System.out.print("Enter New Password: ");
         String newPassword = scanner.nextLine();
-        
+
         UserService userService = new UserService();
         if (userService.updatePassword(email, oldPassword, newPassword)) {
             System.out.println("✓ Password updated successfully.");

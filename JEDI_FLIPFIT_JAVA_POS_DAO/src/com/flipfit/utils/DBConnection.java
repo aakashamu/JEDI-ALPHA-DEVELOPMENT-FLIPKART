@@ -10,7 +10,7 @@ public class DBConnection {
     // Database credentials
     private static final String URL = "jdbc:mysql://localhost:3306/FlipFitDB";
     private static final String USER = "root";
-    private static final String PASSWORD = "idae7ooG!@#%";
+    private static final String PASSWORD = "Niu2Xei2!@#%";
 
     /**
      * Establishes a connection to the database
@@ -22,7 +22,7 @@ public class DBConnection {
         try {
             // Load the MySQL JDBC driver
             Class.forName("com.mysql.cj.jdbc.Driver");
-            
+
             // Create properties for connection
             Properties props = new Properties();
             props.setProperty("user", USER);
@@ -30,7 +30,7 @@ public class DBConnection {
             props.setProperty("serverTimezone", "UTC");
             props.setProperty("allowPublicKeyRetrieval", "true");
             props.setProperty("useSSL", "false");
-            
+
             return DriverManager.getConnection(URL, props);
         } catch (ClassNotFoundException e) {
             throw new SQLException("MySQL JDBC Driver not found", e);
