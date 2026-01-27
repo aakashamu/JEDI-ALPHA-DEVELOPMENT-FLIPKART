@@ -270,6 +270,17 @@ public class FlipFitRepository {
         owner2.setGSTIN("07FGHIJ5678K2ZL");
         owners.add(owner2);
         users.put(owner2.getEmail(), owner2);
+
+        // Sample admin
+        GymAdmin admin1 = new GymAdmin();
+        admin1.setUserId(301);
+        admin1.setFullName("Default Admin");
+        admin1.setEmail("admin@flipfit.com");
+        admin1.setPassword("admin@123");
+        admin1.setPhoneNumber(9000000000L);
+        admin1.setCity("Bengaluru");
+        admin1.setPincode(560001);
+        users.put(admin1.getEmail(), admin1);
     }
 
     // -------------------------------
