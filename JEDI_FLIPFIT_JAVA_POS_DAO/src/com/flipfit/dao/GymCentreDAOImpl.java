@@ -5,26 +5,24 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GymCentreDAOImpl implements GymCentreDAO {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/FlipFitDB";
-    private static final String USER = "root";
-    private static final String PASS = "ayurvati#439";
+import com.flipfit.utils.DBConnection;
 
+public class GymCentreDAOImpl implements GymCentreDAO {
+    
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, USER, PASS);
+        return DBConnection.getConnection();
     }
 
     @Override
     public void insertGymCentre(GymCentre centre) {
-        String sql = "INSERT INTO GymCentre (centreName, city, state, pincode, ownerId, isApproved) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO GymCentre (centreName, city, state, ownerId, isApproved) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, centre.getName());
             pstmt.setString(2, centre.getCity());
             pstmt.setString(3, centre.getState());
-            pstmt.setInt(4, centre.getPincode());
-            pstmt.setInt(5, centre.getOwnerId());
-            pstmt.setInt(6, centre.isApproved() ? 1 : 0);
+            pstmt.setInt(4, centre.getOwnerId());
+            pstmt.setInt(5, centre.isApproved() ? 1 : 0);
             int rows = pstmt.executeUpdate();
             System.out.println(rows + " gym centre inserted successfully.");
         } catch (SQLException e) {
@@ -45,7 +43,6 @@ public class GymCentreDAOImpl implements GymCentreDAO {
                 centre.setName(rs.getString("centreName"));
                 centre.setCity(rs.getString("city"));
                 centre.setState(rs.getString("state"));
-                centre.setPincode(rs.getInt("pincode"));
                 centre.setOwnerId(rs.getInt("ownerId"));
                 centre.setApproved(rs.getInt("isApproved") == 1);
                 centres.add(centre);
@@ -97,7 +94,6 @@ public class GymCentreDAOImpl implements GymCentreDAO {
                     centre.setName(rs.getString("centreName"));
                     centre.setCity(rs.getString("city"));
                     centre.setState(rs.getString("state"));
-                    centre.setPincode(rs.getInt("pincode"));
                     centre.setOwnerId(rs.getInt("ownerId"));
                     centre.setApproved(rs.getInt("isApproved") == 1);
                     centres.add(centre);

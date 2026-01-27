@@ -10,6 +10,8 @@ public class Slot {
     private int capacity;
     private int centreId;
 
+    public Slot() {}
+
     public Slot(int slotId, LocalTime startTime, LocalTime endTime, int capacity,int centreId) {
         this.slotId = slotId;
         this.startTime = startTime;

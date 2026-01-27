@@ -1,7 +1,7 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.User;
-import com.flipfit.client.TestConnection;
+import com.flipfit.utils.DBConnection;
 import java.sql.*;
 
 public class UserDAO implements UserInterfaceDAO {
@@ -10,7 +10,7 @@ public class UserDAO implements UserInterfaceDAO {
     public boolean login(String email, String password) {
         // This checks the User table for a matching email and password
         String query = "SELECT * FROM User WHERE email = ? AND password = ?";
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setString(1, email);
@@ -28,7 +28,7 @@ public class UserDAO implements UserInterfaceDAO {
     public User getUserDetails(String email) {
         User user = null;
         String query = "SELECT * FROM User WHERE email = ?";
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setString(1, email);
@@ -57,7 +57,7 @@ public class UserDAO implements UserInterfaceDAO {
     public void updateProfile(User user) {
         // Updating common fields based on the email (unique identifier)
         String query = "UPDATE User SET fullName = ?, phoneNumber = ?, city = ?, state = ?, pincode = ? WHERE email = ?";
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setString(1, user.getFullName());

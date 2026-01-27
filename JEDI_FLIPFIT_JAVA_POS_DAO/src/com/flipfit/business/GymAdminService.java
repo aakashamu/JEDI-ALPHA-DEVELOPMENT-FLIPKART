@@ -3,12 +3,36 @@ package com.flipfit.business;
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.GymOwner;
 import com.flipfit.dao.FlipFitRepository;
+import com.flipfit.dao.GymAdminDAOImpl;
+import com.flipfit.dao.GymCentreDAOImpl;
 import java.util.List;
 
 public class GymAdminService implements GymAdminInterface {
 	
+	private GymAdminDAOImpl adminDAO = new GymAdminDAOImpl();
+
+	/**
+	 * Register a new gym admin - saves to database via DAO
+	 */
+	public void registerAdmin(String fullName, String email, String password, Long phoneNumber, 
+	                          String city, String state, int pincode) {
+		adminDAO.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
+	}
+	
 	@Override
 	public void viewAllGymOwners() {
+		// Load owners from database and sync with repository
+		java.util.List<GymOwner> dbOwners = adminDAO.getAllOwners();
+		
+		// Clear and reload the in-memory repository with database data
+		FlipFitRepository.owners.clear();
+		FlipFitRepository.owners.addAll(dbOwners);
+		
+		// Also update the users map
+		for (GymOwner owner : dbOwners) {
+			FlipFitRepository.users.put(owner.getEmail(), owner);
+		}
+		
 		if (FlipFitRepository.owners.isEmpty()) {
 			System.out.println("\nNo gym owners registered yet.");
 			return;
@@ -60,24 +84,43 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// Refresh repository from DB
+		viewAllGymOwners();
+		
+		// First, approve in database
+		boolean dbSuccess = adminDAO.approveOwner(ownerId);
+		if (!dbSuccess) {
+			System.out.println("ERROR: Failed to approve owner in database");
+			return false;
+		}
+		
+		// Then update in-memory repository
 		for (GymOwner owner : FlipFitRepository.owners) {
 			if (owner.getUserId() == ownerId) {
 				if (owner.getIsApproved() == 1) {
-					System.out.println("Owner " + ownerId + " is already approved");
+					System.out.println("Owner " + ownerId + " (" + owner.getFullName() + ") is already approved");
 					return true;
 				} else {
 					owner.setIsApproved(1);
-					System.out.println("✓ Owner " + ownerId + " (" + owner.getFullName() + ") approved successfully");
+					System.out.println("✓ Gym Owner " + ownerId + " (" + owner.getFullName() + ") approved successfully");
 					return true;
 				}
 			}
 		}
 		
-		System.out.println("ERROR: Owner with ID " + ownerId + " not found");
+		System.out.println("ERROR: Gym Owner with ID " + ownerId + " not found");
 		return false;
 	}
 	
 	public void viewPendingCentres() {
+		// Load centres from database and sync with repository
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		List<GymCentre> dbCentres = centreDAO.selectAllGymCentres();
+		
+		// Clear and reload the in-memory repository with database data
+		FlipFitRepository.gymCentres.clear();
+		FlipFitRepository.gymCentres.addAll(dbCentres);
+		
 		List<GymCentre> pendingCentres = FlipFitRepository.gymCentres.stream()
 			.filter(centre -> !centre.isApproved())
 			.toList();
@@ -103,6 +146,14 @@ public class GymAdminService implements GymAdminInterface {
 	}
 	
 	public void viewAllCentres() {
+		// Load centres from database and sync with repository
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		List<GymCentre> dbCentres = centreDAO.selectAllGymCentres();
+		
+		// Clear and reload the in-memory repository with database data
+		FlipFitRepository.gymCentres.clear();
+		FlipFitRepository.gymCentres.addAll(dbCentres);
+		
 		System.out.println("\n========== ALL GYM CENTRES ==========");
 		System.out.println("Total Centres: " + FlipFitRepository.gymCentres.size());
 		System.out.println("-----------------------------------------");
@@ -142,6 +193,14 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// Refresh repository from DB
+		viewAllCentres();
+		
+		// First, approve in database
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		centreDAO.updateGymCentreApproval(centreId, true);
+		
+		// Then update in-memory repository
 		for (GymCentre centre : FlipFitRepository.gymCentres) {
 			if (centre.getCentreId() == centreId) {
 				if (centre.isApproved()) {
@@ -166,6 +225,14 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// First, delete from database
+		boolean dbSuccess = adminDAO.deleteOwner(ownerId);
+		if (!dbSuccess) {
+			System.out.println("ERROR: Failed to delete owner from database");
+			return false;
+		}
+		
+		// Then remove from in-memory repository
 		for (int i = 0; i < FlipFitRepository.owners.size(); i++) {
 			GymOwner owner = FlipFitRepository.owners.get(i);
 			if (owner.getUserId() == ownerId) {

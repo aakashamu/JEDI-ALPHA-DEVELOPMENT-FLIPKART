@@ -8,6 +8,8 @@ import com.flipfit.bean.SlotAvailability;
 import com.flipfit.bean.Booking;
 import com.flipfit.bean.WaitListEntry;
 import com.flipfit.dao.FlipFitRepository;
+import com.flipfit.dao.GymOwnerDAOImpl;
+import com.flipfit.dao.GymCentreDAOImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalTime;
@@ -16,6 +18,17 @@ import java.time.LocalDate;
 public class GymOwnerService implements GymOwnerInterface {
     // Static list to act as a temporary database for this session
     private static List<GymCentre> staticGymCentreList = new ArrayList<>();
+    
+    private GymOwnerDAOImpl ownerDAO = new GymOwnerDAOImpl();
+
+    /**
+     * Register a new gym owner - saves to database via DAO
+     */
+    public void registerOwner(String fullName, String email, String password, Long phoneNumber, 
+                             String city, String state, int pincode, String panCard, 
+                             String aadhaarNumber, String gstin) {
+        ownerDAO.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber, gstin);
+    }
 
     @Override
     public void addCentre(GymCentre centre) {
@@ -34,8 +47,38 @@ public class GymOwnerService implements GymOwnerInterface {
             return;
         }
         
-        staticGymCentreList.add(centre);
+        // Get current logged-in owner to associate the centre
+        String currentUserEmail = UserService.getCurrentLoggedInUser();
+        if (currentUserEmail == null) {
+            System.out.println("ERROR: No owner is logged in");
+            return;
+        }
+        
+        Object owner = FlipFitRepository.users.get(currentUserEmail);
+        if (!(owner instanceof GymOwner)) {
+            System.out.println("ERROR: Only gym owners can add centres");
+            return;
+        }
+        int ownerId = ((GymOwner) owner).getUserId();
+        centre.setOwnerId(ownerId);
+        
+        // Set default values if not provided
+        if (centre.getState() == null || centre.getState().isEmpty()) {
+            centre.setState("Karnataka");
+        }
+        if (centre.getPincode() == 0) {
+            centre.setPincode(560001);
+        }
+        
+        // Persist to database using DAO
+        GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+        centreDAO.insertGymCentre(centre);
+        
+        // Also add to in-memory repository for current session
+        FlipFitRepository.gymCentres.add(centre);
+        
         System.out.println("✓ Successfully added Gym Centre: " + centre.getName());
+        System.out.println("  Status: ⚠ PENDING ADMIN APPROVAL");
     }
 
     @Override
@@ -54,20 +97,27 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         int ownerId = ((GymOwner) owner).getUserId();
         
-        List<GymCentre> myCentres = FlipFitRepository.gymCentres.stream()
-            .filter(centre -> centre.getOwnerId() == ownerId)
-            .toList();
+        // Load from DB
+        GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+        List<GymCentre> dbCentres = centreDAO.selectGymCentresByOwner(ownerId);
         
-        if (myCentres.isEmpty()) {
+        // Sync repository for this session
+        // Note: we might not want to clear ALL if multiple owners are active, 
+        // but for a single-user CLI it's often simpler. 
+        // Let's just filter out old ones of this owner.
+        FlipFitRepository.gymCentres.removeIf(c -> c.getOwnerId() == ownerId);
+        FlipFitRepository.gymCentres.addAll(dbCentres);
+        
+        if (dbCentres.isEmpty()) {
             System.out.println("You have not registered any centres yet");
             return new ArrayList<>();
         }
         
         System.out.println("\n========== MY GYM CENTRES ==========");
-        System.out.println("Total Centres: " + myCentres.size());
+        System.out.println("Total Centres: " + dbCentres.size());
         System.out.println("-----------------------------------------");
         
-        for (GymCentre centre : myCentres) {
+        for (GymCentre centre : dbCentres) {
             String status = centre.isApproved() ? "✓ Approved" : "⚠ Pending";
             System.out.println("Centre ID: " + centre.getCentreId() +
                              " | Name: " + centre.getName() +
@@ -76,7 +126,7 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         System.out.println("===================================\n");
         
-        return new ArrayList<>(myCentres);
+        return new ArrayList<>(dbCentres);
     }
 
     @Override
@@ -367,10 +417,16 @@ public class GymOwnerService implements GymOwnerInterface {
         newCentre.setCentreId(newCentreId);
         newCentre.setName(centreName);
         newCentre.setCity(city);
+        newCentre.setState("Karnataka"); // Default state
+        newCentre.setPincode(560001); // Default pincode
         newCentre.setApproved(false); // Pending admin approval
         newCentre.setOwnerId(ownerId); // Associate with owner
         
-        // Add to repository
+        // Persist to database using DAO
+        GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+        centreDAO.insertGymCentre(newCentre);
+        
+        // Add to in-memory repository for current session
         FlipFitRepository.gymCentres.add(newCentre);
         
         // REQUIREMENT: Create slots for this centre

@@ -6,10 +6,20 @@ import com.flipfit.bean.GymCustomer;
 import com.flipfit.bean.Slot;
 import com.flipfit.bean.SlotAvailability;
 import com.flipfit.dao.FlipFitRepository;
+import com.flipfit.dao.GymCustomerDAO;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GymCustomerService implements GymCustomerInterface {
+
+    private GymCustomerDAO customerDAO = new GymCustomerDAO();
+
+    /**
+     * Register a new customer - saves to database via DAO
+     */
+    public void registerCustomer(String fullName, String email, String password, Long phoneNumber, String city, String state, int pincode) {
+        customerDAO.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
+    }
 
     private static String getCurrentUserEmail() {
         // Get the first logged-in user (simplified session management)

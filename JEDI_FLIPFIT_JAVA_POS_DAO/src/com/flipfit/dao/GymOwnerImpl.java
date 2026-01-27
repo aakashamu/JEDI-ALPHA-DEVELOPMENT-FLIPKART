@@ -2,7 +2,7 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.GymCustomer;
-import com.flipfit.client.TestConnection; // Import your connection utility
+import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class GymOwnerImpl implements GymOwnerInterface {
     public boolean registerNewCentre(GymCentre centre) {
         String query = "INSERT INTO GymCentre (centreName, city, state, ownerId, isApproved) VALUES (?, ?, ?, ?, ?)";
         // Use TestConnection.getConnection() instead of DriverManager
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             if (conn == null) return false;
@@ -36,7 +36,7 @@ public class GymOwnerImpl implements GymOwnerInterface {
         List<GymCentre> centres = new ArrayList<>();
         String query = "SELECT * FROM GymCentre WHERE ownerId = ?";
         
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             if (conn == null) return centres;
@@ -62,7 +62,7 @@ public class GymOwnerImpl implements GymOwnerInterface {
     @Override
     public void requestApproval(int gymOwnerId) {
         String query = "UPDATE GymOwner SET isApproved = 0 WHERE userId = ?";
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             if (conn != null) {
@@ -85,7 +85,7 @@ public class GymOwnerImpl implements GymOwnerInterface {
                        "JOIN Slot s ON sa.slotId = s.slotId " +
                        "WHERE s.centreId = ?";
         
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             if (conn == null) return customers;
@@ -107,7 +107,7 @@ public class GymOwnerImpl implements GymOwnerInterface {
     @Override
     public boolean cancelBooking(int bookingId) {
         String query = "UPDATE Booking SET status = 'CANCELLED' WHERE bookingId = ?";
-        try (Connection conn = TestConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             if (conn == null) return false;

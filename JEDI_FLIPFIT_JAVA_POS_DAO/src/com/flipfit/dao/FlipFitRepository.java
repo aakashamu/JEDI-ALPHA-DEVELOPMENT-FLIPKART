@@ -41,15 +41,13 @@ public class FlipFitRepository {
                                                                                         // Notifications
 
     static {
-        // Initialize sample users for testing
-        initializeSampleUsers();
-
-        // Initialize all hardcoded data
-        initializeHardcodedWaitList();
-        initializeSampleCentres();
-        initializeHardcodedSlots();
-        initializeSlotAvailability();
-        initializeHardcodedBookings();
+        // Mock data disabled to prioritize database-driven persistence
+        // initializeSampleUsers();
+        // initializeHardcodedWaitList();
+        // initializeSampleCentres();
+        // initializeHardcodedSlots();
+        // initializeSlotAvailability();
+        // initializeHardcodedBookings();
     }
 
     // -------------------------------
