@@ -25,20 +25,21 @@ public class GymOwnerFlipfitMenu {
                     String name = scanner.next();
                     System.out.print("Enter City: ");
                     String city = scanner.next();
+                    System.out.print("Enter State: ");
+                    String state = scanner.next();
+                    System.out.print("Enter Pincode: ");
+                    int pin = scanner.nextInt();
 
-                    // 1. Create the empty object (Matches the 'required: no arguments' error)
                     GymCentre newCentre = new GymCentre();
-
-                    // 2. Set the values manually using the setter methods
                     newCentre.setCentreId(id);
                     newCentre.setName(name);
                     newCentre.setCity(city);
-                    newCentre.setState("Karnataka");
-                    newCentre.setPincode(560001);
-                    newCentre.setApproved(true);
+                    newCentre.setState(state);
+                    newCentre.setPincode(pin);
+                    newCentre.setApproved(false); // Default to false for admin review
 
-                    // 3. Add it to your service
                     gymOwnerService.addCentre(newCentre);
+                    break;
 
                 case 2:
                     System.out.println("--- Your Gym Centres ---");
