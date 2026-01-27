@@ -62,7 +62,6 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
     public User getCustomerById(int userId) {
         User user = new User();
         String query = "SELECT * FROM User WHERE userId = ?";
-        // Fixed: Use TestConnection.getConnection() instead of DBConnection
         try (Connection conn = DBConnection.getConnection(); 
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
@@ -71,6 +70,11 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
                 user.setUserId(rs.getInt("userId"));
                 user.setFullName(rs.getString("fullName"));
                 user.setEmail(rs.getString("email"));
+                user.setPhoneNumber(rs.getLong("phoneNumber"));
+                user.setCity(rs.getString("city"));
+                user.setState(rs.getString("state"));
+                user.setPincode(rs.getInt("pincode"));
+                user.setRoleId(rs.getInt("roleId"));
             }
         } catch (SQLException e) {
             e.printStackTrace();

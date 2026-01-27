@@ -106,4 +106,28 @@ public class SlotDAOImpl implements SlotDAO {
         }
         return slots;
     }
+    @Override
+    public List<Slot> getSlotsByCentreId(int centreId) {
+        List<Slot> slots = new ArrayList<>();
+        String query = "SELECT * FROM Slot WHERE centreId = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, centreId);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                Slot slot = new Slot();
+                slot.setSlotId(rs.getInt("slotId"));
+                slot.setStartTime(rs.getTime("startTime").toLocalTime());
+                slot.setEndTime(rs.getTime("endTime").toLocalTime());
+                slot.setCapacity(rs.getInt("capacity"));
+                slot.setCentreId(rs.getInt("centreId"));
+                slots.add(slot);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return slots;
+    }
 }

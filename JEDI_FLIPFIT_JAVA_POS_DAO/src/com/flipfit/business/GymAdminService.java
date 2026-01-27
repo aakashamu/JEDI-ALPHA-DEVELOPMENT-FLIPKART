@@ -175,6 +175,9 @@ public class GymAdminService implements GymAdminInterface {
 			return false;
 		}
 		
+		// Refresh repository from DB to ensure we have latest IDs
+		viewAllGymOwners();
+		
 		for (GymOwner owner : FlipFitRepository.owners) {
 			if (owner.getUserId() == ownerId) {
 				System.out.println("✓ Gym Owner " + ownerId + " (" + owner.getFullName() + ") validated successfully");
@@ -249,13 +252,25 @@ public class GymAdminService implements GymAdminInterface {
 	
 	@Override
 	public void viewCustomerMetrics() {
+		// Load from DB
+		List<com.flipfit.bean.GymCustomer> allCustomers = adminDAO.getAllCustomers();
+		List<com.flipfit.bean.Booking> allBookings = adminDAO.getAllBookings();
+		
+		// Sync repository
+		FlipFitRepository.customers.clear();
+		for(com.flipfit.bean.GymCustomer c : allCustomers) {
+			FlipFitRepository.customers.put(c.getEmail(), c);
+		}
+		FlipFitRepository.allBookings.clear();
+		FlipFitRepository.allBookings.addAll(allBookings);
+
 		System.out.println("\n--- Customer Metrics ---");
-		System.out.println("Total Customers: " + FlipFitRepository.customers.size());
-		System.out.println("Total Bookings: " + FlipFitRepository.allBookings.size());
+		System.out.println("Total Customers: " + allCustomers.size());
+		System.out.println("Total Bookings: " + allBookings.size());
 		
 		// Show customers by city
 		System.out.println("\nCustomers by City:");
-		FlipFitRepository.customers.values().stream()
+		allCustomers.stream()
 			.collect(java.util.stream.Collectors.groupingBy(
 				customer -> customer.getCity(),
 				java.util.stream.Collectors.counting()
@@ -267,22 +282,33 @@ public class GymAdminService implements GymAdminInterface {
 	
 	@Override
 	public void viewGymMetrics() {
+		// Load from DB
+		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
+		List<GymCentre> allCentres = centreDAO.selectAllGymCentres();
+		List<GymOwner> allOwners = adminDAO.getAllOwners();
+		
+		// Sync repository
+		FlipFitRepository.gymCentres.clear();
+		FlipFitRepository.gymCentres.addAll(allCentres);
+		FlipFitRepository.owners.clear();
+		FlipFitRepository.owners.addAll(allOwners);
+
 		System.out.println("\n--- Gym Metrics ---");
-		System.out.println("Total Gym Centres: " + FlipFitRepository.gymCentres.size());
-		System.out.println("Total Gym Owners: " + FlipFitRepository.owners.size());
+		System.out.println("Total Gym Centres: " + allCentres.size());
+		System.out.println("Total Gym Owners: " + allOwners.size());
 		
 		// Show approved vs pending centres
-		long approvedCentres = FlipFitRepository.gymCentres.stream()
+		long approvedCentres = allCentres.stream()
 			.filter(GymCentre::isApproved)
 			.count();
-		long pendingCentres = FlipFitRepository.gymCentres.size() - approvedCentres;
+		long pendingCentres = allCentres.size() - approvedCentres;
 		
 		System.out.println("Approved Centres: " + approvedCentres);
 		System.out.println("Pending Centres: " + pendingCentres);
 		
 		// Show all centres with their status
 		System.out.println("\nAll Centres:");
-		FlipFitRepository.gymCentres.forEach(centre -> {
+		allCentres.forEach(centre -> {
 			String status = centre.isApproved() ? "✓ Approved" : "⚠ Pending";
 			int ownerId = centre.getOwnerId();
 			String ownerInfo = (ownerId > 0) ? "Owner ID: " + ownerId : "No Owner";
@@ -293,7 +319,7 @@ public class GymAdminService implements GymAdminInterface {
 		
 		// Show centres by city
 		System.out.println("\nCentres by City:");
-		FlipFitRepository.gymCentres.stream()
+		allCentres.stream()
 			.collect(java.util.stream.Collectors.groupingBy(
 				centre -> centre.getCity(),
 				java.util.stream.Collectors.counting()

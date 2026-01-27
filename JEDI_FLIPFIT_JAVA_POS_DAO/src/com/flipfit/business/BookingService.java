@@ -26,45 +26,19 @@ public class BookingService implements BookingInterface {
     public Booking createBooking(int customerId, int availabilityId) {
         System.out.println("\n========== CREATE BOOKING ==========");
         
-        // Validate customer ID
-        if (customerId <= 0) {
-            System.out.println("ERROR: Invalid customer ID");
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        Booking newBooking = bookingDAO.createBooking(customerId, availabilityId);
+        
+        if (newBooking != null) {
+            // Also update in-memory repository for current session
+            FlipFitRepository.allBookings.add(newBooking);
+            FlipFitRepository.bookingsMap.put(newBooking.getBookingId(), newBooking);
+            System.out.println("SUCCESS: Booking created successfully in database!");
+            return newBooking;
+        } else {
+            System.out.println("ERROR: Failed to create booking in database.");
             return null;
         }
-        
-        // Validate availability ID
-        if (availabilityId <= 0) {
-            System.out.println("ERROR: Invalid availability ID");
-            return null;
-        }
-        
-        // Create new booking
-        int newBookingId = getNextBookingId();
-        Booking newBooking = new Booking();
-        newBooking.setBookingId(newBookingId);
-        newBooking.setCustomerId(customerId);
-        newBooking.setAvailabilityId(availabilityId);
-        newBooking.setStatus("CONFIRMED");
-        newBooking.setBookingDate(new Date());
-        newBooking.setCreatedAt(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        
-        // Add to DAO collections
-        FlipFitRepository.bookingsMap.put(newBookingId, newBooking);
-        FlipFitRepository.allBookings.add(newBooking);
-        
-        // Add to customer's booking list
-        if (!FlipFitRepository.customerBookings.containsKey(customerId)) {
-            FlipFitRepository.customerBookings.put(customerId, new ArrayList<>());
-        }
-        FlipFitRepository.customerBookings.get(customerId).add(newBooking);
-        
-        System.out.println("SUCCESS: Booking created successfully!");
-        System.out.println("Booking ID: " + newBookingId);
-        System.out.println("Customer ID: " + customerId);
-        System.out.println("Status: CONFIRMED");
-        System.out.println("====================================\n");
-        
-        return newBooking;
     }
     
     /**
@@ -77,37 +51,21 @@ public class BookingService implements BookingInterface {
     public boolean cancelBooking(int bookingId) {
         System.out.println("\n========== CANCEL BOOKING ==========");
         
-        // Check if booking exists in Map
-        if (!FlipFitRepository.bookingsMap.containsKey(bookingId)) {
-            System.out.println("ERROR: Booking not found with ID: " + bookingId);
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        boolean success = bookingDAO.cancelBooking(bookingId);
+        
+        if (success) {
+            // Update in-memory repository if needed
+            Booking booking = FlipFitRepository.bookingsMap.get(bookingId);
+            if (booking != null) {
+                booking.setStatus("CANCELLED");
+            }
+            System.out.println("SUCCESS: Booking " + bookingId + " cancelled in database!");
+            return true;
+        } else {
+            System.out.println("ERROR: Failed to cancel booking in database.");
             return false;
         }
-        
-        Booking booking = FlipFitRepository.bookingsMap.get(bookingId);
-        
-        // Cannot cancel if already cancelled
-        if ("CANCELLED".equalsIgnoreCase(booking.getStatus())) {
-            System.out.println("ERROR: Booking is already cancelled");
-            return false;
-        }
-        
-        // Update booking status
-        booking.setStatus("CANCELLED");
-        
-        // Remove from list
-        FlipFitRepository.allBookings.remove(booking);
-        
-        // Remove from customer's booking list
-        if (FlipFitRepository.customerBookings.containsKey(booking.getCustomerId())) {
-            FlipFitRepository.customerBookings.get(booking.getCustomerId()).remove(booking);
-        }
-        
-        System.out.println("SUCCESS: Booking cancelled successfully!");
-        System.out.println("Booking ID: " + bookingId);
-        System.out.println("Status: CANCELLED");
-        System.out.println("====================================\n");
-        
-        return true;
     }
     
     /**
@@ -120,7 +78,8 @@ public class BookingService implements BookingInterface {
     public List<Booking> getCustomerBookings(int customerId) {
         System.out.println("\n====== CUSTOMER BOOKING HISTORY ======");
         
-        List<Booking> customerBookingList = FlipFitRepository.customerBookings.getOrDefault(customerId, new ArrayList<>());
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        List<Booking> customerBookingList = bookingDAO.getCustomerBookings(customerId);
         
         if (customerBookingList.isEmpty()) {
             System.out.println("No bookings found for Customer ID: " + customerId);
@@ -149,20 +108,24 @@ public class BookingService implements BookingInterface {
     public boolean checkBookingStatus(int bookingId) {
         System.out.println("\n====== CHECK BOOKING STATUS ======");
         
-        if (!FlipFitRepository.bookingsMap.containsKey(bookingId)) {
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        boolean confirmed = bookingDAO.checkBookingStatus(bookingId);
+        
+        // To show details, we still need to load the booking
+        List<Booking> all = bookingDAO.getAllBookings();
+        Booking booking = all.stream().filter(b -> b.getBookingId() == bookingId).findFirst().orElse(null);
+        
+        if (booking == null) {
             System.out.println("ERROR: Booking not found with ID: " + bookingId);
             return false;
         }
         
-        Booking booking = FlipFitRepository.bookingsMap.get(bookingId);
         System.out.println("Booking ID: " + booking.getBookingId());
         System.out.println("Customer ID: " + booking.getCustomerId());
-        System.out.println("Availability ID: " + booking.getAvailabilityId());
         System.out.println("Status: " + booking.getStatus());
-        System.out.println("Created At: " + booking.getCreatedAt());
         System.out.println("====================================\n");
         
-        return "CONFIRMED".equalsIgnoreCase(booking.getStatus());
+        return confirmed;
     }
     
     /**
@@ -180,12 +143,15 @@ public class BookingService implements BookingInterface {
     public void viewAllBookings() {
         System.out.println("\n====== ALL BOOKINGS ======");
         
-        if (FlipFitRepository.allBookings.isEmpty()) {
-            System.out.println("No bookings available");
+        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        List<Booking> allBookings = bookingDAO.getAllBookings();
+        
+        if (allBookings.isEmpty()) {
+            System.out.println("No bookings available in the database.");
         } else {
-            System.out.println("Total Bookings: " + FlipFitRepository.allBookings.size());
+            System.out.println("Total Bookings: " + allBookings.size());
             System.out.println("-----------------------------------------");
-            for (Booking booking : FlipFitRepository.allBookings) {
+            for (Booking booking : allBookings) {
                 System.out.println("Booking ID: " + booking.getBookingId() +
                                  " | Customer ID: " + booking.getCustomerId() +
                                  " | Availability ID: " + booking.getAvailabilityId() +

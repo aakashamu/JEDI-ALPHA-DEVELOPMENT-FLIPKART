@@ -88,6 +88,11 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
                 owner.setUserId(rs.getInt("userId"));
                 owner.setFullName(rs.getString("fullName"));
                 owner.setEmail(rs.getString("email"));
+                owner.setPhoneNumber(rs.getLong("phoneNumber"));
+                owner.setCity(rs.getString("city"));
+                owner.setState(rs.getString("state"));
+                owner.setPincode(rs.getInt("pincode"));
+                owner.setRoleId(rs.getInt("roleId"));
                 owner.setPAN(rs.getString("panCard"));
                 owner.setAadhaar(rs.getString("aadhaarNumber"));
                 owner.setGSTIN(rs.getString("gstin"));

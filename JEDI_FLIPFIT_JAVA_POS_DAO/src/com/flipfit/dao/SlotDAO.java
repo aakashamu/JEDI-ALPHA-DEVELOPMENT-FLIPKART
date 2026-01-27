@@ -37,4 +37,11 @@ public interface SlotDAO {
      * @return List of all slots
      */
     List<Slot> getAllSlots();
+
+    /**
+     * Retrieves all slots available in a specific gym centre
+     * @param centreId ID of the gym centre
+     * @return List of slots in the centre
+     */
+    List<Slot> getSlotsByCentreId(int centreId);
 }

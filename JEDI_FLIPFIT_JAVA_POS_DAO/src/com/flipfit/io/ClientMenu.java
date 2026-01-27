@@ -119,19 +119,24 @@ public class ClientMenu {
 
             switch (choice) {
                 case 1:
-                    customerService.viewCentres()
-                            .forEach(g -> System.out.println("ID: " + g.getCentreId() + " | " + g.getName()));
+                    customerService.viewCentres();
                     break;
 
                 case 2:
-                    customerService.viewBookedSlots()
-                            .forEach(b -> System.out.println("Booking ID: " + b.getBookingId() +
-                                    " Status: " + b.getStatus()));
+                    customerService.viewBookedSlots();
                     break;
 
                 case 3:
-                    System.out.print("Enter Availability ID: ");
-                    customerService.bookSlot(scanner.nextInt());
+                    customerService.viewCentres();
+                    System.out.print("Enter Centre ID to see available slots: ");
+                    int centreId = scanner.nextInt();
+                    customerService.viewAvailableSlots(centreId);
+                    
+                    System.out.print("Enter Availability ID to book (or 0 to go back): ");
+                    int availabilityId = scanner.nextInt();
+                    if (availabilityId > 0) {
+                        customerService.bookSlot(availabilityId);
+                    }
                     break;
 
                 case 4:
@@ -197,7 +202,8 @@ public class ClientMenu {
             System.out.println("4. View All Bookings");
             System.out.println("5. Wait List Management");
             System.out.println("6. View All Wait List");
-            System.out.println("7. Logout");
+            System.out.println("7. Setup Slots for Existing Centre");
+            System.out.println("8. Logout");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -209,11 +215,12 @@ public class ClientMenu {
                     String name = scanner.nextLine();
                     System.out.print("Enter City: ");
                     String city = scanner.nextLine();
+                    System.out.print("Enter Number of Slots: ");
+                    int slots = scanner.nextInt();
+                    System.out.print("Enter Capacity per Slot: ");
+                    int capacity = scanner.nextInt();
                     
-                    com.flipfit.bean.GymCentre newCentre = new com.flipfit.bean.GymCentre();
-                    newCentre.setName(name);
-                    newCentre.setCity(city);
-                    ownerService.addCentre(newCentre);
+                    ownerService.registerNewCentre(name, city, slots, capacity);
                     break;
 
                 case 2:
@@ -239,6 +246,17 @@ public class ClientMenu {
                     break;
 
                 case 7:
+                    ownerService.viewMyCentres();
+                    System.out.print("Enter Centre ID to setup slots: ");
+                    int cId = scanner.nextInt();
+                    System.out.print("Enter Number of Slots: ");
+                    int nSlots = scanner.nextInt();
+                    System.out.print("Enter Capacity per Slot: ");
+                    int cap = scanner.nextInt();
+                    ownerService.setupSlotsForExistingCentre(cId, nSlots, cap);
+                    break;
+
+                case 8:
                     System.out.println("\n✓ Logging out... Returning to main menu.");
                     ownerSession = false;
                     break;
@@ -270,6 +288,7 @@ public class ClientMenu {
 
             switch (choice) {
                 case 1:
+                    adminService.viewAllGymOwners();
                     System.out.print("Enter Gym Owner ID to validate: ");
                     int ownerId = scanner.nextInt();
                     System.out.println(adminService.validateGymOwner(ownerId)
@@ -278,6 +297,7 @@ public class ClientMenu {
                     break;
 
                 case 2:
+                    adminService.viewAllCentres();
                     System.out.print("Enter Centre ID to approve: ");
                     int centreId = scanner.nextInt();
                     System.out.println(adminService.approveCentre(centreId)
@@ -286,6 +306,7 @@ public class ClientMenu {
                     break;
 
                 case 3:
+                    adminService.viewAllGymOwners();
                     System.out.print("Enter Gym Owner ID to delete: ");
                     int deleteOwnerId = scanner.nextInt();
                     System.out.println(adminService.deleteOwner(deleteOwnerId)

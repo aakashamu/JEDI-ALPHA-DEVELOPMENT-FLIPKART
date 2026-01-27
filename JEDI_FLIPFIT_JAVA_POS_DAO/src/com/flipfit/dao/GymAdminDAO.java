@@ -11,4 +11,8 @@ public interface GymAdminDAO {
     boolean approveOwner(int ownerId);
     
     boolean deleteOwner(int ownerId);
+
+    java.util.List<com.flipfit.bean.GymCustomer> getAllCustomers();
+    
+    java.util.List<com.flipfit.bean.Booking> getAllBookings();
 }

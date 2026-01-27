@@ -132,4 +132,50 @@ public class GymAdminDAOImpl implements GymAdminDAO {
             }
         }
     }
+    @Override
+    public java.util.List<com.flipfit.bean.GymCustomer> getAllCustomers() {
+        java.util.List<com.flipfit.bean.GymCustomer> customers = new java.util.ArrayList<>();
+        String query = "SELECT u.* FROM User u JOIN GymCustomer c ON u.userId = c.userId WHERE u.roleId = 2";
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                com.flipfit.bean.GymCustomer customer = new com.flipfit.bean.GymCustomer();
+                customer.setUserId(rs.getInt("userId"));
+                customer.setFullName(rs.getString("fullName"));
+                customer.setEmail(rs.getString("email"));
+                customer.setPhoneNumber(rs.getLong("phoneNumber"));
+                customer.setCity(rs.getString("city"));
+                customer.setState(rs.getString("state"));
+                customer.setPincode(rs.getInt("pincode"));
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
+    @Override
+    public java.util.List<com.flipfit.bean.Booking> getAllBookings() {
+        java.util.List<com.flipfit.bean.Booking> bookings = new java.util.ArrayList<>();
+        String query = "SELECT * FROM Booking";
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                com.flipfit.bean.Booking booking = new com.flipfit.bean.Booking();
+                booking.setBookingId(rs.getInt("bookingId"));
+                booking.setCustomerId(rs.getInt("userId"));
+                booking.setAvailabilityId(rs.getInt("availabilityId"));
+                booking.setStatus(rs.getString("status"));
+                booking.setBookingDate(rs.getDate("bookingDate"));
+                booking.setCreatedAt(rs.getString("createdAt"));
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
 }
