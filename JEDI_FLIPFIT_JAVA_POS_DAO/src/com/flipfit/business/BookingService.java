@@ -52,6 +52,24 @@ public class BookingService implements BookingInterface {
         System.out.println("\n========== CANCEL BOOKING ==========");
         
         com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
+        
+        // 1. Get the booking to find out the status and availabilityId before cancelling
+        com.flipfit.bean.Booking bookingToCancel = bookingDAO.getBookingById(bookingId);
+        if (bookingToCancel == null) {
+            System.out.println("ERROR: Booking not found with ID: " + bookingId);
+            return false;
+        }
+        
+        String originalStatus = bookingToCancel.getStatus();
+        
+        if ("CANCELLED".equalsIgnoreCase(originalStatus)) {
+            System.out.println("ERROR: Booking " + bookingId + " is already CANCELLED.");
+            return false;
+        }
+        
+        int availabilityId = bookingToCancel.getAvailabilityId();
+        
+        // 2. Cancel the booking
         boolean success = bookingDAO.cancelBooking(bookingId);
         
         if (success) {
@@ -61,6 +79,28 @@ public class BookingService implements BookingInterface {
                 booking.setStatus("CANCELLED");
             }
             System.out.println("SUCCESS: Booking " + bookingId + " cancelled in database!");
+            
+            // 3. Handle Waitlist Promotion if the cancelled booking was CONFIRMED
+            if ("CONFIRMED".equalsIgnoreCase(originalStatus)) {
+                WaitListService waitListService = new WaitListService();
+                boolean promoted = waitListService.promoteFromWaitList(availabilityId);
+                
+                if (!promoted) {
+                    // No one on waitlist, increment available seats
+                    com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
+                    availabilityDAO.incrementSeats(availabilityId);
+                    System.out.println("Slot availability incremented as no one was on waitlist.");
+                } else {
+                    System.out.println("Successfully promoted next person from waitlist into the vacated slot.");
+                }
+            } else if ("PENDING".equalsIgnoreCase(originalStatus)) {
+                // If the booking was PENDING (on waitlist), remove from waitlist table
+                com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
+                waitlistDAO.removeFromWaitListByBookingId(bookingId);
+                waitlistDAO.updateWaitlistPositions(availabilityId);
+                System.out.println("Removed from waitlist as booking was pending.");
+            }
+            
             return true;
         } else {
             System.out.println("ERROR: Failed to cancel booking in database.");

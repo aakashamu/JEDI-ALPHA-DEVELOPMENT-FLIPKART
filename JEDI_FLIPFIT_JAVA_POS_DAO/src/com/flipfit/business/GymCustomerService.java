@@ -170,9 +170,10 @@ public class GymCustomerService implements GymCustomerInterface {
         }
         
         if (!conflictingBookings.isEmpty()) {
-            System.out.println("INFO: Found conflicting bookings. Removing old bookings...");
+            System.out.println("INFO: Found conflicting bookings. Removing old bookings from database...");
             for (Booking conflictingBooking : conflictingBookings) {
-                removeBookingCompletely(conflictingBooking.getBookingId());
+                // IMPORTANT: Actually cancel in DB to restore seats and update status
+                this.cancelBooking(conflictingBooking.getBookingId());
                 System.out.println("Cancelled conflicting booking ID: " + conflictingBooking.getBookingId());
             }
         }
@@ -212,19 +213,7 @@ public class GymCustomerService implements GymCustomerInterface {
         return sameCentre && timeOverlap;
     }
     
-    /**
-     * Completely remove a booking from all collections
-     */
-    private void removeBookingCompletely(int bookingId) {
-        Booking booking = FlipFitRepository.bookingsMap.remove(bookingId);
-        if (booking != null) {
-            FlipFitRepository.allBookings.removeIf(b -> b.getBookingId() == bookingId);
-            FlipFitRepository.customerBookings.values().forEach(bookings -> 
-                bookings.removeIf(b -> b.getBookingId() == bookingId));
-            FlipFitRepository.slotBookings.values().forEach(bookings ->
-                bookings.removeIf(b -> b.getBookingId() == bookingId));
-        }
-    }
+
 
     @Override
     public boolean cancelBooking(int bookingId) {
@@ -233,70 +222,26 @@ public class GymCustomerService implements GymCustomerInterface {
             return false;
         }
         
-        // Persist to database
-        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
-        boolean dbSuccess = bookingDAO.cancelBooking(bookingId);
+        // Use BookingService to handle cancellation consistently
+        BookingService bookingService = new BookingService();
+        boolean success = bookingService.cancelBooking(bookingId);
         
-        if (dbSuccess) {
-            // Fetch booking from database to get its details
-            Booking booking = bookingDAO.getBookingById(bookingId);
-            System.out.println("[DEBUG] Fetched booking from DB: " + booking);
-            
-            if (booking != null) {
-                String originalStatus = booking.getStatus();
-                System.out.println("[DEBUG] Original status from database: " + originalStatus);
-                
-                // If it was a CONFIRMED booking, restore slot availability and promote from waitlist
-                if ("CONFIRMED".equals(originalStatus)) {
-                    System.out.println("[DEBUG] Entered CONFIRMED branch");
-                    int availabilityId = booking.getAvailabilityId();
-                    System.out.println("[DEBUG] Cancelled booking from availability: " + availabilityId);
-                    com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
-                    availabilityDAO.incrementSeats(availabilityId);
-                    
-                    // Promote first customer from waitlist
-                    com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
-                    WaitListEntry nextInLine = waitlistDAO.getFirstPendingWaitlistEntry(availabilityId);
-                    System.out.println("[DEBUG] nextInLine result: " + nextInLine);
-                    if (nextInLine != null) {
-                        System.out.println("[DEBUG] Promoting booking ID: " + nextInLine.getBookingId());
-                        // Update booking status to CONFIRMED
-                        boolean promoted = bookingDAO.confirmWaitlistBooking(nextInLine.getBookingId());
-                        System.out.println("[DEBUG] Promotion result: " + promoted);
-                        
-                        if (promoted) {
-                            // Remove the promoted booking from waitlist
-                            waitlistDAO.removeFromWaitList(nextInLine.getBookingId());
-                            System.out.println("[DEBUG] Removed booking " + nextInLine.getBookingId() + " from waitlist");
-                            
-                            // Update positions for remaining waitlist entries
-                            waitlistDAO.updateWaitlistPositions(availabilityId);
-                            System.out.println("[DEBUG] Updated waitlist positions for availability: " + availabilityId);
-                            
-                            System.out.println("✓ Customer at position #1 has been promoted from waitlist!");
-                        }
-                    } else {
-                        System.out.println("[DEBUG] No pending bookings found for availability: " + availabilityId);
+        if (success) {
+            // Additional cleanup in memory repository for customer service context
+            String currentUserEmail = getCurrentUserEmail();
+            if (currentUserEmail != null) {
+                GymCustomer customer = FlipFitRepository.customers.get(currentUserEmail);
+                if (customer != null) {
+                    List<Booking> customerBookings = FlipFitRepository.customerBookings.get(customer.getUserId());
+                    if (customerBookings != null) {
+                        customerBookings.removeIf(b -> b.getBookingId() == bookingId);
                     }
-                } else {
-                    System.out.println("[DEBUG] Original status was: " + originalStatus + ", not CONFIRMED");
                 }
-                
-                // If it was a PENDING booking (waitlist), remove from waitlist
-                if ("PENDING".equals(originalStatus)) {
-                    com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
-                    waitlistDAO.removeFromWaitList(bookingId);
-                    System.out.println("✓ Removed from waitlist.");
-                }
-            } else {
-                System.out.println("[DEBUG] Booking not found in database!");
             }
-            System.out.println("✓ Booking cancelled successfully! ID: " + bookingId);
             return true;
-        } else {
-            System.out.println("ERROR: Failed to cancel booking in database.");
-            return false;
         }
+        
+        return false;
     }
 
     @Override
