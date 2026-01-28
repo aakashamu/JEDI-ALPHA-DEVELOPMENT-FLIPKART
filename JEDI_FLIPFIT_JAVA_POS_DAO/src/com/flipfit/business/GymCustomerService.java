@@ -276,8 +276,8 @@ public class GymCustomerService implements GymCustomerInterface {
                 String originalStatus = booking.getStatus();
                 System.out.println("[DEBUG] Original status from database: " + originalStatus);
 
-                if ("CONFIRMED".equals(originalStatus)) {
-                    System.out.println("[DEBUG] Entered CONFIRMED branch");
+                if (true) { // Always increment when canceling a conflicting booking
+                    System.out.println("[DEBUG] Incrementing seats for conflicting booking (status: " + originalStatus + ")");
                     int availabilityId = booking.getAvailabilityId();
                     System.out.println("[DEBUG] Cancelled booking from availability: " + availabilityId);
                     com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
