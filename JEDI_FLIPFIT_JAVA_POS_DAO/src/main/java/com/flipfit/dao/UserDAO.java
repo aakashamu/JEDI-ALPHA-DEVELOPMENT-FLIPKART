@@ -1,8 +1,10 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.User;
+import com.flipfit.constants.UserConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
+
 /**
  * The Class UserDAO.
  *
@@ -19,10 +21,8 @@ public class UserDAO implements UserInterfaceDAO {
    */
     @Override
     public boolean login(String email, String password) {
-        // This checks the User table for a matching email and password
-        String query = "SELECT * FROM User WHERE email = ? AND password = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(UserConstants.LOGIN_QUERY)) {
             
             stmt.setString(1, email);
             stmt.setString(2, password);
@@ -34,6 +34,7 @@ public class UserDAO implements UserInterfaceDAO {
             return false;
         }
     }
+
   /**
    * Get User Details.
    *
@@ -43,16 +44,14 @@ public class UserDAO implements UserInterfaceDAO {
     @Override
     public User getUserDetails(String email) {
         User user = null;
-        String query = "SELECT * FROM User WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(UserConstants.GET_USER_DETAILS_QUERY)) {
             
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
                 user = new User();
-                // Matching your Bean setters to your DB column names
                 user.setUserId(rs.getInt("userId"));
                 user.setFullName(rs.getString("fullName"));
                 user.setEmail(rs.getString("email"));
@@ -68,6 +67,7 @@ public class UserDAO implements UserInterfaceDAO {
         }
         return user;
     }
+
   /**
    * Update Profile.
    *
@@ -75,10 +75,8 @@ public class UserDAO implements UserInterfaceDAO {
    */
     @Override
     public void updateProfile(User user) {
-        // Updating common fields based on the email (unique identifier)
-        String query = "UPDATE User SET fullName = ?, phoneNumber = ?, city = ?, state = ?, pincode = ? WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(UserConstants.UPDATE_PROFILE_QUERY)) {
             
             stmt.setString(1, user.getFullName());
             stmt.setLong(2, user.getPhoneNumber());
@@ -95,6 +93,7 @@ public class UserDAO implements UserInterfaceDAO {
             e.printStackTrace();
         }
     }
+
   /**
    * Change Password.
    *
@@ -105,9 +104,8 @@ public class UserDAO implements UserInterfaceDAO {
    */
     @Override
     public boolean changePassword(String email, String oldPassword, String newPassword) {
-        String query = "UPDATE User SET password = ? WHERE email = ? AND password = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(UserConstants.CHANGE_PASSWORD_QUERY)) {
             
             stmt.setString(1, newPassword);
             stmt.setString(2, email);

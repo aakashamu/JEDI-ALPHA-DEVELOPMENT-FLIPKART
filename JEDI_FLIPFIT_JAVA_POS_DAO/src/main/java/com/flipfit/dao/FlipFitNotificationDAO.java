@@ -1,6 +1,7 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.Notification;
+import com.flipfit.constants.NotificationConstants;
 import com.flipfit.utils.DBConnection;
 
 import java.sql.Connection;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * The Class FlipFitNotificationDAO.
  *
@@ -29,10 +31,8 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
 
-        String sql = "INSERT INTO Notification (userId, message, status, timestamp) VALUES (?, ?, ?, ?)";
-
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.INSERT_NOTIFICATION)) {
 
             stmt.setInt(1, notification.getUserId());
             stmt.setString(2, notification.getMessage());
@@ -47,6 +47,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
+
   /**
    * Get Notification By Id.
    *
@@ -55,10 +56,8 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    */
     @Override
     public Notification getNotificationById(int notificationId) {
-        String sql = "SELECT * FROM Notification WHERE notificationId = ?";
-
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.GET_NOTIFICATION_BY_ID)) {
 
             stmt.setInt(1, notificationId);
             ResultSet rs = stmt.executeQuery();
@@ -77,6 +76,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
         }
         return null;
     }
+
   /**
    * Get Notifications By User Id.
    *
@@ -86,10 +86,9 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
     @Override
     public List<Notification> getNotificationsByUserId(int userId) {
         List<Notification> notifications = new ArrayList<>();
-        String sql = "SELECT * FROM Notification WHERE userId = ? ORDER BY timestamp DESC";
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.GET_NOTIFICATIONS_BY_USER_ID)) {
 
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
@@ -108,6 +107,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
         }
         return notifications;
     }
+
   /**
    * Get Unread Notifications By User Id.
    *
@@ -117,10 +117,9 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
     @Override
     public List<Notification> getUnreadNotificationsByUserId(int userId) {
         List<Notification> notifications = new ArrayList<>();
-        String sql = "SELECT * FROM Notification WHERE userId = ? AND status = 'UNREAD' ORDER BY timestamp DESC";
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.GET_UNREAD_NOTIFICATIONS_BY_USER_ID)) {
 
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
@@ -139,6 +138,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
         }
         return notifications;
     }
+
   /**
    * Mark As Read.
    *
@@ -147,10 +147,8 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    */
     @Override
     public boolean markAsRead(int notificationId) {
-        String sql = "UPDATE Notification SET status = 'READ' WHERE notificationId = ?";
-
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.MARK_AS_READ)) {
 
             stmt.setInt(1, notificationId);
             int rowsAffected = stmt.executeUpdate();
@@ -160,6 +158,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
+
   /**
    * Delete Notification.
    *
@@ -168,10 +167,8 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    */
     @Override
     public boolean deleteNotification(int notificationId) {
-        String sql = "DELETE FROM Notification WHERE notificationId = ?";
-
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.DELETE_NOTIFICATION)) {
 
             stmt.setInt(1, notificationId);
             int rowsAffected = stmt.executeUpdate();
@@ -181,6 +178,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
+
   /**
    * Delete All Notifications By User Id.
    *
@@ -189,10 +187,8 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    */
     @Override
     public boolean deleteAllNotificationsByUserId(int userId) {
-        String sql = "DELETE FROM Notification WHERE userId = ?";
-
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.DELETE_ALL_NOTIFICATIONS_BY_USER_ID)) {
 
             stmt.setInt(1, userId);
             stmt.executeUpdate();
@@ -202,6 +198,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
+
   /**
    * Get All Notifications.
    *
@@ -210,10 +207,9 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
     @Override
     public List<Notification> getAllNotifications() {
         List<Notification> notifications = new ArrayList<>();
-        String sql = "SELECT * FROM Notification ORDER BY timestamp DESC";
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
+                PreparedStatement stmt = conn.prepareStatement(NotificationConstants.GET_ALL_NOTIFICATIONS);
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {

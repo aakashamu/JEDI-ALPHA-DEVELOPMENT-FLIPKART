@@ -1,11 +1,13 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.Slot;
+import com.flipfit.constants.SlotConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * The Class SlotDAOImpl.
  *
@@ -20,9 +22,8 @@ public class SlotDAOImpl implements SlotDAO {
    */
     @Override
     public void addSlot(Slot slot) {
-        String query = "INSERT INTO Slot (startTime, endTime, capacity, centreId) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotConstants.ADD_SLOT)) {
             
             stmt.setTime(1, Time.valueOf(slot.getStartTime()));
             stmt.setTime(2, Time.valueOf(slot.getEndTime()));
@@ -35,6 +36,7 @@ public class SlotDAOImpl implements SlotDAO {
             e.printStackTrace();
         }
     }
+
   /**
    * Update Slot.
    *
@@ -44,9 +46,8 @@ public class SlotDAOImpl implements SlotDAO {
    */
     @Override
     public boolean updateSlot(int slotId, Slot slot) {
-        String query = "UPDATE Slot SET startTime = ?, endTime = ?, capacity = ?, centreId = ? WHERE slotId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotConstants.UPDATE_SLOT)) {
             
             stmt.setTime(1, Time.valueOf(slot.getStartTime()));
             stmt.setTime(2, Time.valueOf(slot.getEndTime()));
@@ -60,6 +61,7 @@ public class SlotDAOImpl implements SlotDAO {
             return false;
         }
     }
+
   /**
    * Delete Slot.
    *
@@ -68,9 +70,8 @@ public class SlotDAOImpl implements SlotDAO {
    */
     @Override
     public boolean deleteSlot(int slotId) {
-        String query = "DELETE FROM Slot WHERE slotId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotConstants.DELETE_SLOT)) {
             
             stmt.setInt(1, slotId);
             return stmt.executeUpdate() > 0;
@@ -79,6 +80,7 @@ public class SlotDAOImpl implements SlotDAO {
             return false;
         }
     }
+
   /**
    * Get Slot By Id.
    *
@@ -87,9 +89,8 @@ public class SlotDAOImpl implements SlotDAO {
    */
     @Override
     public Slot getSlotById(int slotId) {
-        String query = "SELECT * FROM Slot WHERE slotId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotConstants.GET_SLOT_BY_ID)) {
             
             stmt.setInt(1, slotId);
             ResultSet rs = stmt.executeQuery();
@@ -108,6 +109,7 @@ public class SlotDAOImpl implements SlotDAO {
         }
         return null;
     }
+
   /**
    * Get All Slots.
    *
@@ -116,9 +118,8 @@ public class SlotDAOImpl implements SlotDAO {
     @Override
     public List<Slot> getAllSlots() {
         List<Slot> slots = new ArrayList<>();
-        String query = "SELECT * FROM Slot";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
+             PreparedStatement stmt = conn.prepareStatement(SlotConstants.GET_ALL_SLOTS);
              ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
@@ -135,6 +136,7 @@ public class SlotDAOImpl implements SlotDAO {
         }
         return slots;
     }
+
   /**
    * Get Slots By Centre Id.
    *
@@ -144,9 +146,8 @@ public class SlotDAOImpl implements SlotDAO {
     @Override
     public List<Slot> getSlotsByCentreId(int centreId) {
         List<Slot> slots = new ArrayList<>();
-        String query = "SELECT * FROM Slot WHERE centreId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotConstants.GET_SLOTS_BY_CENTRE_ID)) {
             
             stmt.setInt(1, centreId);
             ResultSet rs = stmt.executeQuery();
