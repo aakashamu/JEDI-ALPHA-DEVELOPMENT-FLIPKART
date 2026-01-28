@@ -1,8 +1,10 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.GymOwner;
+import com.flipfit.constants.GymOwnerConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
+
 /**
  * The Class GymOwnerDAOImpl.
  *
@@ -21,8 +23,7 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
             conn.setAutoCommit(false);
             
             // Insert into User table with roleId = 3 (Owner)
-            String userQuery = "INSERT INTO User (fullName, email, password, phoneNumber, city, state, pincode, roleId) VALUES (?, ?, ?, ?, ?, ?, ?, 3)";
-            PreparedStatement userStmt = conn.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement userStmt = conn.prepareStatement(GymOwnerConstants.REGISTER_USER, Statement.RETURN_GENERATED_KEYS);
             userStmt.setString(1, fullName);
             userStmt.setString(2, email);
             userStmt.setString(3, password);
@@ -39,8 +40,7 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
             }
 
             // Insert into GymOwner table
-            String ownerQuery = "INSERT INTO GymOwner (userId, panCard, aadhaarNumber, gstin, isApproved) VALUES (?, ?, ?, ?, 0)";
-            PreparedStatement ownerStmt = conn.prepareStatement(ownerQuery);
+            PreparedStatement ownerStmt = conn.prepareStatement(GymOwnerConstants.REGISTER_OWNER);
             ownerStmt.setInt(1, userId);
             ownerStmt.setString(2, panCard);
             ownerStmt.setString(3, aadhaarNumber);
@@ -64,6 +64,7 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
             }
         }
     }
+
   /**
    * Is Owner Valid.
    *
@@ -73,9 +74,8 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
    */
     @Override
     public boolean isOwnerValid(String email, String password) {
-        String query = "SELECT * FROM User WHERE email = ? AND password = ? AND roleId = 3";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymOwnerConstants.IS_OWNER_VALID)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
@@ -85,6 +85,7 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
             return false;
         }
     }
+
   /**
    * Get Owner By Id.
    *
@@ -94,10 +95,8 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
     @Override
     public GymOwner getOwnerById(int userId) {
         GymOwner owner = new GymOwner();
-        String query = "SELECT u.*, o.panCard, o.aadhaarNumber, o.gstin, o.isApproved " +
-                      "FROM User u JOIN GymOwner o ON u.userId = o.userId WHERE u.userId = ?";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymOwnerConstants.GET_OWNER_BY_ID)) {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

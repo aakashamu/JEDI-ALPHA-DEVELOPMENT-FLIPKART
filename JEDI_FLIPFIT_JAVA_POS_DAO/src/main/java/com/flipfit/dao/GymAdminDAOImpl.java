@@ -1,7 +1,9 @@
 package com.flipfit.dao;
 
+import com.flipfit.constants.GymAdminConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
+
 /**
  * The Class GymAdminDAOImpl.
  *
@@ -17,9 +19,7 @@ public class GymAdminDAOImpl implements GymAdminDAO {
         try {
             conn = DBConnection.getConnection();
             
-            // Insert into User table with roleId = 1 (Admin)
-            String userQuery = "INSERT INTO User (fullName, email, password, phoneNumber, city, state, pincode, roleId) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
-            PreparedStatement userStmt = conn.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement userStmt = conn.prepareStatement(GymAdminConstants.REGISTER_ADMIN, Statement.RETURN_GENERATED_KEYS);
             userStmt.setString(1, fullName);
             userStmt.setString(2, email);
             userStmt.setString(3, password);
@@ -40,6 +40,7 @@ public class GymAdminDAOImpl implements GymAdminDAO {
             }
         }
     }
+
   /**
    * Is Admin Valid.
    *
@@ -49,9 +50,8 @@ public class GymAdminDAOImpl implements GymAdminDAO {
    */
     @Override
     public boolean isAdminValid(String email, String password) {
-        String query = "SELECT * FROM User WHERE email = ? AND password = ? AND roleId = 1";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.IS_ADMIN_VALID)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
@@ -65,10 +65,8 @@ public class GymAdminDAOImpl implements GymAdminDAO {
     @Override
     public java.util.List<com.flipfit.bean.GymOwner> getAllOwners() {
         java.util.List<com.flipfit.bean.GymOwner> owners = new java.util.ArrayList<>();
-        String query = "SELECT u.*, o.panCard, o.aadhaarNumber, o.gstin, o.isApproved " +
-                      "FROM User u JOIN GymOwner o ON u.userId = o.userId WHERE u.roleId = 3";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_OWNERS)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 com.flipfit.bean.GymOwner owner = new com.flipfit.bean.GymOwner();
@@ -91,6 +89,7 @@ public class GymAdminDAOImpl implements GymAdminDAO {
         }
         return owners;
     }
+
   /**
    * Approve Owner.
    *
@@ -99,9 +98,8 @@ public class GymAdminDAOImpl implements GymAdminDAO {
    */
     @Override
     public boolean approveOwner(int ownerId) {
-        String query = "UPDATE GymOwner SET isApproved = 1 WHERE userId = ?";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.APPROVE_OWNER)) {
             stmt.setInt(1, ownerId);
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -110,6 +108,7 @@ public class GymAdminDAOImpl implements GymAdminDAO {
             return false;
         }
     }
+
   /**
    * Delete Owner.
    *
@@ -123,15 +122,13 @@ public class GymAdminDAOImpl implements GymAdminDAO {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
             
-            // Delete from GymOwner table first (foreign key constraint)
-            String deleteOwnerQuery = "DELETE FROM GymOwner WHERE userId = ?";
-            PreparedStatement ownerStmt = conn.prepareStatement(deleteOwnerQuery);
+            // Delete from GymOwner table first
+            PreparedStatement ownerStmt = conn.prepareStatement(GymAdminConstants.DELETE_OWNER_FROM_GYM_OWNER);
             ownerStmt.setInt(1, ownerId);
             ownerStmt.executeUpdate();
             
             // Delete from User table
-            String deleteUserQuery = "DELETE FROM User WHERE userId = ?";
-            PreparedStatement userStmt = conn.prepareStatement(deleteUserQuery);
+            PreparedStatement userStmt = conn.prepareStatement(GymAdminConstants.DELETE_OWNER_FROM_USER);
             userStmt.setInt(1, ownerId);
             int rowsAffected = userStmt.executeUpdate();
             
@@ -153,12 +150,12 @@ public class GymAdminDAOImpl implements GymAdminDAO {
             }
         }
     }
+
     @Override
     public java.util.List<com.flipfit.bean.GymCustomer> getAllCustomers() {
         java.util.List<com.flipfit.bean.GymCustomer> customers = new java.util.ArrayList<>();
-        String query = "SELECT u.* FROM User u JOIN GymCustomer c ON u.userId = c.userId WHERE u.roleId = 2";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_CUSTOMERS)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 com.flipfit.bean.GymCustomer customer = new com.flipfit.bean.GymCustomer();
@@ -180,9 +177,8 @@ public class GymAdminDAOImpl implements GymAdminDAO {
     @Override
     public java.util.List<com.flipfit.bean.Booking> getAllBookings() {
         java.util.List<com.flipfit.bean.Booking> bookings = new java.util.ArrayList<>();
-        String query = "SELECT * FROM Booking";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_BOOKINGS)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 com.flipfit.bean.Booking booking = new com.flipfit.bean.Booking();

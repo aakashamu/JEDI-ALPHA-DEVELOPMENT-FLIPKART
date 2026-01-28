@@ -2,9 +2,11 @@ package com.flipfit.dao;
 
 import java.util.List;
 import com.flipfit.bean.GymCentre;
+import com.flipfit.constants.GymCentreConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
+
 /**
  * The Class GymCentreDAOImpl.
  *
@@ -16,11 +18,12 @@ public class GymCentreDAOImpl implements GymCentreDAO {
    * Get Connection.
    *
    * @return the Connection
- * @throws SQLException 
+   * @throws SQLException  
    */
     private Connection getConnection() throws SQLException {
         return DBConnection.getConnection();
     }
+
   /**
    * Insert Gym Centre.
    *
@@ -28,12 +31,11 @@ public class GymCentreDAOImpl implements GymCentreDAO {
    */
     @Override
     public void insertGymCentre(GymCentre centre) {
-        String sql = "INSERT INTO GymCentre (centreName, city, state, ownerId, isApproved) VALUES (?, ?, ?, ?, ?)";
         Connection conn = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(true); // Ensure autocommit is on
-            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement pstmt = conn.prepareStatement(GymCentreConstants.INSERT_GYM_CENTRE, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, centre.getName());
             pstmt.setString(2, centre.getCity());
             pstmt.setString(3, centre.getState());
@@ -65,6 +67,7 @@ public class GymCentreDAOImpl implements GymCentreDAO {
             }
         }
     }
+
   /**
    * Select All Gym Centres.
    *
@@ -73,9 +76,8 @@ public class GymCentreDAOImpl implements GymCentreDAO {
     @Override
     public List<GymCentre> selectAllGymCentres() {
         List<GymCentre> centres = new ArrayList<>();
-        String sql = "SELECT * FROM GymCentre";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
+             PreparedStatement pstmt = conn.prepareStatement(GymCentreConstants.SELECT_ALL_GYM_CENTRES);
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 GymCentre centre = new GymCentre();
@@ -92,6 +94,7 @@ public class GymCentreDAOImpl implements GymCentreDAO {
         }
         return centres;
     }
+
   /**
    * Update Gym Centre Approval.
    *
@@ -100,9 +103,8 @@ public class GymCentreDAOImpl implements GymCentreDAO {
    */
     @Override
     public void updateGymCentreApproval(int centreId, boolean approved) {
-        String sql = "UPDATE GymCentre SET isApproved = ? WHERE centreId = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(GymCentreConstants.UPDATE_GYM_CENTRE_APPROVAL)) {
             pstmt.setInt(1, approved ? 1 : 0);
             pstmt.setInt(2, centreId);
             int rows = pstmt.executeUpdate();
@@ -111,6 +113,7 @@ public class GymCentreDAOImpl implements GymCentreDAO {
             e.printStackTrace();
         }
     }
+
   /**
    * Delete Gym Centre.
    *
@@ -118,9 +121,8 @@ public class GymCentreDAOImpl implements GymCentreDAO {
    */
     @Override
     public void deleteGymCentre(int centreId) {
-        String sql = "DELETE FROM GymCentre WHERE centreId = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(GymCentreConstants.DELETE_GYM_CENTRE)) {
             pstmt.setInt(1, centreId);
             int rows = pstmt.executeUpdate();
             System.out.println(rows + " gym centre deleted.");
@@ -128,6 +130,7 @@ public class GymCentreDAOImpl implements GymCentreDAO {
             e.printStackTrace();
         }
     }
+
   /**
    * Select Gym Centres By Owner.
    *
@@ -137,9 +140,8 @@ public class GymCentreDAOImpl implements GymCentreDAO {
     @Override
     public List<GymCentre> selectGymCentresByOwner(int ownerId) {
         List<GymCentre> centres = new ArrayList<>();
-        String sql = "SELECT * FROM GymCentre WHERE ownerId = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(GymCentreConstants.SELECT_GYM_CENTRES_BY_OWNER)) {
             pstmt.setInt(1, ownerId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {

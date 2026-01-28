@@ -1,10 +1,12 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.Booking;
+import com.flipfit.constants.BookingConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * The Class BookingDAOImpl.
  *
@@ -21,9 +23,8 @@ public class BookingDAOImpl implements BookingDAO {
    */
     @Override
     public Booking createBooking(int customerId, int availabilityId) {
-        String query = "INSERT INTO Booking (userId, availabilityId, status, bookingDate, createdAt) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.INSERT_BOOKING, Statement.RETURN_GENERATED_KEYS)) {
             
             String status = "CONFIRMED";
             java.util.Date now = new java.util.Date();
@@ -56,6 +57,7 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return null;
     }
+
   /**
    * Create Pending Booking.
    *
@@ -65,9 +67,8 @@ public class BookingDAOImpl implements BookingDAO {
    */
     public Booking createPendingBooking(int customerId, int availabilityId) {
         System.out.println("[DEBUG] createPendingBooking called with customerId=" + customerId + ", availabilityId=" + availabilityId);
-        String query = "INSERT INTO Booking (userId, availabilityId, status, bookingDate, createdAt) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.INSERT_BOOKING, Statement.RETURN_GENERATED_KEYS)) {
             
             String status = "PENDING";
             java.util.Date now = new java.util.Date();
@@ -107,6 +108,7 @@ public class BookingDAOImpl implements BookingDAO {
         System.out.println("[ERROR] createPendingBooking returning null");
         return null;
     }
+
   /**
    * Cancel Booking.
    *
@@ -115,9 +117,8 @@ public class BookingDAOImpl implements BookingDAO {
    */
     @Override
     public boolean cancelBooking(int bookingId) {
-        String query = "UPDATE Booking SET status = 'CANCELLED' WHERE bookingId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.CANCEL_BOOKING)) {
             
             stmt.setInt(1, bookingId);
             return stmt.executeUpdate() > 0;
@@ -126,6 +127,7 @@ public class BookingDAOImpl implements BookingDAO {
             return false;
         }
     }
+
   /**
    * Get Customer Bookings.
    *
@@ -135,9 +137,8 @@ public class BookingDAOImpl implements BookingDAO {
     @Override
     public List<Booking> getCustomerBookings(int customerId) {
         List<Booking> bookings = new ArrayList<>();
-        String query = "SELECT * FROM Booking WHERE userId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.GET_CUSTOMER_BOOKINGS)) {
             
             stmt.setInt(1, customerId);
             ResultSet rs = stmt.executeQuery();
@@ -157,6 +158,7 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return bookings;
     }
+
   /**
    * Check Booking Status.
    *
@@ -165,9 +167,8 @@ public class BookingDAOImpl implements BookingDAO {
    */
     @Override
     public boolean checkBookingStatus(int bookingId) {
-        String query = "SELECT status FROM Booking WHERE bookingId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.CHECK_BOOKING_STATUS)) {
             
             stmt.setInt(1, bookingId);
             ResultSet rs = stmt.executeQuery();
@@ -180,6 +181,7 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return false;
     }
+
   /**
    * Get All Bookings.
    *
@@ -188,9 +190,8 @@ public class BookingDAOImpl implements BookingDAO {
     @Override
     public List<Booking> getAllBookings() {
         List<Booking> bookings = new ArrayList<>();
-        String query = "SELECT * FROM Booking";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.GET_ALL_BOOKINGS);
              ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
@@ -208,6 +209,7 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return bookings;
     }
+
   /**
    * Confirm Waitlist Booking.
    *
@@ -215,9 +217,8 @@ public class BookingDAOImpl implements BookingDAO {
    * @return the boolean
    */
     public boolean confirmWaitlistBooking(int bookingId) {
-        String query = "UPDATE Booking SET status = 'CONFIRMED' WHERE bookingId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.CONFIRM_WAITLIST_BOOKING)) {
             
             stmt.setInt(1, bookingId);
             return stmt.executeUpdate() > 0;
@@ -226,6 +227,7 @@ public class BookingDAOImpl implements BookingDAO {
             return false;
         }
     }
+
   /**
    * Get Booking By Id.
    *
@@ -233,9 +235,8 @@ public class BookingDAOImpl implements BookingDAO {
    * @return the Booking
    */
     public Booking getBookingById(int bookingId) {
-        String query = "SELECT * FROM Booking WHERE bookingId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(BookingConstants.GET_BOOKING_BY_ID)) {
             
             stmt.setInt(1, bookingId);
             try (ResultSet rs = stmt.executeQuery()) {

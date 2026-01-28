@@ -1,8 +1,10 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.User;
+import com.flipfit.constants.GymCustomerConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
+
 /**
  * The Class GymCustomerDAO.
  *
@@ -27,8 +29,8 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
         try {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
-            String userQuery = "INSERT INTO User (fullName, email, password, phoneNumber, city, state, pincode, roleId) VALUES (?, ?, ?, ?, ?, ?, ?, 2)";
-            PreparedStatement userStmt = conn.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS);
+            
+            PreparedStatement userStmt = conn.prepareStatement(GymCustomerConstants.REGISTER_USER, Statement.RETURN_GENERATED_KEYS);
             userStmt.setString(1, fullName);
             userStmt.setString(2, email);
             userStmt.setString(3, password);
@@ -42,8 +44,7 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
             int userId = 0;
             if (rs.next()) { userId = rs.getInt(1); }
 
-            String customerQuery = "INSERT INTO GymCustomer (userId) VALUES (?)";
-            PreparedStatement customerStmt = conn.prepareStatement(customerQuery);
+            PreparedStatement customerStmt = conn.prepareStatement(GymCustomerConstants.REGISTER_CUSTOMER);
             customerStmt.setInt(1, userId);
             customerStmt.executeUpdate();
 
@@ -56,6 +57,7 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
             try { if(conn != null) conn.close(); } catch (SQLException se) { se.printStackTrace(); }
         }
     }
+    
   /**
    * Is User Valid.
    *
@@ -65,10 +67,8 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
    */
     @Override
     public boolean isUserValid(String email, String password) {
-        String query = "SELECT * FROM User WHERE email = ? AND password = ? AND roleId = 2";
-        // Fixed: Use TestConnection.getConnection() instead of DBConnection
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymCustomerConstants.IS_USER_VALID)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
@@ -78,6 +78,7 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
             return false;
         }
     }
+    
   /**
    * Get Customer By Id.
    *
@@ -87,9 +88,8 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
     @Override
     public User getCustomerById(int userId) {
         User user = new User();
-        String query = "SELECT * FROM User WHERE userId = ?";
         try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(GymCustomerConstants.GET_CUSTOMER_BY_ID)) {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

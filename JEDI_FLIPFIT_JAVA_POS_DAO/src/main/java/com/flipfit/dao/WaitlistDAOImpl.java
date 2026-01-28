@@ -1,10 +1,12 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.WaitListEntry;
+import com.flipfit.constants.WaitlistConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * The Class WaitlistDAOImpl.
  *
@@ -21,30 +23,27 @@ public class WaitlistDAOImpl implements WaitlistDAO {
     @Override
     public boolean addToWaitList(int bookingId) {
         System.out.println("[DEBUG] addToWaitList called with bookingId=" + bookingId);
-        // Need to calculate position: next available position
-        String posQuery = "SELECT COUNT(*) FROM Waitlist";
-        String insertQuery = "INSERT INTO Waitlist (bookingId, position, createdAt) VALUES (?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection()) {
             int currentCount = 0;
-            try (PreparedStatement posStmt = conn.prepareStatement(posQuery);
+            try (PreparedStatement posStmt = conn.prepareStatement(WaitlistConstants.GET_WAITLIST_COUNT);
                  ResultSet rs = posStmt.executeQuery()) {
                 if (rs.next()) {
                     currentCount = rs.getInt(1);
                 }
             }
-            
+                                        
             System.out.println("[DEBUG] Current waitlist count: " + currentCount + ", New position will be: " + (currentCount + 1));
-            
-            try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                                        
+            try (PreparedStatement insertStmt = conn.prepareStatement(WaitlistConstants.INSERT_WAITLIST_ENTRY)) {
                 insertStmt.setInt(1, bookingId);
                 insertStmt.setInt(2, currentCount + 1);
                 insertStmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-                
+                                        
                 System.out.println("[DEBUG] Executing waitlist insert for bookingId=" + bookingId);
                 int affectedRows = insertStmt.executeUpdate();
                 System.out.println("[DEBUG] Waitlist insert affected rows: " + affectedRows);
-                
+                                        
                 return affectedRows > 0;
             }
         } catch (SQLException e) {
@@ -53,8 +52,9 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             return false;
         }
     }
+
   /**
-   * Add To Wait List.
+   * Add To Wait List (Overloaded).
    *
    * @param bookingId the bookingId
    * @param customerId the customerId
@@ -62,12 +62,9 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * @return the int
    */
     public int addToWaitList(int bookingId, int customerId, int availabilityId) {
-        String posQuery = "SELECT COUNT(*) as cnt FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ?";
-        String insertQuery = "INSERT INTO Waitlist (bookingId, position, createdAt) VALUES (?, ?, ?)";
-        
         try (Connection conn = DBConnection.getConnection()) {
             int position = 1;
-            try (PreparedStatement posStmt = conn.prepareStatement(posQuery)) {
+            try (PreparedStatement posStmt = conn.prepareStatement(WaitlistConstants.GET_WAITLIST_COUNT_BY_AVAILABILITY)) {
                 posStmt.setInt(1, availabilityId);
                 try (ResultSet rs = posStmt.executeQuery()) {
                     if (rs.next()) {
@@ -75,12 +72,12 @@ public class WaitlistDAOImpl implements WaitlistDAO {
                     }
                 }
             }
-            
-            try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                                        
+            try (PreparedStatement insertStmt = conn.prepareStatement(WaitlistConstants.INSERT_WAITLIST_ENTRY)) {
                 insertStmt.setInt(1, bookingId);
                 insertStmt.setInt(2, position);
                 insertStmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-                
+                                        
                 insertStmt.executeUpdate();
                 return position;
             }
@@ -89,6 +86,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             return -1;
         }
     }
+
   /**
    * Get Waitlist Count By Availability Id.
    *
@@ -96,10 +94,9 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * @return the int
    */
     public int getWaitlistCountByAvailabilityId(int availabilityId) {
-        String query = "SELECT COUNT(*) as cnt FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING'";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(WaitlistConstants.GET_WAITLIST_COUNT_FOR_PENDING)) {
+                                        
             stmt.setInt(1, availabilityId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -111,6 +108,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return 0;
     }
+
   /**
    * Get First Pending Waitlist Entry.
    *
@@ -118,10 +116,9 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * @return the WaitListEntry
    */
     public WaitListEntry getFirstPendingWaitlistEntry(int availabilityId) {
-        String query = "SELECT w.*, b.userId, b.availabilityId FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING' ORDER BY w.position ASC LIMIT 1";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(WaitlistConstants.GET_FIRST_PENDING_ENTRY)) {
+                                        
             stmt.setInt(1, availabilityId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -142,6 +139,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return null;
     }
+
   /**
    * Update Waitlist Status.
    *
@@ -150,10 +148,9 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * @return the boolean
    */
     public boolean updateWaitlistStatus(int waitlistId, String status) {
-        String query = "UPDATE Waitlist SET status = ? WHERE waitlistId = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(WaitlistConstants.UPDATE_WAITLIST_STATUS)) {
+                                        
             stmt.setString(1, status);
             stmt.setInt(2, waitlistId);
             return stmt.executeUpdate() > 0;
@@ -162,6 +159,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             return false;
         }
     }
+
   /**
    * Remove From Wait List.
    *
@@ -169,57 +167,49 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    */
     @Override
     public void removeFromWaitList(int bookingId) {
-        String deleteQuery = "DELETE FROM Waitlist WHERE bookingId = ?";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery)) {
-            
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement deleteStmt = conn.prepareStatement(WaitlistConstants.DELETE_WAITLIST_ENTRY)) {
+                                        
             deleteStmt.setInt(1, bookingId);
             deleteStmt.executeUpdate();
-            
+                                        
             // Re-ordering positions after removal
-            // Note: Multiple statements might require session handling or a simpler loop
             updatePositions(conn);
-            
+                                        
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
   /**
    * Remove From Wait List By Booking Id.
    *
    * @param bookingId the bookingId
    */
     public void removeFromWaitListByBookingId(int bookingId) {
-        String deleteQuery = "DELETE FROM Waitlist WHERE bookingId = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
-            
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(WaitlistConstants.DELETE_WAITLIST_ENTRY)) {
+                                        
             stmt.setInt(1, bookingId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
   /**
-   * Update Positions.
-   *
-   * @param conn the conn
- * @throws SQLException 
+   * Internal method to re-order positions.
    */
     private void updatePositions(Connection conn) throws SQLException {
-        String selectQuery = "SELECT waitlistId FROM Waitlist ORDER BY createdAt ASC";
-        String updateQuery = "UPDATE Waitlist SET position = ? WHERE waitlistId = ?";
-        
         List<Integer> ids = new ArrayList<>();
-        try (PreparedStatement selectStmt = conn.prepareStatement(selectQuery);
+        try (PreparedStatement selectStmt = conn.prepareStatement(WaitlistConstants.SELECT_WAITLIST_IDS_BY_TIME);
              ResultSet rs = selectStmt.executeQuery()) {
             while (rs.next()) {
                 ids.add(rs.getInt("waitlistid"));
             }
         }
-        
-        try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                                        
+        try (PreparedStatement updateStmt = conn.prepareStatement(WaitlistConstants.UPDATE_WAITLIST_POSITION)) {
             for (int i = 0; i < ids.size(); i++) {
                 updateStmt.setInt(1, i + 1);
                 updateStmt.setInt(2, ids.get(i));
@@ -228,6 +218,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             updateStmt.executeBatch();
         }
     }
+
   /**
    * Update Wait List.
    *
@@ -235,16 +226,13 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    */
     @Override
     public boolean updateWaitList() {
-        // This usually means processing the first person in the waitlist when a slot opens up
-        String firstEntryQuery = "SELECT bookingId FROM Waitlist ORDER BY position ASC LIMIT 1";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(firstEntryQuery);
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(WaitlistConstants.SELECT_FIRST_ENTRY_FOR_UPDATE);
              ResultSet rs = stmt.executeQuery()) {
-            
+                                        
             if (rs.next()) {
                 int bookingId = rs.getInt("bookingId");
                 removeFromWaitList(bookingId);
-                // In a real app, you'd then update the Booking status to CONFIRMED
                 return true;
             }
         } catch (SQLException e) {
@@ -252,6 +240,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return false;
     }
+
   /**
    * Get All Wait List Entries.
    *
@@ -260,11 +249,10 @@ public class WaitlistDAOImpl implements WaitlistDAO {
     @Override
     public List<WaitListEntry> getAllWaitListEntries() {
         List<WaitListEntry> entries = new ArrayList<>();
-        String query = "SELECT * FROM Waitlist ORDER BY position ASC";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(WaitlistConstants.GET_ALL_WAITLIST_ENTRIES);
              ResultSet rs = stmt.executeQuery()) {
-            
+                                        
             while (rs.next()) {
                 WaitListEntry entry = new WaitListEntry();
                 entry.setWaitlistid(rs.getInt("waitlistId"));
@@ -277,6 +265,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return entries;
     }
+
   /**
    * Get Wait List Position.
    *
@@ -285,13 +274,12 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    */
     @Override
     public int getWaitListPosition(int bookingId) {
-        String query = "SELECT position FROM Waitlist WHERE bookingId = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(WaitlistConstants.GET_WAITLIST_POSITION)) {
+                                        
             stmt.setInt(1, bookingId);
             ResultSet rs = stmt.executeQuery();
-            
+                                        
             if (rs.next()) {
                 return rs.getInt("position");
             }
@@ -300,18 +288,16 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return -1;
     }
+
   /**
-   * Update Waitlist Positions.
+   * Update Waitlist Positions for a specific availability.
    *
    * @param availabilityId the availabilityId
    */
     public void updateWaitlistPositions(int availabilityId) {
-        String selectQuery = "SELECT w.waitlistId FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING' ORDER BY w.position ASC";
-        String updateQuery = "UPDATE Waitlist SET position = ? WHERE waitlistId = ?";
-        
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
-            
+        try (Connection conn = DBConnection.getConnection(); 
+             PreparedStatement selectStmt = conn.prepareStatement(WaitlistConstants.SELECT_WAITLIST_IDS_BY_AVAILABILITY)) {
+                                        
             selectStmt.setInt(1, availabilityId);
             List<Integer> waitlistIds = new ArrayList<>();
             try (ResultSet rs = selectStmt.executeQuery()) {
@@ -319,9 +305,8 @@ public class WaitlistDAOImpl implements WaitlistDAO {
                     waitlistIds.add(rs.getInt("waitlistId"));
                 }
             }
-            
-            // Update each position sequentially
-            try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                                        
+            try (PreparedStatement updateStmt = conn.prepareStatement(WaitlistConstants.UPDATE_WAITLIST_POSITION)) {
                 for (int i = 0; i < waitlistIds.size(); i++) {
                     updateStmt.setInt(1, i + 1);
                     updateStmt.setInt(2, waitlistIds.get(i));
@@ -334,4 +319,18 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             System.out.println("[ERROR] SQLException in updateWaitlistPositions: " + e.getMessage());
             e.printStackTrace();
         }
-    }}
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

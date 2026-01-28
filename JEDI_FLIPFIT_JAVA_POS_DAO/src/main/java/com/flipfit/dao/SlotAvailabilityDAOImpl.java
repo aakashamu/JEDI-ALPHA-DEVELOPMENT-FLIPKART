@@ -1,11 +1,13 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.SlotAvailability;
+import com.flipfit.constants.SlotAvailabilityConstants;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * The Class SlotAvailabilityDAOImpl.
  *
@@ -20,13 +22,12 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    */
     @Override
     public void addSlotAvailability(SlotAvailability slotAvailability) {
-        String query = "INSERT INTO SlotAvailability (slotId, date, seatsTotal, seatsAvailable) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.ADD_SLOT_AVAILABILITY)) {
             
             stmt.setInt(1, slotAvailability.getSlotId());
             stmt.setDate(2, Date.valueOf(slotAvailability.getDate()));
-            stmt.setInt(3, slotAvailability.getSeatsTotal()); // Use bean value instead of hardcoded 10
+            stmt.setInt(3, slotAvailability.getSeatsTotal());
             stmt.setInt(4, slotAvailability.isAvailable() ? slotAvailability.getSeatsTotal() : 0);
             
             stmt.executeUpdate();
@@ -35,6 +36,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             e.printStackTrace();
         }
     }
+
   /**
    * Update Slot Availability.
    *
@@ -44,9 +46,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    */
     @Override
     public boolean updateSlotAvailability(int id, SlotAvailability slotAvailability) {
-        String query = "UPDATE SlotAvailability SET slotId = ?, date = ?, seatsAvailable = ? WHERE availabilityId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.UPDATE_SLOT_AVAILABILITY)) {
             
             stmt.setInt(1, slotAvailability.getSlotId());
             stmt.setDate(2, Date.valueOf(slotAvailability.getDate()));
@@ -59,6 +60,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             return false;
         }
     }
+
   /**
    * Delete Slot Availability.
    *
@@ -67,9 +69,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    */
     @Override
     public boolean deleteSlotAvailability(int id) {
-        String query = "DELETE FROM SlotAvailability WHERE availabilityId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.DELETE_SLOT_AVAILABILITY)) {
             
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
@@ -78,6 +79,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             return false;
         }
     }
+
   /**
    * Get Slot Availability By Id.
    *
@@ -86,9 +88,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    */
     @Override
     public SlotAvailability getSlotAvailabilityById(int id) {
-        String query = "SELECT * FROM SlotAvailability WHERE availabilityId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.GET_SLOT_AVAILABILITY_BY_ID)) {
             
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -108,6 +109,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return null;
     }
+
   /**
    * Get All Slot Availabilities.
    *
@@ -116,9 +118,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
     @Override
     public List<SlotAvailability> getAllSlotAvailabilities() {
         List<SlotAvailability> list = new ArrayList<>();
-        String query = "SELECT * FROM SlotAvailability";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.GET_ALL_SLOT_AVAILABILITIES);
              ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
@@ -134,6 +135,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return list;
     }
+
   /**
    * Get Available Slots By Date.
    *
@@ -143,9 +145,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
     @Override
     public List<SlotAvailability> getAvailableSlotsByDate(LocalDate date) {
         List<SlotAvailability> list = new ArrayList<>();
-        String query = "SELECT * FROM SlotAvailability WHERE date = ? AND seatsAvailable > 0";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.GET_AVAILABLE_SLOTS_BY_DATE)) {
             
             stmt.setDate(1, Date.valueOf(date));
             ResultSet rs = stmt.executeQuery();
@@ -163,6 +164,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return list;
     }
+
   /**
    * Get Available Slots By Slot Id.
    *
@@ -172,10 +174,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
     @Override
     public List<SlotAvailability> getAvailableSlotsBySlotId(int slotId) {
         List<SlotAvailability> list = new ArrayList<>();
-        // Get ALL slots including those with 0 seats for waitlist display
-        String query = "SELECT * FROM SlotAvailability WHERE slotId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.GET_AVAILABLE_SLOTS_BY_SLOT_ID)) {
             
             stmt.setInt(1, slotId);
             ResultSet rs = stmt.executeQuery();
@@ -195,6 +195,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return list;
     }
+
   /**
    * Decrement Seats.
    *
@@ -202,9 +203,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    * @return the boolean
    */
     public boolean decrementSeats(int availabilityId) {
-        String query = "UPDATE SlotAvailability SET seatsAvailable = seatsAvailable - 1 WHERE availabilityId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.DECREMENT_SEATS)) {
             
             stmt.setInt(1, availabilityId);
             return stmt.executeUpdate() > 0;
@@ -213,6 +213,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             return false;
         }
     }
+
   /**
    * Increment Seats.
    *
@@ -220,9 +221,8 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    * @return the boolean
    */
     public boolean incrementSeats(int availabilityId) {
-        String query = "UPDATE SlotAvailability SET seatsAvailable = seatsAvailable + 1 WHERE availabilityId = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SlotAvailabilityConstants.INCREMENT_SEATS)) {
             
             stmt.setInt(1, availabilityId);
             return stmt.executeUpdate() > 0;
