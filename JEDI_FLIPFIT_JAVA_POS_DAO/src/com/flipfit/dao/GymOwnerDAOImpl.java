@@ -3,7 +3,12 @@ package com.flipfit.dao;
 import com.flipfit.bean.GymOwner;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
-
+/**
+ * The Class GymOwnerDAOImpl.
+ *
+ * @author Ananya
+ * @ClassName  "GymOwnerDAOImpl"
+ */
 public class GymOwnerDAOImpl implements GymOwnerDAO {
 
     @Override
@@ -59,7 +64,13 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
             }
         }
     }
-
+  /**
+   * Is Owner Valid.
+   *
+   * @param email the email
+   * @param password the password
+   * @return the boolean
+   */
     @Override
     public boolean isOwnerValid(String email, String password) {
         String query = "SELECT * FROM User WHERE email = ? AND password = ? AND roleId = 3";
@@ -74,7 +85,12 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
             return false;
         }
     }
-
+  /**
+   * Get Owner By Id.
+   *
+   * @param userId the userId
+   * @return the GymOwner
+   */
     @Override
     public GymOwner getOwnerById(int userId) {
         GymOwner owner = new GymOwner();

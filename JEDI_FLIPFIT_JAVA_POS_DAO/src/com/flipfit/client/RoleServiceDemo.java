@@ -3,12 +3,18 @@ package com.flipfit.client;
 import com.flipfit.bean.Role;
 import com.flipfit.business.RoleService;
 import java.util.List;
-
 /**
- * Demo class to test Role Service and DAO functionality
+ * The Class RoleServiceDemo.
+ *
+ * @author Ananya
+ * @ClassName  "RoleServiceDemo"
  */
 public class RoleServiceDemo {
-
+  /**
+   * Main.
+   *
+   * @param args the args
+   */
     public static void main(String[] args) {
         System.out.println("========== Role Service Demo ==========\n");
 

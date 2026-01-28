@@ -9,9 +9,18 @@ import com.flipfit.business.WaitListService;
 import com.flipfit.business.NotificationService;
 import com.flipfit.exception.*;
 import java.util.Scanner;
-
+/**
+ * The Class ClientMenu.
+ *
+ * @author Ananya
+ * @ClassName  "ClientMenu"
+ */
 public class ClientMenu {
-
+  /**
+   * Main.
+   *
+   * @param args the args
+   */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -58,7 +67,11 @@ public class ClientMenu {
 
         scanner.close();
     }
-
+  /**
+   * Handle Login.
+   *
+   * @param scanner the scanner
+   */
     private static void handleLogin(Scanner scanner) {
         scanner.nextLine();
         System.out.print("Email: ");
@@ -103,10 +116,11 @@ public class ClientMenu {
             System.out.println("Login Failed. Invalid email or password.");
         }
     }
-
-    // -------------------------------
-    // Customer Dashboard
-    // -------------------------------
+  /**
+   * Customer Dashboard.
+   *
+   * @param scanner the scanner
+   */
     private static void customerDashboard(Scanner scanner) {
         GymCustomerService customerService = new GymCustomerService();
         boolean session = true;
@@ -223,10 +237,11 @@ public class ClientMenu {
             }
         }
     }
-
-    // -------------------------------
-    // Owner Dashboard
-    // -------------------------------
+  /**
+   * Owner Dashboard.
+   *
+   * @param scanner the scanner
+   */
     private static void ownerDashboard(Scanner scanner) {
         GymOwnerService ownerService = new GymOwnerService();
         boolean ownerSession = true;
@@ -303,10 +318,11 @@ public class ClientMenu {
             }
         }
     }
-
-    // -------------------------------
-    // Admin Dashboard
-    // -------------------------------
+  /**
+   * Admin Dashboard.
+   *
+   * @param scanner the scanner
+   */
     private static void adminDashboard(Scanner scanner) {
         GymAdminService adminService = new GymAdminService();
         boolean adminSession = true;
@@ -375,10 +391,11 @@ public class ClientMenu {
             }
         }
     }
-
-    // -------------------------------
-    // Registration / Password
-    // -------------------------------
+  /**
+   * Handle Customer Registration.
+   *
+   * @param scanner the scanner
+   */
     private static void handleCustomerRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Customer Registration ---");
@@ -404,7 +421,11 @@ public class ClientMenu {
         GymCustomerService customerService = new GymCustomerService();
         customerService.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
     }
-
+  /**
+   * Handle Owner Registration.
+   *
+   * @param scanner the scanner
+   */
     private static void handleOwnerRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Owner Registration ---");
@@ -437,7 +458,11 @@ public class ClientMenu {
         ownerService.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber,
                 gstin);
     }
-
+  /**
+   * Handle Admin Registration.
+   *
+   * @param scanner the scanner
+   */
     private static void handleAdminRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Admin Registration ---");
@@ -463,7 +488,11 @@ public class ClientMenu {
         GymAdminService adminService = new GymAdminService();
         adminService.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
     }
-
+  /**
+   * Handle Change Password.
+   *
+   * @param scanner the scanner
+   */
     private static void handleChangePassword(Scanner scanner) {
         scanner.nextLine();
         System.out.print("Enter Email: ");

@@ -5,9 +5,20 @@ import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * The Class BookingDAOImpl.
+ *
+ * @author Ananya
+ * @ClassName  "BookingDAOImpl"
+ */
 public class BookingDAOImpl implements BookingDAO {
-
+  /**
+   * Create Booking.
+   *
+   * @param customerId the customerId
+   * @param availabilityId the availabilityId
+   * @return the Booking
+   */
     @Override
     public Booking createBooking(int customerId, int availabilityId) {
         String query = "INSERT INTO Booking (userId, availabilityId, status, bookingDate, createdAt) VALUES (?, ?, ?, ?, ?)";
@@ -45,10 +56,13 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return null;
     }
-
-    /**
-     * Create a PENDING booking for waitlist
-     */
+  /**
+   * Create Pending Booking.
+   *
+   * @param customerId the customerId
+   * @param availabilityId the availabilityId
+   * @return the Booking
+   */
     public Booking createPendingBooking(int customerId, int availabilityId) {
         System.out.println("[DEBUG] createPendingBooking called with customerId=" + customerId + ", availabilityId=" + availabilityId);
         String query = "INSERT INTO Booking (userId, availabilityId, status, bookingDate, createdAt) VALUES (?, ?, ?, ?, ?)";
@@ -93,7 +107,12 @@ public class BookingDAOImpl implements BookingDAO {
         System.out.println("[ERROR] createPendingBooking returning null");
         return null;
     }
-
+  /**
+   * Cancel Booking.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean cancelBooking(int bookingId) {
         String query = "UPDATE Booking SET status = 'CANCELLED' WHERE bookingId = ?";
@@ -107,7 +126,12 @@ public class BookingDAOImpl implements BookingDAO {
             return false;
         }
     }
-
+  /**
+   * Get Customer Bookings.
+   *
+   * @param customerId the customerId
+   * @return the List<Booking>
+   */
     @Override
     public List<Booking> getCustomerBookings(int customerId) {
         List<Booking> bookings = new ArrayList<>();
@@ -133,7 +157,12 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return bookings;
     }
-
+  /**
+   * Check Booking Status.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean checkBookingStatus(int bookingId) {
         String query = "SELECT status FROM Booking WHERE bookingId = ?";
@@ -151,7 +180,11 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return false;
     }
-
+  /**
+   * Get All Bookings.
+   *
+   * @return the List<Booking>
+   */
     @Override
     public List<Booking> getAllBookings() {
         List<Booking> bookings = new ArrayList<>();
@@ -175,10 +208,12 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return bookings;
     }
-
-    /**
-     * Confirm a booking that was on waitlist
-     */
+  /**
+   * Confirm Waitlist Booking.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     public boolean confirmWaitlistBooking(int bookingId) {
         String query = "UPDATE Booking SET status = 'CONFIRMED' WHERE bookingId = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -191,10 +226,12 @@ public class BookingDAOImpl implements BookingDAO {
             return false;
         }
     }
-
-    /**
-     * Get booking by ID from database
-     */
+  /**
+   * Get Booking By Id.
+   *
+   * @param bookingId the bookingId
+   * @return the Booking
+   */
     public Booking getBookingById(int bookingId) {
         String query = "SELECT * FROM Booking WHERE bookingId = ?";
         try (Connection conn = DBConnection.getConnection();

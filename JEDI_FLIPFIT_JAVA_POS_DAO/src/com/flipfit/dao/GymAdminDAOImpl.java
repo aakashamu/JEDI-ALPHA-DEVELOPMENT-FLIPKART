@@ -2,7 +2,12 @@ package com.flipfit.dao;
 
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
-
+/**
+ * The Class GymAdminDAOImpl.
+ *
+ * @author Ananya
+ * @ClassName  "GymAdminDAOImpl"
+ */
 public class GymAdminDAOImpl implements GymAdminDAO {
 
     @Override
@@ -35,7 +40,13 @@ public class GymAdminDAOImpl implements GymAdminDAO {
             }
         }
     }
-
+  /**
+   * Is Admin Valid.
+   *
+   * @param email the email
+   * @param password the password
+   * @return the boolean
+   */
     @Override
     public boolean isAdminValid(String email, String password) {
         String query = "SELECT * FROM User WHERE email = ? AND password = ? AND roleId = 1";
@@ -80,7 +91,12 @@ public class GymAdminDAOImpl implements GymAdminDAO {
         }
         return owners;
     }
-
+  /**
+   * Approve Owner.
+   *
+   * @param ownerId the ownerId
+   * @return the boolean
+   */
     @Override
     public boolean approveOwner(int ownerId) {
         String query = "UPDATE GymOwner SET isApproved = 1 WHERE userId = ?";
@@ -94,7 +110,12 @@ public class GymAdminDAOImpl implements GymAdminDAO {
             return false;
         }
     }
-
+  /**
+   * Delete Owner.
+   *
+   * @param ownerId the ownerId
+   * @return the boolean
+   */
     @Override
     public boolean deleteOwner(int ownerId) {
         Connection conn = null;

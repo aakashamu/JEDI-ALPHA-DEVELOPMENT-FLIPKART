@@ -2,10 +2,11 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.Notification;
 import java.util.List;
-
 /**
- * DAO Interface for Notification operations
- * Defines CRUD operations for Notification entity
+ * The Interface FlipFitNotificationDAOInterface.
+ *
+ * @author Ananya
+ * @ClassName  "FlipFitNotificationDAOInterface"
  */
 public interface FlipFitNotificationDAOInterface {
     

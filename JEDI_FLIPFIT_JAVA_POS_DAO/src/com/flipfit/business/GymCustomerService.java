@@ -12,7 +12,12 @@ import com.flipfit.exception.BookingNotDoneException;
 import com.flipfit.exception.SlotNotAvailableException;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * The Class GymCustomerService.
+ *
+ * @author Ananya
+ * @ClassName  "GymCustomerService"
+ */
 public class GymCustomerService implements GymCustomerInterface {
 
     private GymCustomerDAO customerDAO = new GymCustomerDAO();
@@ -24,11 +29,19 @@ public class GymCustomerService implements GymCustomerInterface {
             String state, int pincode) {
         customerDAO.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
     }
-
+  /**
+   * Get Current User Email.
+   *
+   * @return the String
+   */
     private static String getCurrentUserEmail() {
         return UserService.getCurrentLoggedInUser();
     }
-
+  /**
+   * View Centres.
+   *
+   * @return the List<GymCentre>
+   */
     @Override
     public List<GymCentre> viewCentres() {
         com.flipfit.dao.GymCentreDAOImpl centreDAO = new com.flipfit.dao.GymCentreDAOImpl();
@@ -59,7 +72,11 @@ public class GymCustomerService implements GymCustomerInterface {
 
         return new ArrayList<>(approvedCentres);
     }
-
+  /**
+   * View Booked Slots.
+   *
+   * @return the List<Booking>
+   */
     @Override
     public List<Booking> viewBookedSlots() {
         String currentUserEmail = getCurrentUserEmail();
@@ -94,7 +111,12 @@ public class GymCustomerService implements GymCustomerInterface {
 
         return dbBookings;
     }
-
+  /**
+   * Book Slot.
+   *
+   * @param slotAvailabilityId the slotAvailabilityId
+   * @return the Booking
+   */
     @Override
     public Booking bookSlot(int slotAvailabilityId)
             throws SlotNotAvailableException, BookingNotDoneException {
@@ -189,14 +211,24 @@ public class GymCustomerService implements GymCustomerInterface {
             throw new BookingNotDoneException("ERROR: Failed to create booking in database.");
         }
     }
-
+  /**
+   * Slots Overlap.
+   *
+   * @param slot1 the slot1
+   * @param slot2 the slot2
+   * @return the boolean
+   */
     private boolean slotsOverlap(Slot slot1, Slot slot2) {
         boolean sameCentre = slot1.getCentreId() == slot2.getCentreId();
         boolean timeOverlap = !(slot1.getEndTime().isBefore(slot2.getStartTime()) ||
                 slot2.getEndTime().isBefore(slot1.getStartTime()));
         return sameCentre && timeOverlap;
     }
-
+  /**
+   * Remove Booking Completely.
+   *
+   * @param bookingId the bookingId
+   */
     private void removeBookingCompletely(int bookingId) {
         Booking booking = FlipFitRepository.bookingsMap.remove(bookingId);
         if (booking != null) {
@@ -207,7 +239,13 @@ public class GymCustomerService implements GymCustomerInterface {
                     .forEach(bookings -> bookings.removeIf(b -> b.getBookingId() == bookingId));
         }
     }
-
+  /**
+   * Cancel Booking.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+ * @throws BookingNotDoneException 
+   */
     @Override
     public boolean cancelBooking(int bookingId) throws BookingNotDoneException {
         if (bookingId <= 0) {
@@ -280,7 +318,15 @@ public class GymCustomerService implements GymCustomerInterface {
             throw new BookingNotDoneException("ERROR: Failed to cancel booking in database.");
         }
     }
-
+  /**
+   * Edit Details.
+   *
+   * @param fullName the fullName
+   * @param email the email
+   * @param phoneNumber the phoneNumber
+   * @param city the city
+   * @param pincode the pincode
+   */
     @Override
     public void editDetails(String fullName, String email, long phoneNumber, String city, int pincode) {
         if (email == null || email.isEmpty()) {
@@ -326,7 +372,10 @@ public class GymCustomerService implements GymCustomerInterface {
             System.out.println("ERROR: Customer profile not found in database.");
         }
     }
-
+  /**
+   * View Profile.
+   *
+   */
     @Override
     public void viewProfile() {
         String currentUserEmail = getCurrentUserEmail();
@@ -350,7 +399,11 @@ public class GymCustomerService implements GymCustomerInterface {
         System.out.println("Pincode: " + customer.getPincode());
         System.out.println("==================================\n");
     }
-
+  /**
+   * View Available Slots.
+   *
+   * @param centreId the centreId
+   */
     public void viewAvailableSlots(int centreId) {
         if (centreId <= 0) {
             System.out.println("ERROR: Invalid centre ID");

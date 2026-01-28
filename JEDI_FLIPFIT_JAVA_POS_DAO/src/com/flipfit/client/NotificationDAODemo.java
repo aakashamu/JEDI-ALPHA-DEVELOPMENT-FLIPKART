@@ -3,12 +3,18 @@ package com.flipfit.client;
 import com.flipfit.bean.Notification;
 import com.flipfit.business.NotificationService;
 import java.util.List;
-
 /**
- * Demo class to test Notification DAO functionality
+ * The Class NotificationDAODemo.
+ *
+ * @author Ananya
+ * @ClassName  "NotificationDAODemo"
  */
 public class NotificationDAODemo {
-
+  /**
+   * Main.
+   *
+   * @param args the args
+   */
     public static void main(String[] args) {
         System.out.println("========== Notification DAO Demo ==========\n");
 

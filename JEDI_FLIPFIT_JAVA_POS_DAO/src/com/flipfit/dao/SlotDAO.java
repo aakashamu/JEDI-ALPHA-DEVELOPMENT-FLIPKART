@@ -2,7 +2,12 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.Slot;
 import java.util.List;
-
+/**
+ * The Interface SlotDAO.
+ *
+ * @author Ananya
+ * @ClassName  "SlotDAO"
+ */
 public interface SlotDAO {
     /**
      * Adds a new slot to the system

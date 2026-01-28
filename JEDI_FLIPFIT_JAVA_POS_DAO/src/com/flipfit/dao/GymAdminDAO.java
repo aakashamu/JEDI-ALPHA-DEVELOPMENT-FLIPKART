@@ -1,5 +1,10 @@
 package com.flipfit.dao;
-
+/**
+ * The Interface GymAdminDAO.
+ *
+ * @author Ananya
+ * @ClassName  "GymAdminDAO"
+ */
 public interface GymAdminDAO {
     void registerAdmin(String fullName, String email, String password, Long phoneNumber, 
                       String city, String state, int pincode);

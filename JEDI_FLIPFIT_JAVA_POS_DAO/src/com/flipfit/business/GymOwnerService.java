@@ -14,7 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalTime;
 import java.time.LocalDate;
-
+/**
+ * The Class GymOwnerService.
+ *
+ * @author Ananya
+ * @ClassName  "GymOwnerService"
+ */
 public class GymOwnerService implements GymOwnerInterface {
     // Static list to act as a temporary database for this session
     private static List<GymCentre> staticGymCentreList = new ArrayList<>();
@@ -29,7 +34,11 @@ public class GymOwnerService implements GymOwnerInterface {
                              String aadhaarNumber, String gstin) {
         ownerDAO.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber, gstin);
     }
-
+  /**
+   * Add Centre.
+   *
+   * @param centre the centre
+   */
     @Override
     public void addCentre(GymCentre centre) {
         if (centre == null) {
@@ -80,7 +89,11 @@ public class GymOwnerService implements GymOwnerInterface {
         System.out.println("✓ Successfully added Gym Centre: " + centre.getName());
         System.out.println("  Status: ⚠ PENDING ADMIN APPROVAL");
     }
-
+  /**
+   * View My Centres.
+   *
+   * @return the List<GymCentre>
+   */
     @Override
     public List<GymCentre> viewMyCentres() {
         // REQUIREMENT: Owner should only see their own registered centres
@@ -128,7 +141,12 @@ public class GymOwnerService implements GymOwnerInterface {
         
         return new ArrayList<>(dbCentres);
     }
-
+  /**
+   * View Customers.
+   *
+   * @param gymCentreId the gymCentreId
+   * @return the List<GymCustomer>
+   */
     @Override
     public List<GymCustomer> viewCustomers(int gymCentreId) {
         if (gymCentreId <= 0) {
@@ -139,7 +157,11 @@ public class GymOwnerService implements GymOwnerInterface {
         System.out.println("Displaying customer list for Centre ID: " + gymCentreId);
         return new ArrayList<>(); // Return empty list for now
     }
-
+  /**
+   * Request Approval.
+   *
+   * @param gymOwnerId the gymOwnerId
+   */
     @Override
     public void requestApproval(int gymOwnerId) {
         if (gymOwnerId <= 0) {
@@ -149,10 +171,10 @@ public class GymOwnerService implements GymOwnerInterface {
         
         System.out.println("✓ Approval request for Gym Owner " + gymOwnerId + " is now PENDING.");
     }
-    
-    /**
-     * View all bookings for this owner's centres
-     */
+  /**
+   * View My Bookings.
+   *
+   */
     public void viewMyBookings() {
         String currentUserEmail = UserService.getCurrentLoggedInUser();
         if (currentUserEmail == null) {
@@ -225,10 +247,12 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         System.out.println("============================================\n");
     }
-    
-    /**
-     * Cancel a booking from owner's centre
-     */
+  /**
+   * Cancel Booking.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     public boolean cancelBooking(int bookingId) {
         System.out.println("\n========== CANCEL BOOKING ==========");
         
@@ -248,10 +272,10 @@ public class GymOwnerService implements GymOwnerInterface {
             return false;
         }
     }
-    
-    /**
-     * View wait list for this owner's centres
-     */
+  /**
+   * View My Wait List.
+   *
+   */
     public void viewMyWaitList() {
         System.out.println("\n========== MY WAIT LIST ==========");
         
@@ -289,10 +313,10 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         System.out.println("==================================\n");
     }
-    
-    /**
-     * View booking metrics for owner's centres
-     */
+  /**
+   * View Booking Metrics.
+   *
+   */
     public void viewBookingMetrics() {
         String currentUserEmail = UserService.getCurrentLoggedInUser();
         if (currentUserEmail == null) {
@@ -329,12 +353,15 @@ public class GymOwnerService implements GymOwnerInterface {
         System.out.println("Cancelled (Total): " + cancelledCount);
         System.out.println("====================================\n");
     }
-
-    /**
-     * Register a new gym centre
-     * REQUIREMENT: Owner registers centre, admin approves it
-     * Also creates the slots with the specified capacity
-     */
+  /**
+   * Register New Centre.
+   *
+   * @param centreName the centreName
+   * @param city the city
+   * @param numberOfSlots the numberOfSlots
+   * @param slotCapacity the slotCapacity
+   * @return the boolean
+   */
     public boolean registerNewCentre(String centreName, String city, int numberOfSlots, int slotCapacity) {
         // Validation
         if (centreName == null || centreName.isEmpty()) {
@@ -411,10 +438,13 @@ public class GymOwnerService implements GymOwnerInterface {
         
         return true;
     }
-    
-    /**
-     * Helper method to create time slots for a newly registered centre
-     */
+  /**
+   * Create Slots For Centre.
+   *
+   * @param centreId the centreId
+   * @param numberOfSlots the numberOfSlots
+   * @param slotCapacity the slotCapacity
+   */
     private void createSlotsForCentre(int centreId, int numberOfSlots, int slotCapacity) {
         com.flipfit.dao.SlotDAOImpl slotDAO = new com.flipfit.dao.SlotDAOImpl();
         com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
@@ -454,10 +484,11 @@ public class GymOwnerService implements GymOwnerInterface {
             }
         }
     }
-    
-    /**
-     * Helper method to display created slots for a newly registered centre
-     */
+  /**
+   * Display Created Slots.
+   *
+   * @param centreId the centreId
+   */
     private void displayCreatedSlots(int centreId) {
         System.out.println("\n========== CREATED SLOTS FOR CENTRE " + centreId + " ==========");
         com.flipfit.dao.SlotDAOImpl slotDAO = new com.flipfit.dao.SlotDAOImpl();
@@ -476,6 +507,13 @@ public class GymOwnerService implements GymOwnerInterface {
         }
         System.out.println("==========================================================\n");
     }
+  /**
+   * Setup Slots For Existing Centre.
+   *
+   * @param centreId the centreId
+   * @param numSlots the numSlots
+   * @param capacity the capacity
+   */
     @Override
     public void setupSlotsForExistingCentre(int centreId, int numSlots, int capacity) {
         System.out.println("Setting up slots for Centre ID: " + centreId);

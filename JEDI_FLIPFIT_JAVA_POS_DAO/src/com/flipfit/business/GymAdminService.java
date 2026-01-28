@@ -6,7 +6,12 @@ import com.flipfit.dao.FlipFitRepository;
 import com.flipfit.dao.GymAdminDAOImpl;
 import com.flipfit.dao.GymCentreDAOImpl;
 import java.util.List;
-
+/**
+ * The Class GymAdminService.
+ *
+ * @author Ananya
+ * @ClassName  "GymAdminService"
+ */
 public class GymAdminService implements GymAdminInterface {
 
 	private GymAdminDAOImpl adminDAO = new GymAdminDAOImpl();
@@ -18,7 +23,10 @@ public class GymAdminService implements GymAdminInterface {
 			String city, String state, int pincode) {
 		adminDAO.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
 	}
-
+  /**
+   * View All Gym Owners.
+   *
+   */
 	@Override
 	public void viewAllGymOwners() {
 		// Load owners from database and sync with repository
@@ -53,7 +61,10 @@ public class GymAdminService implements GymAdminInterface {
 		}
 		System.out.println("===================================\n");
 	}
-
+  /**
+   * View Pending Owners.
+   *
+   */
 	public void viewPendingOwners() {
 		List<GymOwner> pendingOwners = FlipFitRepository.owners.stream()
 				.filter(owner -> owner.getIsApproved() == 0)
@@ -77,7 +88,12 @@ public class GymAdminService implements GymAdminInterface {
 		}
 		System.out.println("===================================\n");
 	}
-
+  /**
+   * Approve Owner.
+   *
+   * @param ownerId the ownerId
+   * @return the boolean
+   */
 	public boolean approveOwner(int ownerId) {
 		if (ownerId <= 0) {
 			System.out.println("ERROR: Invalid owner ID");
@@ -112,7 +128,10 @@ public class GymAdminService implements GymAdminInterface {
 		System.out.println("ERROR: Gym Owner with ID " + ownerId + " not found");
 		return false;
 	}
-
+  /**
+   * View Pending Centres.
+   *
+   */
 	public void viewPendingCentres() {
 		// Load centres from database and sync with repository
 		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
@@ -145,7 +164,10 @@ public class GymAdminService implements GymAdminInterface {
 		}
 		System.out.println("===================================\n");
 	}
-
+  /**
+   * View All Centres.
+   *
+   */
 	public void viewAllCentres() {
 		// Load centres from database and sync with repository
 		GymCentreDAOImpl centreDAO = new GymCentreDAOImpl();
@@ -168,7 +190,13 @@ public class GymAdminService implements GymAdminInterface {
 		}
 		System.out.println("===================================\n");
 	}
-
+  /**
+   * Validate Gym Owner.
+   *
+   * @param ownerId the ownerId
+   * @return the boolean
+ * @throws com.flipfit.exception.UserNotFoundException 
+   */
 	@Override
 	public boolean validateGymOwner(int ownerId) throws com.flipfit.exception.UserNotFoundException {
 		if (ownerId <= 0) {
@@ -187,7 +215,13 @@ public class GymAdminService implements GymAdminInterface {
 
 		throw new com.flipfit.exception.UserNotFoundException("ERROR: Gym Owner with ID " + ownerId + " not found");
 	}
-
+  /**
+   * Approve Centre.
+   *
+   * @param centreId the centreId
+   * @return the boolean
+ * @throws com.flipfit.exception.IssueWithApprovalException 
+   */
 	@Override
 	public boolean approveCentre(int centreId) throws com.flipfit.exception.IssueWithApprovalException {
 		if (centreId <= 0) {
@@ -217,7 +251,13 @@ public class GymAdminService implements GymAdminInterface {
 
 		throw new com.flipfit.exception.IssueWithApprovalException("ERROR: Centre with ID " + centreId + " not found");
 	}
-
+  /**
+   * Delete Owner.
+   *
+   * @param ownerId the ownerId
+   * @return the boolean
+ * @throws com.flipfit.exception.UserNotFoundException 
+   */
 	@Override
 	public boolean deleteOwner(int ownerId) throws com.flipfit.exception.UserNotFoundException {
 		if (ownerId <= 0) {
@@ -244,7 +284,10 @@ public class GymAdminService implements GymAdminInterface {
 
 		throw new com.flipfit.exception.UserNotFoundException("ERROR: Gym Owner with ID " + ownerId + " not found");
 	}
-
+  /**
+   * View Customer Metrics.
+   *
+   */
 	@Override
 	public void viewCustomerMetrics() {
 		// Load from DB
@@ -271,7 +314,10 @@ public class GymAdminService implements GymAdminInterface {
 						java.util.stream.Collectors.counting()))
 				.forEach((city, count) -> System.out.println("  " + city + ": " + count + " customers"));
 	}
-
+  /**
+   * View Gym Metrics.
+   *
+   */
 	@Override
 	public void viewGymMetrics() {
 		// Load from DB

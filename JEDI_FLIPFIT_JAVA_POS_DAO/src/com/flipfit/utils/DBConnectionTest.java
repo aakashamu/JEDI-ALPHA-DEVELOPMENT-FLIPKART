@@ -2,9 +2,18 @@ package com.flipfit.utils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
+/**
+ * The Class DBConnectionTest.
+ *
+ * @author Ananya
+ * @ClassName  "DBConnectionTest"
+ */
 public class DBConnectionTest {
-
+  /**
+   * Main.
+   *
+   * @param args the args
+   */
     public static void main(String[] args) {
         System.out.println("Testing Database Connection...\n");
         

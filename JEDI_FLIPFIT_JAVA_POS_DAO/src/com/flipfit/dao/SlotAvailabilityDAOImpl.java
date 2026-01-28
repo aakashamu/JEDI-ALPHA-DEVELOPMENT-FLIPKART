@@ -6,9 +6,18 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * The Class SlotAvailabilityDAOImpl.
+ *
+ * @author Ananya
+ * @ClassName  "SlotAvailabilityDAOImpl"
+ */
 public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
-
+  /**
+   * Add Slot Availability.
+   *
+   * @param slotAvailability the slotAvailability
+   */
     @Override
     public void addSlotAvailability(SlotAvailability slotAvailability) {
         String query = "INSERT INTO SlotAvailability (slotId, date, seatsTotal, seatsAvailable) VALUES (?, ?, ?, ?)";
@@ -26,7 +35,13 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Update Slot Availability.
+   *
+   * @param id the id
+   * @param slotAvailability the slotAvailability
+   * @return the boolean
+   */
     @Override
     public boolean updateSlotAvailability(int id, SlotAvailability slotAvailability) {
         String query = "UPDATE SlotAvailability SET slotId = ?, date = ?, seatsAvailable = ? WHERE availabilityId = ?";
@@ -44,7 +59,12 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             return false;
         }
     }
-
+  /**
+   * Delete Slot Availability.
+   *
+   * @param id the id
+   * @return the boolean
+   */
     @Override
     public boolean deleteSlotAvailability(int id) {
         String query = "DELETE FROM SlotAvailability WHERE availabilityId = ?";
@@ -58,7 +78,12 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             return false;
         }
     }
-
+  /**
+   * Get Slot Availability By Id.
+   *
+   * @param id the id
+   * @return the SlotAvailability
+   */
     @Override
     public SlotAvailability getSlotAvailabilityById(int id) {
         String query = "SELECT * FROM SlotAvailability WHERE availabilityId = ?";
@@ -83,7 +108,11 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return null;
     }
-
+  /**
+   * Get All Slot Availabilities.
+   *
+   * @return the List<SlotAvailability>
+   */
     @Override
     public List<SlotAvailability> getAllSlotAvailabilities() {
         List<SlotAvailability> list = new ArrayList<>();
@@ -105,7 +134,12 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return list;
     }
-
+  /**
+   * Get Available Slots By Date.
+   *
+   * @param date the date
+   * @return the List<SlotAvailability>
+   */
     @Override
     public List<SlotAvailability> getAvailableSlotsByDate(LocalDate date) {
         List<SlotAvailability> list = new ArrayList<>();
@@ -129,7 +163,12 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return list;
     }
-
+  /**
+   * Get Available Slots By Slot Id.
+   *
+   * @param slotId the slotId
+   * @return the List<SlotAvailability>
+   */
     @Override
     public List<SlotAvailability> getAvailableSlotsBySlotId(int slotId) {
         List<SlotAvailability> list = new ArrayList<>();
@@ -156,10 +195,12 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
         }
         return list;
     }
-
-    /**
-     * Decrement seats available by 1 when booking is made
-     */
+  /**
+   * Decrement Seats.
+   *
+   * @param availabilityId the availabilityId
+   * @return the boolean
+   */
     public boolean decrementSeats(int availabilityId) {
         String query = "UPDATE SlotAvailability SET seatsAvailable = seatsAvailable - 1 WHERE availabilityId = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -172,10 +213,12 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
             return false;
         }
     }
-
-    /**
-     * Increment seats available by 1 when booking is cancelled
-     */
+  /**
+   * Increment Seats.
+   *
+   * @param availabilityId the availabilityId
+   * @return the boolean
+   */
     public boolean incrementSeats(int availabilityId) {
         String query = "UPDATE SlotAvailability SET seatsAvailable = seatsAvailable + 1 WHERE availabilityId = ?";
         try (Connection conn = DBConnection.getConnection();

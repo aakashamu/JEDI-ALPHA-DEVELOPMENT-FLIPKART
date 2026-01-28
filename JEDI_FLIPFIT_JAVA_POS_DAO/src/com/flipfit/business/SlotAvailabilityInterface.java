@@ -9,7 +9,12 @@ package com.flipfit.business;
 import com.flipfit.bean.SlotAvailability;
 import java.time.LocalDate;
 import java.util.List;
-
+/**
+ * The Interface SlotAvailabilityInterface.
+ *
+ * @author Ananya
+ * @ClassName  "SlotAvailabilityInterface"
+ */
 public interface SlotAvailabilityInterface {
 	SlotAvailability addSlotAvailability(SlotAvailability slotAvailability);
 	SlotAvailability updateSlotAvailability(int id, SlotAvailability slotAvailability);

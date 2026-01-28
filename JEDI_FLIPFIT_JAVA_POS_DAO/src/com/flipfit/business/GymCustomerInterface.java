@@ -3,7 +3,12 @@ package com.flipfit.business;
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.Booking;
 import java.util.List;
-
+/**
+ * The Interface GymCustomerInterface.
+ *
+ * @author Ananya
+ * @ClassName  "GymCustomerInterface"
+ */
 public interface GymCustomerInterface {
 
     /**
