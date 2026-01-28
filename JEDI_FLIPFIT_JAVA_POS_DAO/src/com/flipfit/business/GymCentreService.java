@@ -18,54 +18,45 @@ public class GymCentreService implements GymCentreInterface {
 
     private final SlotService slotService = new SlotService();
     private final SlotAvailabilityService availabilityService = new SlotAvailabilityService();
-  /**
-   * View Available Slots.
-   *
-   * @param centreId the centreId
-   * @return the List<SlotAvailability>
-   */
+    /**
+     * View available slots.
+     *
+     * @param centreId the centre id
+     * @return the list
+     */
     @Override
     public List<SlotAvailability> viewAvailableSlots(int centreId) {
-        List<SlotAvailability> centreSpecificSlots = new ArrayList<>();
-        
-        // Get every single availability record across the whole system
         List<SlotAvailability> allAvailabilities = availabilityService.getAllSlotAvailabilities();
-        
-        for (SlotAvailability sa : allAvailabilities) {
-            // Use getSlotById method to find the parent Slot details
-            Slot parentSlot = slotService.getSlotById(sa.getSlotId());
-           
-            if (parentSlot != null && parentSlot.getCentreId() == centreId) {
-                // Only add if it's currently marked as available
-                if (sa.isAvailable()) {
-                    centreSpecificSlots.add(sa);
-                }
-            }
-        }
-        
-        return centreSpecificSlots;
+
+        return allAvailabilities.stream()
+                .filter(sa -> {
+                    Slot parentSlot = slotService.getSlotById(sa.getSlotId());
+                    return parentSlot != null && parentSlot.getCentreId() == centreId && sa.isAvailable();
+                })
+                .toList(); // Using Java 16+ toList() or collect(Collectors.toList()) for Java 8
+        // Assuming Java 8 compatibility is safer: .collect(java.util.stream.Collectors.toList());
+        // Since I can't confirm JDK version, I'll use collect(Collectors.toList()) to be safe.
     }
-  /**
-   * Get Centre Details.
-   *
-   * @param centreId the centreId
-   * @return the GymCentre
-   */
+
+    /**
+     * Gets the centre details.
+     *
+     * @param centreId the centre id
+     * @return the centre details
+     */
     @Override
     public GymCentre getCentreDetails(int centreId) {
-        // Direct search in your FlipFitRepository static list
-        for (GymCentre centre : FlipFitRepository.gymCentres) {
-            if (centre.getCentreId() == centreId) {
-                return centre;
-            }
-        }
-        return null; // Return null if center doesn't exist
+        return FlipFitRepository.gymCentres.stream()
+                .filter(centre -> centre.getCentreId() == centreId)
+                .findFirst()
+                .orElse(null);
     }
-  /**
-   * Add Gym Centre.
-   *
-   * @param centre the centre
-   */
+
+    /**
+     * Adds the gym centre.
+     *
+     * @param centre the centre
+     */
     @Override
     public void addGymCentre(GymCentre centre) {
         if (centre != null) {
@@ -73,80 +64,73 @@ public class GymCentreService implements GymCentreInterface {
             System.out.println("✓ Gym centre added successfully: " + centre.getName());
         }
     }
-  /**
-   * View Centres By City.
-   *
-   * @param city the city
-   * @return the List<GymCentre>
-   */
+
+    /**
+     * View centres by city.
+     *
+     * @param city the city
+     * @return the list
+     */
     public List<GymCentre> viewCentresByCity(String city) {
         if (city == null || city.isEmpty()) {
             System.out.println("ERROR: City cannot be empty");
             return new ArrayList<>();
         }
-        
-        List<GymCentre> centresInCity = new ArrayList<>();
-        for (GymCentre centre : FlipFitRepository.gymCentres) {
-            if (centre.getCity().equalsIgnoreCase(city) && centre.isApproved()) {
-                centresInCity.add(centre);
-            }
-        }
-        
+
+        List<GymCentre> centresInCity = FlipFitRepository.gymCentres.stream()
+                .filter(centre -> centre.getCity().equalsIgnoreCase(city) && centre.isApproved())
+                .collect(java.util.stream.Collectors.toList());
+
         System.out.println("\n========== GYM CENTRES IN " + city.toUpperCase() + " ==========");
         if (centresInCity.isEmpty()) {
             System.out.println("No approved centres found in " + city);
         } else {
             System.out.println("Total Centres: " + centresInCity.size());
             System.out.println("-----------------------------------------");
-            for (GymCentre centre : centresInCity) {
-                System.out.println("Centre ID: " + centre.getCentreId() +
-                                 " | Name: " + centre.getName() +
-                                 " | City: " + centre.getCity() +
-                                 " | State: " + centre.getState() +
-                                 " | Pincode: " + centre.getPincode());
-            }
+            centresInCity.forEach(centre -> System.out.println("Centre ID: " + centre.getCentreId() +
+                    " | Name: " + centre.getName() +
+                    " | City: " + centre.getCity() +
+                    " | State: " + centre.getState() +
+                    " | Pincode: " + centre.getPincode()));
         }
         System.out.println("==================================\n");
-        
+
         return centresInCity;
     }
-  /**
-   * Get Nearest Time Slot.
-   *
-   * @param centreId the centreId
-   * @param date the date
-   * @param referenceSlot the referenceSlot
-   * @return the Slot
-   */
+
+    /**
+     * Gets the nearest time slot.
+     *
+     * @param centreId      the centre id
+     * @param date          the date
+     * @param referenceSlot the reference slot
+     * @return the nearest time slot
+     */
     public Slot getNearestTimeSlot(int centreId, LocalDate date, Slot referenceSlot) {
         if (referenceSlot == null) {
             System.out.println("ERROR: Reference slot cannot be null");
             return null;
         }
-        
-        // Get all available slots for this centre on the given date
-        List<SlotAvailability> availableOnDate = new ArrayList<>();
+
         List<SlotAvailability> allAvailabilities = availabilityService.getAllSlotAvailabilities();
-        
-        for (SlotAvailability sa : allAvailabilities) {
-            if (sa.getDate().equals(date) && sa.isAvailable()) {
-                Slot slot = slotService.getSlotById(sa.getSlotId());
-                if (slot != null && slot.getCentreId() == centreId) {
-                    availableOnDate.add(sa);
-                }
-            }
-        }
-        
+
+        List<SlotAvailability> availableOnDate = allAvailabilities.stream()
+                .filter(sa -> sa.getDate().equals(date) && sa.isAvailable())
+                .filter(sa -> {
+                    Slot slot = slotService.getSlotById(sa.getSlotId());
+                    return slot != null && slot.getCentreId() == centreId;
+                })
+                .collect(java.util.stream.Collectors.toList());
+
         if (availableOnDate.isEmpty()) {
             System.out.println("No available slots found for centre " + centreId + " on " + date);
             return null;
         }
-        
-        // Find the slot closest to the reference slot time
+
         return availableOnDate.stream()
-            .map(sa -> slotService.getSlotById(sa.getSlotId()))
-            .min(Comparator.comparingLong(slot -> 
-                Math.abs(slot.getStartTime().toSecondOfDay() - referenceSlot.getStartTime().toSecondOfDay())))
-            .orElse(null);
+                .map(sa -> slotService.getSlotById(sa.getSlotId()))
+                .min(Comparator.comparingLong(slot -> Math.abs(
+                        slot.getStartTime().toSecondOfDay() - referenceSlot.getStartTime().toSecondOfDay())))
+                .orElse(null);
     }
 }

@@ -342,12 +342,14 @@ public class ClientMenu {
 
         while (adminSession) {
             System.out.println("\n--- Gym Admin Dashboard ---");
-            System.out.println("1. Validate Gym Owner");
-            System.out.println("2. Approve Gym Centre");
-            System.out.println("3. Delete Gym Owner");
-            System.out.println("4. View Customer Metrics");
-            System.out.println("5. View Gym Metrics");
-            System.out.println("6. Exit to Main Menu");
+            System.out.println("1. View Gym Owners");
+            System.out.println("2. View Gym Centres");
+            System.out.println("3. Approve Pending Gym Owner");
+            System.out.println("4. Approve Pending Gym Centre");
+            System.out.println("5. Delete Gym Owner");
+            System.out.println("6. View Customer Metrics");
+            System.out.println("7. View Gym Metrics");
+            System.out.println("8. Exit to Main Menu");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -355,17 +357,21 @@ public class ClientMenu {
             switch (choice) {
                 case 1:
                     adminService.viewAllGymOwners();
-                    System.out.print("Enter Gym Owner ID to validate: ");
-                    int ownerId = scanner.nextInt();
-                    try {
-                        adminService.validateGymOwner(ownerId);
-                    } catch (UserNotFoundException e) {
-                        System.out.println(e.getMessage());
-                    }
                     break;
 
                 case 2:
                     adminService.viewAllCentres();
+                    break;
+
+                case 3:
+                    adminService.viewPendingOwners();
+                    System.out.print("Enter Gym Owner ID to Approve: ");
+                    int ownerId = scanner.nextInt();
+                    adminService.approveOwner(ownerId);
+                    break;
+
+                case 4:
+                    adminService.viewPendingCentres();
                     System.out.print("Enter Centre ID to approve: ");
                     int centreId = scanner.nextInt();
                     try {
@@ -375,7 +381,7 @@ public class ClientMenu {
                     }
                     break;
 
-                case 3:
+                case 5:
                     adminService.viewAllGymOwners();
                     System.out.print("Enter Gym Owner ID to delete: ");
                     int deleteOwnerId = scanner.nextInt();
@@ -386,15 +392,15 @@ public class ClientMenu {
                     }
                     break;
 
-                case 4:
+                case 6:
                     adminService.viewCustomerMetrics();
                     break;
 
-                case 5:
+                case 7:
                     adminService.viewGymMetrics();
                     break;
 
-                case 6:
+                case 8:
                     System.out.println("\n✓ Logging out... Returning to main menu.");
                     adminSession = false;
                     break;
