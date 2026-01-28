@@ -1,7 +1,12 @@
 package com.flipfit.dao;
 
 import com.flipfit.bean.GymOwner;
-
+/**
+ * The Interface GymOwnerDAO.
+ *
+ * @author Ananya
+ * @ClassName  "GymOwnerDAO"
+ */
 public interface GymOwnerDAO {
     void registerOwner(String fullName, String email, String password, Long phoneNumber, 
                       String city, String state, int pincode, String panCard, 

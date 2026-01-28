@@ -9,9 +9,21 @@ import com.flipfit.business.WaitListService;
 import com.flipfit.business.NotificationService;
 import com.flipfit.exception.*;
 import java.util.Scanner;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
+/**
+ * The Class ClientMenu.
+ *
+ * @author Ananya
+ * @ClassName  "ClientMenu"
+ */
 public class ClientMenu {
-
+  /**
+   * Main.
+   *
+   * @param args the args
+   */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -58,7 +70,11 @@ public class ClientMenu {
 
         scanner.close();
     }
-
+  /**
+   * Handle Login.
+   *
+   * @param scanner the scanner
+   */
     private static void handleLogin(Scanner scanner) {
         scanner.nextLine();
         System.out.print("Email: ");
@@ -80,6 +96,16 @@ public class ClientMenu {
                 System.out.println("ERROR: Session error. Please try logging in again.");
                 return;
             }
+            
+         // Get current date and time
+            LocalDateTime now = LocalDateTime.now();
+            // Define a friendly format
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String formatDateTime = now.format(formatter);
+
+            // Print Login Greeting with Username on left and Time on right
+            System.out.println("\nWelcome " + user.getFullName() + "\t\t\t" + formatDateTime);
+            
 
             int roleId = user.getRoleId();
             System.out.println("✓ Login Successful. Role detected: "
@@ -103,10 +129,11 @@ public class ClientMenu {
             System.out.println("Login Failed. Invalid email or password.");
         }
     }
-
-    // -------------------------------
-    // Customer Dashboard
-    // -------------------------------
+  /**
+   * Customer Dashboard.
+   *
+   * @param scanner the scanner
+   */
     private static void customerDashboard(Scanner scanner) {
         GymCustomerService customerService = new GymCustomerService();
         boolean session = true;
@@ -223,10 +250,11 @@ public class ClientMenu {
             }
         }
     }
-
-    // -------------------------------
-    // Owner Dashboard
-    // -------------------------------
+  /**
+   * Owner Dashboard.
+   *
+   * @param scanner the scanner
+   */
     private static void ownerDashboard(Scanner scanner) {
         GymOwnerService ownerService = new GymOwnerService();
         boolean ownerSession = true;
@@ -303,22 +331,25 @@ public class ClientMenu {
             }
         }
     }
-
-    // -------------------------------
-    // Admin Dashboard
-    // -------------------------------
+  /**
+   * Admin Dashboard.
+   *
+   * @param scanner the scanner
+   */
     private static void adminDashboard(Scanner scanner) {
         GymAdminService adminService = new GymAdminService();
         boolean adminSession = true;
 
         while (adminSession) {
             System.out.println("\n--- Gym Admin Dashboard ---");
-            System.out.println("1. Validate Gym Owner");
-            System.out.println("2. Approve Gym Centre");
-            System.out.println("3. Delete Gym Owner");
-            System.out.println("4. View Customer Metrics");
-            System.out.println("5. View Gym Metrics");
-            System.out.println("6. Exit to Main Menu");
+            System.out.println("1. View Gym Owners");
+            System.out.println("2. View Gym Centres");
+            System.out.println("3. Approve Pending Gym Owner");
+            System.out.println("4. Approve Pending Gym Centre");
+            System.out.println("5. Delete Gym Owner");
+            System.out.println("6. View Customer Metrics");
+            System.out.println("7. View Gym Metrics");
+            System.out.println("8. Exit to Main Menu");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -326,17 +357,21 @@ public class ClientMenu {
             switch (choice) {
                 case 1:
                     adminService.viewAllGymOwners();
-                    System.out.print("Enter Gym Owner ID to validate: ");
-                    int ownerId = scanner.nextInt();
-                    try {
-                        adminService.validateGymOwner(ownerId);
-                    } catch (UserNotFoundException e) {
-                        System.out.println(e.getMessage());
-                    }
                     break;
 
                 case 2:
                     adminService.viewAllCentres();
+                    break;
+
+                case 3:
+                    adminService.viewPendingOwners();
+                    System.out.print("Enter Gym Owner ID to Approve: ");
+                    int ownerId = scanner.nextInt();
+                    adminService.approveOwner(ownerId);
+                    break;
+
+                case 4:
+                    adminService.viewPendingCentres();
                     System.out.print("Enter Centre ID to approve: ");
                     int centreId = scanner.nextInt();
                     try {
@@ -346,7 +381,7 @@ public class ClientMenu {
                     }
                     break;
 
-                case 3:
+                case 5:
                     adminService.viewAllGymOwners();
                     System.out.print("Enter Gym Owner ID to delete: ");
                     int deleteOwnerId = scanner.nextInt();
@@ -357,15 +392,15 @@ public class ClientMenu {
                     }
                     break;
 
-                case 4:
+                case 6:
                     adminService.viewCustomerMetrics();
                     break;
 
-                case 5:
+                case 7:
                     adminService.viewGymMetrics();
                     break;
 
-                case 6:
+                case 8:
                     System.out.println("\n✓ Logging out... Returning to main menu.");
                     adminSession = false;
                     break;
@@ -375,10 +410,11 @@ public class ClientMenu {
             }
         }
     }
-
-    // -------------------------------
-    // Registration / Password
-    // -------------------------------
+  /**
+   * Handle Customer Registration.
+   *
+   * @param scanner the scanner
+   */
     private static void handleCustomerRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Customer Registration ---");
@@ -404,7 +440,11 @@ public class ClientMenu {
         GymCustomerService customerService = new GymCustomerService();
         customerService.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
     }
-
+  /**
+   * Handle Owner Registration.
+   *
+   * @param scanner the scanner
+   */
     private static void handleOwnerRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Owner Registration ---");
@@ -437,7 +477,11 @@ public class ClientMenu {
         ownerService.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber,
                 gstin);
     }
-
+  /**
+   * Handle Admin Registration.
+   *
+   * @param scanner the scanner
+   */
     private static void handleAdminRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Admin Registration ---");
@@ -463,7 +507,11 @@ public class ClientMenu {
         GymAdminService adminService = new GymAdminService();
         adminService.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
     }
-
+  /**
+   * Handle Change Password.
+   *
+   * @param scanner the scanner
+   */
     private static void handleChangePassword(Scanner scanner) {
         scanner.nextLine();
         System.out.print("Enter Email: ");

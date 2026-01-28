@@ -7,9 +7,11 @@ import java.util.List;
 
 import com.flipfit.bean.GymCentre;
 import com.flipfit.bean.SlotAvailability;
-
 /**
- * 
+ * The Interface GymCentreInterface.
+ *
+ * @author Ananya
+ * @ClassName  "GymCentreInterface"
  */
 public interface GymCentreInterface {
 	

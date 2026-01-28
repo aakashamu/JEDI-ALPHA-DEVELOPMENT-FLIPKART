@@ -2,7 +2,12 @@ package com.flipfit.business;
 
 import com.flipfit.bean.Role;
 import java.util.List;
-
+/**
+ * The Interface RoleInterface.
+ *
+ * @author Ananya
+ * @ClassName  "RoleInterface"
+ */
 public interface RoleInterface {
     void createRole(Role role);
 

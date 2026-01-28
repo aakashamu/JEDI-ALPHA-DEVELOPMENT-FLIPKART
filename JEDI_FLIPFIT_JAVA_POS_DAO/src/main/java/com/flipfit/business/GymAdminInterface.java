@@ -2,9 +2,11 @@
  * 
  */
 package com.flipfit.business;
-
 /**
- * 
+ * The Interface GymAdminInterface.
+ *
+ * @author Ananya
+ * @ClassName  "GymAdminInterface"
  */
 public interface GymAdminInterface {
 	/**
@@ -36,4 +38,9 @@ public interface GymAdminInterface {
 	 * Views gym metrics
 	 */
 	public void viewGymMetrics();
+
+	/**
+	 * Views all gym centres
+	 */
+	public void viewAllCentres();
 }

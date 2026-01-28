@@ -2,9 +2,11 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.*;
 import java.util.*;
-
 /**
- * Centralized Mock Database using Collections
+ * The Class FlipFitRepository.
+ *
+ * @author Ananya
+ * @ClassName  "FlipFitRepository"
  */
 public class FlipFitRepository {
 
@@ -49,10 +51,10 @@ public class FlipFitRepository {
         // initializeSlotAvailability();
         // initializeHardcodedBookings();
     }
-
-    // -------------------------------
-    // Sample Centres Initialization
-    // -------------------------------
+  /**
+   * Initialize Sample Centres.
+   *
+   */
     private static void initializeSampleCentres() {
         // Initial Hard-coded data for testing centers
         GymCentre center1 = new GymCentre();
@@ -70,10 +72,10 @@ public class FlipFitRepository {
         gymCentres.add(center1);
         gymCentres.add(center2);
     }
-
-    // -------------------------------
-    // Slot Initialization
-    // -------------------------------
+  /**
+   * Initialize Hardcoded Slots.
+   *
+   */
     private static void initializeHardcodedSlots() {
         // Create sample slots for testing
         Slot slot1 = new Slot(501, java.time.LocalTime.of(6, 0), java.time.LocalTime.of(7, 0), 10, 1);
@@ -90,10 +92,10 @@ public class FlipFitRepository {
             slotBookings.put(slot.getSlotId(), new ArrayList<>());
         }
     }
-
-    // -------------------------------
-    // SlotAvailability Initialization
-    // -------------------------------
+  /**
+   * Initialize Slot Availability.
+   *
+   */
     private static void initializeSlotAvailability() {
         java.time.LocalDate today = java.time.LocalDate.now();
         int availabilityId = 3000;
@@ -112,10 +114,10 @@ public class FlipFitRepository {
             }
         }
     }
-
-    // -------------------------------
-    // WaitList Initialization
-    // -------------------------------
+  /**
+   * Initialize Hardcoded Wait List.
+   *
+   */
     private static void initializeHardcodedWaitList() {
 
         // Sample WaitList Entry 1
@@ -159,10 +161,10 @@ public class FlipFitRepository {
         slotWaitList.put(502, new ArrayList<>());
         slotWaitList.get(502).add(1007);
     }
-
-    // -------------------------------
-    // Booking Initialization
-    // -------------------------------
+  /**
+   * Initialize Hardcoded Bookings.
+   *
+   */
     private static void initializeHardcodedBookings() {
 
         // Sample Booking 1 - Confirmed
@@ -217,10 +219,10 @@ public class FlipFitRepository {
         allBookings.add(booking4);
         customerBookings.computeIfAbsent(101, k -> new ArrayList<>()).add(booking4);
     }
-
-    // -------------------------------
-    // Users Initialization
-    // -------------------------------
+  /**
+   * Initialize Sample Users.
+   *
+   */
     private static void initializeSampleUsers() {
 
         // Sample customers
@@ -275,19 +277,31 @@ public class FlipFitRepository {
         owners.add(owner2);
         users.put(owner2.getEmail(), owner2);
     }
-
-    // -------------------------------
-    // User Management Methods
-    // -------------------------------
+  /**
+   * Get User By Email.
+   *
+   * @param email the email
+   * @return the User
+   */
     public static User getUserByEmail(String email) {
         return users.get(email);
     }
-
+  /**
+   * Validate User.
+   *
+   * @param email the email
+   * @param password the password
+   * @return the boolean
+   */
     public static boolean validateUser(String email, String password) {
         User user = users.get(email);
         return user != null && user.getPassword().equals(password);
     }
-
+  /**
+   * Add User.
+   *
+   * @param user the user
+   */
     public static void addUser(User user) {
         users.put(user.getEmail(), user);
         if (user instanceof GymCustomer customer) {
@@ -296,7 +310,12 @@ public class FlipFitRepository {
             owners.add(owner);
         }
     }
-
+  /**
+   * User Exists.
+   *
+   * @param email the email
+   * @return the boolean
+   */
     public static boolean userExists(String email) {
         return users.containsKey(email);
     }

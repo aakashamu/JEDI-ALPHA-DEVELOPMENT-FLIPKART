@@ -10,18 +10,18 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Service class for managing gym slot wait list
- * Uses DAO (FlipFitRepository) for centralized data management
+ * The Class WaitListService.
+ *
+ * @author Ananya
+ * @ClassName "WaitListService"
  */
 public class WaitListService implements WaitListInterface {
-    
-    /**
-     * Add a booking to the wait list
-     * Uses FIFO order via Queue
-     * 
-     * @param bookingId Booking ID to add to wait list
-     * @return true if successfully added, false otherwise
-     */
+  /**
+   * Add To Wait List.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean addToWaitList(int bookingId) {
         System.out.println("\n========== ADD TO WAIT LIST ==========");
@@ -37,12 +37,11 @@ public class WaitListService implements WaitListInterface {
             return false;
         }
     }
-    
-    /**
-     * Remove a booking from the wait list
-     * 
-     * @param bookingId Booking ID to remove from wait list
-     */
+  /**
+   * Remove From Wait List.
+   *
+   * @param bookingId the bookingId
+   */
     @Override
     public void removeFromWaitList(int bookingId) {
         System.out.println("\n========== REMOVE FROM WAIT LIST ==========");
@@ -52,30 +51,27 @@ public class WaitListService implements WaitListInterface {
         
         System.out.println("SUCCESS: Booking " + bookingId + " removed from wait list in database");
     }
-    
-    /**
-     * Update positions in wait list after removal
-     */
+  /**
+   * Update Positions.
+   *
+   */
     private void updatePositions() {
-        int position = 1;
-        for (WaitListEntry entry : FlipFitRepository.allWaitListEntries) {
-            entry.setPosition(position++);
-        }
+        java.util.concurrent.atomic.AtomicInteger position = new java.util.concurrent.atomic.AtomicInteger(1);
+        FlipFitRepository.allWaitListEntries.forEach(entry -> entry.setPosition(position.getAndIncrement()));
     }
-    
+
     /**
-     * Update wait list when a slot becomes available
-     * Automatically processes the first person in queue
-     * 
-     * @return true if update successful, false otherwise
+     * Update wait list.
+     *
+     * @return true, if successful
      */
     @Override
     public boolean updateWaitList() {
         System.out.println("\n========== UPDATE WAIT LIST ==========");
-        
+
         com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
         boolean success = waitlistDAO.updateWaitList();
-        
+
         if (success) {
             System.out.println("Wait list updated successfully in database");
             return true;
@@ -86,34 +82,34 @@ public class WaitListService implements WaitListInterface {
     }
 
     /**
-     * Promote the first person in the waitlist for a specific availability
-     * 
-     * @param availabilityId Availability ID to promote from
-     * @return true if someone was promoted, false otherwise
+     * Promote from wait list.
+     *
+     * @param availabilityId the availability id
+     * @return true, if successful
      */
     @Override
     public boolean promoteFromWaitList(int availabilityId) {
         System.out.println("\n========== PROMOTE FROM WAIT LIST ==========");
-        
+
         com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
         com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
-        
+
         // 1. Get the first pending entry for this availability
         WaitListEntry entry = waitlistDAO.getFirstPendingWaitlistEntry(availabilityId);
-        
+
         if (entry != null) {
             System.out.println("Found candidate for promotion: Booking ID " + entry.getBookingId());
-            
+
             // 2. Confirm the booking
             if (bookingDAO.confirmWaitlistBooking(entry.getBookingId())) {
                 System.out.println("SUCCESS: Booking " + entry.getBookingId() + " confirmed!");
-                
+
                 // 3. Remove from waitlist
                 waitlistDAO.removeFromWaitListByBookingId(entry.getBookingId());
-                
+
                 // 4. Update remaining positions
                 waitlistDAO.updateWaitlistPositions(availabilityId);
-                
+
                 return true;
             } else {
                 System.out.println("ERROR: Failed to confirm waitlisted booking " + entry.getBookingId());
@@ -121,72 +117,71 @@ public class WaitListService implements WaitListInterface {
         } else {
             System.out.println("No one on waitlist for Availability ID: " + availabilityId);
         }
-        
+
         return false;
     }
-    
+
     /**
-     * View all wait list entries
+     * View wait list.
      */
     public void viewWaitList() {
         System.out.println("\n========== WAIT LIST VIEW ==========");
-        
+
         com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
         List<WaitListEntry> entries = waitlistDAO.getAllWaitListEntries();
-        
+
         if (entries.isEmpty()) {
             System.out.println("Wait list is empty");
         } else {
             System.out.println("Total Entries: " + entries.size());
             System.out.println("-----------------------------------------");
-            
-            for (WaitListEntry entry : entries) {
-                System.out.println("Position " + entry.getPosition() + 
-                                 " | Created: " + entry.getCreatedAt());
-            }
+
+            entries.forEach(entry -> System.out
+                    .println("Position " + entry.getPosition() + " | Created: " + entry.getCreatedAt()));
         }
         System.out.println("====================================\n");
     }
-    
     /**
-     * Get wait list position for a booking
-     * 
-     * @param bookingId Booking ID to check
-     * @return position in wait list, or -1 if not found
+     * Gets the wait list position.
+     *
+     * @param bookingId the booking id
+     * @return the wait list position
      */
     public int getWaitListPosition(int bookingId) {
         System.out.println("\n========== CHECK WAIT LIST POSITION ==========");
-        
+
         com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
         int position = waitlistDAO.getWaitListPosition(bookingId);
-        
+
         if (position > 0) {
             System.out.println("Booking " + bookingId + " is at position " + position + " in wait list");
         } else {
             System.out.println("Booking " + bookingId + " is not in wait list");
         }
         System.out.println("=======================================\n");
-        
+
         return position;
     }
-    
+
     /**
-     * Get count of people waiting
-     * 
-     * @return total wait list count
+     * Gets the wait list count.
+     *
+     * @return the wait list count
      */
     public int getWaitListCount() {
         com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
         return waitlistDAO.getAllWaitListEntries().size();
     }
-    
+
     /**
-     * Menu-based wait list operations
+     * Wait list menu.
+     *
+     * @param scanner the scanner
      */
     public static void waitListMenu(Scanner scanner) {
         WaitListService waitListService = new WaitListService();
         boolean continueWaitList = true;
-        
+
         while (continueWaitList) {
             System.out.println("\n========== WAIT LIST MANAGEMENT ==========");
             System.out.println("1. Add Booking to Wait List");
@@ -198,10 +193,10 @@ public class WaitListService implements WaitListInterface {
             System.out.println("0. Exit Wait List Menu");
             System.out.println("==========================================");
             System.out.print("Enter your choice: ");
-            
+
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
-            
+
             switch (choice) {
                 case 1:
                     System.out.print("Enter Booking ID to add to wait list: ");
@@ -212,13 +207,13 @@ public class WaitListService implements WaitListInterface {
                         System.out.println("Failed to add to wait list");
                     }
                     break;
-                    
+
                 case 2:
                     System.out.print("Enter Booking ID to remove from wait list: ");
                     int removeBookId = scanner.nextInt();
                     waitListService.removeFromWaitList(removeBookId);
                     break;
-                    
+
                 case 3:
                     System.out.print("Enter Booking ID to check position: ");
                     int checkBookId = scanner.nextInt();
@@ -227,11 +222,11 @@ public class WaitListService implements WaitListInterface {
                         System.out.println("Position: " + position);
                     }
                     break;
-                    
+
                 case 4:
                     waitListService.viewWaitList();
                     break;
-                    
+
                 case 5:
                     if (waitListService.updateWaitList()) {
                         System.out.println("Wait list updated successfully");
@@ -239,17 +234,17 @@ public class WaitListService implements WaitListInterface {
                         System.out.println("Failed to update wait list");
                     }
                     break;
-                    
+
                 case 6:
                     int count = waitListService.getWaitListCount();
                     System.out.println("Total entries in wait list: " + count);
                     break;
-                    
+
                 case 0:
                     continueWaitList = false;
                     System.out.println("Exiting Wait List Menu...");
                     break;
-                    
+
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }

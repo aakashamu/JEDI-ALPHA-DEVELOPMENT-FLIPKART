@@ -6,9 +6,18 @@ import java.sql.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * The Class SlotDAOImpl.
+ *
+ * @author Ananya
+ * @ClassName  "SlotDAOImpl"
+ */
 public class SlotDAOImpl implements SlotDAO {
-
+  /**
+   * Add Slot.
+   *
+   * @param slot the slot
+   */
     @Override
     public void addSlot(Slot slot) {
         String query = "INSERT INTO Slot (startTime, endTime, capacity, centreId) VALUES (?, ?, ?, ?)";
@@ -26,7 +35,13 @@ public class SlotDAOImpl implements SlotDAO {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Update Slot.
+   *
+   * @param slotId the slotId
+   * @param slot the slot
+   * @return the boolean
+   */
     @Override
     public boolean updateSlot(int slotId, Slot slot) {
         String query = "UPDATE Slot SET startTime = ?, endTime = ?, capacity = ?, centreId = ? WHERE slotId = ?";
@@ -45,7 +60,12 @@ public class SlotDAOImpl implements SlotDAO {
             return false;
         }
     }
-
+  /**
+   * Delete Slot.
+   *
+   * @param slotId the slotId
+   * @return the boolean
+   */
     @Override
     public boolean deleteSlot(int slotId) {
         String query = "DELETE FROM Slot WHERE slotId = ?";
@@ -59,7 +79,12 @@ public class SlotDAOImpl implements SlotDAO {
             return false;
         }
     }
-
+  /**
+   * Get Slot By Id.
+   *
+   * @param slotId the slotId
+   * @return the Slot
+   */
     @Override
     public Slot getSlotById(int slotId) {
         String query = "SELECT * FROM Slot WHERE slotId = ?";
@@ -83,7 +108,11 @@ public class SlotDAOImpl implements SlotDAO {
         }
         return null;
     }
-
+  /**
+   * Get All Slots.
+   *
+   * @return the List<Slot>
+   */
     @Override
     public List<Slot> getAllSlots() {
         List<Slot> slots = new ArrayList<>();
@@ -106,6 +135,12 @@ public class SlotDAOImpl implements SlotDAO {
         }
         return slots;
     }
+  /**
+   * Get Slots By Centre Id.
+   *
+   * @param centreId the centreId
+   * @return the List<Slot>
+   */
     @Override
     public List<Slot> getSlotsByCentreId(int centreId) {
         List<Slot> slots = new ArrayList<>();

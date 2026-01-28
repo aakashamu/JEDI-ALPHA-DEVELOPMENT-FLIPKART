@@ -3,7 +3,12 @@ package com.flipfit.dao;
 import com.flipfit.bean.SlotAvailability;
 import java.time.LocalDate;
 import java.util.List;
-
+/**
+ * The Interface SlotAvailabilityDAO.
+ *
+ * @author Ananya
+ * @ClassName  "SlotAvailabilityDAO"
+ */
 public interface SlotAvailabilityDAO {
     /**
      * Adds availability for a slot

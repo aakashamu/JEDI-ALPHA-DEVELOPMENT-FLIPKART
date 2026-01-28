@@ -13,22 +13,46 @@ import com.flipfit.exception.SlotNotAvailableException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Class GymCustomerService.
+ *
+ * @author Ananya
+ * @ClassName "GymCustomerService"
+ */
 public class GymCustomerService implements GymCustomerInterface {
 
     private GymCustomerDAO customerDAO = new GymCustomerDAO();
 
     /**
-     * Register a new customer - saves to database via DAO
+     * Register customer.
+     *
+     * @param fullName    the full name
+     * @param email       the email
+     * @param password    the password
+     * @param phoneNumber the phone number
+     * @param city        the city
+     * @param state       the state
+     * @param pincode     the pincode
      */
     public void registerCustomer(String fullName, String email, String password, Long phoneNumber, String city,
             String state, int pincode) {
         customerDAO.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
     }
 
+    /**
+     * Gets the current user email.
+     *
+     * @return the current user email
+     */
     private static String getCurrentUserEmail() {
         return UserService.getCurrentLoggedInUser();
     }
 
+    /**
+     * View centres.
+     *
+     * @return the list
+     */
     @Override
     public List<GymCentre> viewCentres() {
         com.flipfit.dao.GymCentreDAOImpl centreDAO = new com.flipfit.dao.GymCentreDAOImpl();
@@ -50,16 +74,19 @@ public class GymCustomerService implements GymCustomerInterface {
         System.out.println("Total Centres: " + approvedCentres.size());
         System.out.println("-----------------------------------------");
 
-        for (GymCentre centre : approvedCentres) {
-            System.out.println("Centre ID: " + centre.getCentreId() +
-                    " | Name: " + centre.getName() +
-                    " | City: " + centre.getCity());
-        }
+        approvedCentres.forEach(centre -> System.out.println("Centre ID: " + centre.getCentreId() +
+                " | Name: " + centre.getName() +
+                " | City: " + centre.getCity()));
         System.out.println("===================================\n");
 
         return new ArrayList<>(approvedCentres);
     }
 
+    /**
+     * View booked slots.
+     *
+     * @return the list
+     */
     @Override
     public List<Booking> viewBookedSlots() {
         String currentUserEmail = getCurrentUserEmail();
@@ -83,18 +110,24 @@ public class GymCustomerService implements GymCustomerInterface {
         if (dbBookings.isEmpty()) {
             System.out.println("You have no bookings yet.");
         } else {
-            for (Booking b : dbBookings) {
-                System.out.println("Booking ID: " + b.getBookingId() +
-                        " | Availability ID: " + b.getAvailabilityId() +
-                        " | Status: " + b.getStatus() +
-                        " | Date: " + b.getCreatedAt());
-            }
+            dbBookings.forEach(b -> System.out.println("Booking ID: " + b.getBookingId() +
+                    " | Availability ID: " + b.getAvailabilityId() +
+                    " | Status: " + b.getStatus() +
+                    " | Date: " + b.getCreatedAt()));
         }
         System.out.println("===================================\n");
 
         return dbBookings;
     }
 
+    /**
+     * Book slot.
+     *
+     * @param slotAvailabilityId the slot availability id
+     * @return the booking
+     * @throws SlotNotAvailableException the slot not available exception
+     * @throws BookingNotDoneException   the booking not done exception
+     */
     @Override
     public Booking bookSlot(int slotAvailabilityId)
             throws SlotNotAvailableException, BookingNotDoneException {
@@ -190,6 +223,13 @@ public class GymCustomerService implements GymCustomerInterface {
         }
     }
 
+    /**
+     * Slots overlap.
+     *
+     * @param slot1 the slot 1
+     * @param slot2 the slot 2
+     * @return true, if successful
+     */
     private boolean slotsOverlap(Slot slot1, Slot slot2) {
         boolean sameCentre = slot1.getCentreId() == slot2.getCentreId();
         boolean timeOverlap = !(slot1.getEndTime().isBefore(slot2.getStartTime()) ||
@@ -197,6 +237,11 @@ public class GymCustomerService implements GymCustomerInterface {
         return sameCentre && timeOverlap;
     }
 
+    /**
+     * Removes the booking completely.
+     *
+     * @param bookingId the booking id
+     */
     private void removeBookingCompletely(int bookingId) {
         Booking booking = FlipFitRepository.bookingsMap.remove(bookingId);
         if (booking != null) {
@@ -208,6 +253,13 @@ public class GymCustomerService implements GymCustomerInterface {
         }
     }
 
+    /**
+     * Cancel booking.
+     *
+     * @param bookingId the booking id
+     * @return true, if successful
+     * @throws BookingNotDoneException the booking not done exception
+     */
     @Override
     public boolean cancelBooking(int bookingId) throws BookingNotDoneException {
         if (bookingId <= 0) {
@@ -225,8 +277,9 @@ public class GymCustomerService implements GymCustomerInterface {
                 String originalStatus = booking.getStatus();
                 System.out.println("[DEBUG] Original status from database: " + originalStatus);
 
-                if ("CONFIRMED".equals(originalStatus)) {
-                    System.out.println("[DEBUG] Entered CONFIRMED branch");
+                if (true) { // Always increment when canceling a conflicting booking
+                    System.out.println(
+                            "[DEBUG] Incrementing seats for conflicting booking (status: " + originalStatus + ")");
                     int availabilityId = booking.getAvailabilityId();
                     System.out.println("[DEBUG] Cancelled booking from availability: " + availabilityId);
                     com.flipfit.dao.SlotAvailabilityDAOImpl availabilityDAO = new com.flipfit.dao.SlotAvailabilityDAOImpl();
@@ -242,9 +295,11 @@ public class GymCustomerService implements GymCustomerInterface {
 
                         if (promoted) {
                             waitlistDAO.removeFromWaitList(nextInLine.getBookingId());
-                            System.out.println("[DEBUG] Removed booking " + nextInLine.getBookingId() + " from waitlist");
+                            System.out
+                                    .println("[DEBUG] Removed booking " + nextInLine.getBookingId() + " from waitlist");
                             waitlistDAO.updateWaitlistPositions(availabilityId);
-                            System.out.println("[DEBUG] Updated waitlist positions for availability: " + availabilityId);
+                            System.out
+                                    .println("[DEBUG] Updated waitlist positions for availability: " + availabilityId);
                             System.out.println("✓ Customer at position #1 has been promoted from waitlist!");
                         }
                     } else {
@@ -281,6 +336,15 @@ public class GymCustomerService implements GymCustomerInterface {
         }
     }
 
+    /**
+     * Edit details.
+     *
+     * @param fullName    the full name
+     * @param email       the email
+     * @param phoneNumber the phone number
+     * @param city        the city
+     * @param pincode     the pincode
+     */
     @Override
     public void editDetails(String fullName, String email, long phoneNumber, String city, int pincode) {
         if (email == null || email.isEmpty()) {
@@ -327,6 +391,9 @@ public class GymCustomerService implements GymCustomerInterface {
         }
     }
 
+    /**
+     * View profile.
+     */
     @Override
     public void viewProfile() {
         String currentUserEmail = getCurrentUserEmail();
@@ -351,6 +418,12 @@ public class GymCustomerService implements GymCustomerInterface {
         System.out.println("==================================\n");
     }
 
+    /**
+     * View available slots.
+     *
+     * @param centreId the centre id
+     * @return the list of available slots with details
+     */
     public java.util.List<java.util.Map<String, Object>> viewAvailableSlots(int centreId) {
         if (centreId <= 0) {
             return new ArrayList<>();
@@ -369,7 +442,7 @@ public class GymCustomerService implements GymCustomerInterface {
 
         for (Slot slot : slots) {
             List<SlotAvailability> availabilities = availabilityDAO.getAvailableSlotsBySlotId(slot.getSlotId());
-            for (SlotAvailability sa : availabilities) {
+            availabilities.forEach(sa -> {
                 int seatsAvailable = sa.getSeatsAvailable();
                 int waitlistCount = waitlistDAO.getWaitlistCountByAvailabilityId(sa.getId());
 
@@ -381,9 +454,9 @@ public class GymCustomerService implements GymCustomerInterface {
                 slotInfo.put("date", sa.getDate().toString());
                 slotInfo.put("seatsAvailable", seatsAvailable);
                 slotInfo.put("waitlistCount", waitlistCount);
-                
+
                 result.add(slotInfo);
-            }
+            });
         }
         return result;
     }
