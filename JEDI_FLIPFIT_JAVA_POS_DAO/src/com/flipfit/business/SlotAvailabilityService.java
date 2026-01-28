@@ -75,36 +75,29 @@ public class SlotAvailabilityService implements SlotAvailabilityInterface {
 	public List<SlotAvailability> getAllSlotAvailabilities() {
 		return new ArrayList<>(slotAvailabilityDB.values());
 	}
-  /**
-   * Get Available Slots By Date.
-   *
-   * @param date the date
-   * @return the List<SlotAvailability>
-   */
-	@Override
-	public List<SlotAvailability> getAvailableSlotsByDate(LocalDate date) {
-		List<SlotAvailability> result = new ArrayList<>();
-		for (SlotAvailability sa : slotAvailabilityDB.values()) {
-			if (sa.getDate().equals(date) && sa.isAvailable()) {
-				result.add(sa);
-			}
-		}
-		return result;
-	}
-  /**
-   * Get Available Slots By Slot Id.
-   *
-   * @param slotId the slotId
-   * @return the List<SlotAvailability>
-   */
-	@Override
-	public List<SlotAvailability> getAvailableSlotsBySlotId(int slotId) {
-		List<SlotAvailability> result = new ArrayList<>();
-		for (SlotAvailability sa : slotAvailabilityDB.values()) {
-			if (sa.getSlotId() == slotId && sa.isAvailable()) {
-				result.add(sa);
-			}
-		}
-		return result;
-	}
+    /**
+     * Gets the available slots by date.
+     *
+     * @param date the date
+     * @return the available slots by date
+     */
+    @Override
+    public List<SlotAvailability> getAvailableSlotsByDate(LocalDate date) {
+        return slotAvailabilityDB.values().stream()
+                .filter(sa -> sa.getDate().equals(date) && sa.isAvailable())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Gets the available slots by slot id.
+     *
+     * @param slotId the slot id
+     * @return the available slots by slot id
+     */
+    @Override
+    public List<SlotAvailability> getAvailableSlotsBySlotId(int slotId) {
+        return slotAvailabilityDB.values().stream()
+                .filter(sa -> sa.getSlotId() == slotId && sa.isAvailable())
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

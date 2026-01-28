@@ -106,101 +106,100 @@ public class BookingService implements BookingInterface {
             return false;
         }
     }
-  /**
-   * Get Customer Bookings.
-   *
-   * @param customerId the customerId
-   * @return the List<Booking>
-   */
+    /**
+     * Get Customer Bookings.
+     *
+     * @param customerId the customerId
+     * @return the List<Booking>
+     */
     @Override
     public List<Booking> getCustomerBookings(int customerId) {
         System.out.println("\n====== CUSTOMER BOOKING HISTORY ======");
-        
+
         com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
         List<Booking> customerBookingList = bookingDAO.getCustomerBookings(customerId);
-        
+
         if (customerBookingList.isEmpty()) {
             System.out.println("No bookings found for Customer ID: " + customerId);
         } else {
             System.out.println("Total Bookings: " + customerBookingList.size());
             System.out.println("-----------------------------------------");
-            for (Booking booking : customerBookingList) {
-                System.out.println("Booking ID: " + booking.getBookingId() +
-                                 " | Availability ID: " + booking.getAvailabilityId() +
-                                 " | Status: " + booking.getStatus() +
-                                 " | Created: " + booking.getCreatedAt());
-            }
+            customerBookingList.forEach(booking -> System.out.println("Booking ID: " + booking.getBookingId() +
+                    " | Availability ID: " + booking.getAvailabilityId() +
+                    " | Status: " + booking.getStatus() +
+                    " | Created: " + booking.getCreatedAt()));
         }
         System.out.println("==========================================\n");
-        
+
         return customerBookingList;
     }
-  /**
-   * Check Booking Status.
-   *
-   * @param bookingId the bookingId
-   * @return the boolean
-   */
+
+    /**
+     * Check Booking Status.
+     *
+     * @param bookingId the bookingId
+     * @return the boolean
+     */
     @Override
     public boolean checkBookingStatus(int bookingId) {
         System.out.println("\n====== CHECK BOOKING STATUS ======");
-        
+
         com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
         boolean confirmed = bookingDAO.checkBookingStatus(bookingId);
-        
+
         // To show details, we still need to load the booking
         List<Booking> all = bookingDAO.getAllBookings();
         Booking booking = all.stream().filter(b -> b.getBookingId() == bookingId).findFirst().orElse(null);
-        
+
         if (booking == null) {
             System.out.println("ERROR: Booking not found with ID: " + bookingId);
             return false;
         }
-        
+
         System.out.println("Booking ID: " + booking.getBookingId());
         System.out.println("Customer ID: " + booking.getCustomerId());
         System.out.println("Status: " + booking.getStatus());
         System.out.println("====================================\n");
-        
+
         return confirmed;
     }
-  /**
-   * Get All Bookings.
-   *
-   * @return the List<Booking>
-   */
+
+    /**
+     * Get All Bookings.
+     *
+     * @return the List<Booking>
+     */
     public List<Booking> getAllBookings() {
         return new ArrayList<>(FlipFitRepository.allBookings);
     }
-  /**
-   * View All Bookings.
-   *
-   */
+
+    /**
+     * View All Bookings.
+     */
     public void viewAllBookings() {
         System.out.println("\n====== ALL BOOKINGS ======");
-        
+
         com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
         List<Booking> allBookings = bookingDAO.getAllBookings();
-        
+
         if (allBookings.isEmpty()) {
             System.out.println("No bookings available in the database.");
         } else {
             System.out.println("Total Bookings: " + allBookings.size());
             System.out.println("-----------------------------------------");
-            for (Booking booking : allBookings) {
-                System.out.println("Booking ID: " + booking.getBookingId() +
-                                 " | Customer ID: " + booking.getCustomerId() +
-                                 " | Availability ID: " + booking.getAvailabilityId() +
-                                 " | Status: " + booking.getStatus());
-            }
+            allBookings.forEach(booking -> System.out.println("Booking ID: " + booking.getBookingId() +
+                    " | Customer ID: " + booking.getCustomerId() +
+                    " | Availability ID: " + booking.getAvailabilityId() +
+                    " | Status: " + booking.getStatus()));
         }
         System.out.println("===========================\n");
     }
-  /**
-   * Get Next Booking Id.
-   *
-   * @return the int
-   */
+
+    /**
+     * Get Next Booking Id.
+     *
+     * @return the int
+     */
     private static int getNextBookingId() {
         if (FlipFitRepository.bookingsMap.isEmpty()) {
             return 1001;

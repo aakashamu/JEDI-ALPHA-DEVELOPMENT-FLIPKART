@@ -38,4 +38,9 @@ public interface GymAdminInterface {
 	 * Views gym metrics
 	 */
 	public void viewGymMetrics();
+
+	/**
+	 * Views all gym centres
+	 */
+	public void viewAllCentres();
 }
