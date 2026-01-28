@@ -5,13 +5,27 @@ import com.flipfit.bean.GymCentre;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
-
+/**
+ * The Class GymCentreDAOImpl.
+ *
+ * @author Ananya
+ * @ClassName  "GymCentreDAOImpl"
+ */
 public class GymCentreDAOImpl implements GymCentreDAO {
-    
+  /**
+   * Get Connection.
+   *
+   * @return the Connection
+ * @throws SQLException 
+   */
     private Connection getConnection() throws SQLException {
         return DBConnection.getConnection();
     }
-
+  /**
+   * Insert Gym Centre.
+   *
+   * @param centre the centre
+   */
     @Override
     public void insertGymCentre(GymCentre centre) {
         String sql = "INSERT INTO GymCentre (centreName, city, state, ownerId, isApproved) VALUES (?, ?, ?, ?, ?)";
@@ -51,7 +65,11 @@ public class GymCentreDAOImpl implements GymCentreDAO {
             }
         }
     }
-
+  /**
+   * Select All Gym Centres.
+   *
+   * @return the List<GymCentre>
+   */
     @Override
     public List<GymCentre> selectAllGymCentres() {
         List<GymCentre> centres = new ArrayList<>();
@@ -74,7 +92,12 @@ public class GymCentreDAOImpl implements GymCentreDAO {
         }
         return centres;
     }
-
+  /**
+   * Update Gym Centre Approval.
+   *
+   * @param centreId the centreId
+   * @param approved the approved
+   */
     @Override
     public void updateGymCentreApproval(int centreId, boolean approved) {
         String sql = "UPDATE GymCentre SET isApproved = ? WHERE centreId = ?";
@@ -88,7 +111,11 @@ public class GymCentreDAOImpl implements GymCentreDAO {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Delete Gym Centre.
+   *
+   * @param centreId the centreId
+   */
     @Override
     public void deleteGymCentre(int centreId) {
         String sql = "DELETE FROM GymCentre WHERE centreId = ?";
@@ -101,7 +128,12 @@ public class GymCentreDAOImpl implements GymCentreDAO {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Select Gym Centres By Owner.
+   *
+   * @param ownerId the ownerId
+   * @return the List<GymCentre>
+   */
     @Override
     public List<GymCentre> selectGymCentresByOwner(int ownerId) {
         List<GymCentre> centres = new ArrayList<>();

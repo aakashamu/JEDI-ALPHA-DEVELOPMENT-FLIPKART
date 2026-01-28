@@ -4,13 +4,27 @@ import com.flipfit.bean.Role;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * The Class FlipFitRoleDAO.
+ *
+ * @author Ananya
+ * @ClassName  "FlipFitRoleDAO"
+ */
 public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
     private Connection connection;
-
+  /**
+   * Flip Fit Role Dao.
+   *
+   * @return the public
+   */
     public FlipFitRoleDAO() {
     }
-
+  /**
+   * Get Connection.
+   *
+   * @return the Connection
+ * @throws SQLException 
+   */
     private Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             try {
@@ -22,11 +36,20 @@ public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
         }
         return connection;
     }
-
+  /**
+   * Flip Fit Role Dao.
+   *
+   * @param connection the connection
+   * @return the public
+   */
     public FlipFitRoleDAO(Connection connection) {
         this.connection = connection;
     }
-
+  /**
+   * Add Role.
+   *
+   * @param role the role
+   */
     @Override
     public void addRole(Role role) {
         String sql = "INSERT INTO Role (roleName) VALUES (?)";
@@ -37,7 +60,12 @@ public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Get Role By Id.
+   *
+   * @param roleId the roleId
+   * @return the Role
+   */
     @Override
     public Role getRoleById(int roleId) {
         String sql = "SELECT * FROM Role WHERE roleId = ?";
@@ -52,7 +80,12 @@ public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
         }
         return null;
     }
-
+  /**
+   * Get Role By Name.
+   *
+   * @param roleName the roleName
+   * @return the Role
+   */
     @Override
     public Role getRoleByName(String roleName) {
         String sql = "SELECT * FROM Role WHERE roleName = ?";
@@ -67,7 +100,11 @@ public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
         }
         return null;
     }
-
+  /**
+   * Get All Roles.
+   *
+   * @return the List<Role>
+   */
     @Override
     public List<Role> getAllRoles() {
         List<Role> roles = new ArrayList<>();
@@ -83,7 +120,11 @@ public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
         }
         return roles;
     }
-
+  /**
+   * Update Role.
+   *
+   * @param role the role
+   */
     @Override
     public void updateRole(Role role) {
         String sql = "UPDATE Role SET roleName = ? WHERE roleId = ?";
@@ -95,7 +136,11 @@ public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Delete Role.
+   *
+   * @param roleId the roleId
+   */
     @Override
     public void deleteRole(int roleId) {
         String sql = "DELETE FROM Role WHERE roleId = ?";

@@ -2,9 +2,11 @@
  * 
  */
 package com.flipfit.business;
-
 /**
- * 
+ * The Interface UserInterface.
+ *
+ * @author Ananya
+ * @ClassName  "UserInterface"
  */
 public interface UserInterface {
 

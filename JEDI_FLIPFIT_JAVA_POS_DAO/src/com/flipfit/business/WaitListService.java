@@ -8,20 +8,19 @@ import com.flipfit.dao.FlipFitRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 /**
- * Service class for managing gym slot wait list
- * Uses DAO (FlipFitRepository) for centralized data management
+ * The Class WaitListService.
+ *
+ * @author Ananya
+ * @ClassName  "WaitListService"
  */
 public class WaitListService implements WaitListInterface {
-    
-    /**
-     * Add a booking to the wait list
-     * Uses FIFO order via Queue
-     * 
-     * @param bookingId Booking ID to add to wait list
-     * @return true if successfully added, false otherwise
-     */
+  /**
+   * Add To Wait List.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean addToWaitList(int bookingId) {
         System.out.println("\n========== ADD TO WAIT LIST ==========");
@@ -37,12 +36,11 @@ public class WaitListService implements WaitListInterface {
             return false;
         }
     }
-    
-    /**
-     * Remove a booking from the wait list
-     * 
-     * @param bookingId Booking ID to remove from wait list
-     */
+  /**
+   * Remove From Wait List.
+   *
+   * @param bookingId the bookingId
+   */
     @Override
     public void removeFromWaitList(int bookingId) {
         System.out.println("\n========== REMOVE FROM WAIT LIST ==========");
@@ -52,23 +50,21 @@ public class WaitListService implements WaitListInterface {
         
         System.out.println("SUCCESS: Booking " + bookingId + " removed from wait list in database");
     }
-    
-    /**
-     * Update positions in wait list after removal
-     */
+  /**
+   * Update Positions.
+   *
+   */
     private void updatePositions() {
         int position = 1;
         for (WaitListEntry entry : FlipFitRepository.allWaitListEntries) {
             entry.setPosition(position++);
         }
     }
-    
-    /**
-     * Update wait list when a slot becomes available
-     * Automatically processes the first person in queue
-     * 
-     * @return true if update successful, false otherwise
-     */
+  /**
+   * Update Wait List.
+   *
+   * @return the boolean
+   */
     @Override
     public boolean updateWaitList() {
         System.out.println("\n========== UPDATE WAIT LIST ==========");
@@ -84,13 +80,12 @@ public class WaitListService implements WaitListInterface {
             return false;
         }
     }
-
-    /**
-     * Promote the first person in the waitlist for a specific availability
-     * 
-     * @param availabilityId Availability ID to promote from
-     * @return true if someone was promoted, false otherwise
-     */
+  /**
+   * Promote From Wait List.
+   *
+   * @param availabilityId the availabilityId
+   * @return the boolean
+   */
     @Override
     public boolean promoteFromWaitList(int availabilityId) {
         System.out.println("\n========== PROMOTE FROM WAIT LIST ==========");
@@ -124,10 +119,10 @@ public class WaitListService implements WaitListInterface {
         
         return false;
     }
-    
-    /**
-     * View all wait list entries
-     */
+  /**
+   * View Wait List.
+   *
+   */
     public void viewWaitList() {
         System.out.println("\n========== WAIT LIST VIEW ==========");
         
@@ -147,13 +142,12 @@ public class WaitListService implements WaitListInterface {
         }
         System.out.println("====================================\n");
     }
-    
-    /**
-     * Get wait list position for a booking
-     * 
-     * @param bookingId Booking ID to check
-     * @return position in wait list, or -1 if not found
-     */
+  /**
+   * Get Wait List Position.
+   *
+   * @param bookingId the bookingId
+   * @return the int
+   */
     public int getWaitListPosition(int bookingId) {
         System.out.println("\n========== CHECK WAIT LIST POSITION ==========");
         
@@ -169,20 +163,20 @@ public class WaitListService implements WaitListInterface {
         
         return position;
     }
-    
-    /**
-     * Get count of people waiting
-     * 
-     * @return total wait list count
-     */
+  /**
+   * Get Wait List Count.
+   *
+   * @return the int
+   */
     public int getWaitListCount() {
         com.flipfit.dao.WaitlistDAOImpl waitlistDAO = new com.flipfit.dao.WaitlistDAOImpl();
         return waitlistDAO.getAllWaitListEntries().size();
     }
-    
-    /**
-     * Menu-based wait list operations
-     */
+  /**
+   * Wait List Menu.
+   *
+   * @param scanner the scanner
+   */
     public static void waitListMenu(Scanner scanner) {
         WaitListService waitListService = new WaitListService();
         boolean continueWaitList = true;

@@ -3,9 +3,24 @@ package com.flipfit.dao;
 import com.flipfit.bean.User;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
-
+/**
+ * The Class GymCustomerDAO.
+ *
+ * @author Ananya
+ * @ClassName  "GymCustomerDAO"
+ */
 public class GymCustomerDAO implements GymCustomerInterfaceDAO {
-
+  /**
+   * Register Customer.
+   *
+   * @param fullName the fullName
+   * @param email the email
+   * @param password the password
+   * @param phoneNumber the phoneNumber
+   * @param city the city
+   * @param state the state
+   * @param pincode the pincode
+   */
     @Override
     public void registerCustomer(String fullName, String email, String password, Long phoneNumber, String city, String state, int pincode) {
         Connection conn = null;
@@ -41,7 +56,13 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
             try { if(conn != null) conn.close(); } catch (SQLException se) { se.printStackTrace(); }
         }
     }
-
+  /**
+   * Is User Valid.
+   *
+   * @param email the email
+   * @param password the password
+   * @return the boolean
+   */
     @Override
     public boolean isUserValid(String email, String password) {
         String query = "SELECT * FROM User WHERE email = ? AND password = ? AND roleId = 2";
@@ -57,7 +78,12 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
             return false;
         }
     }
-
+  /**
+   * Get Customer By Id.
+   *
+   * @param userId the userId
+   * @return the User
+   */
     @Override
     public User getCustomerById(int userId) {
         User user = new User();

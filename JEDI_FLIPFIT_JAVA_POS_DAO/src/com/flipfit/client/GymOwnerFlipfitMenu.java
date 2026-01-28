@@ -3,11 +3,20 @@ package com.flipfit.client;
 import com.flipfit.bean.GymCentre;
 import com.flipfit.business.GymOwnerService;
 import java.util.Scanner;
-
+/**
+ * The Class GymOwnerFlipfitMenu.
+ *
+ * @author Ananya
+ * @ClassName  "GymOwnerFlipfitMenu"
+ */
 public class GymOwnerFlipfitMenu {
     private GymOwnerService gymOwnerService = new GymOwnerService();
     private Scanner scanner = new Scanner(System.in);
-
+  /**
+   * Display Menu.
+   *
+   * @param ownerId the ownerId
+   */
     public void displayMenu(int ownerId) {
         while (true) {
             System.out.println("\n--- Gym Owner Dashboard ---");

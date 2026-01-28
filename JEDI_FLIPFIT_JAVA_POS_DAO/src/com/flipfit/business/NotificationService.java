@@ -4,28 +4,29 @@ import com.flipfit.bean.Notification;
 import com.flipfit.dao.FlipFitNotificationDAO;
 import com.flipfit.dao.FlipFitNotificationDAOInterface;
 import java.util.List;
-
 /**
- * Business Service for Notification operations
- * Uses DAO layer for data access
+ * The Class NotificationService.
+ *
+ * @author Ananya
+ * @ClassName  "NotificationService"
  */
 public class NotificationService implements NotificationInterface {
 
     private final FlipFitNotificationDAOInterface notificationDAO;
-
-    /**
-     * Constructor - initializes DAO
-     */
+  /**
+   * Notification Service.
+   *
+   * @return the public
+   */
     public NotificationService() {
         this.notificationDAO = new FlipFitNotificationDAO();
     }
-
-    /**
-     * Sends a notification to a user
-     * 
-     * @param userId  ID of the user to send notification to
-     * @param message Message content
-     */
+  /**
+   * Send Notification.
+   *
+   * @param userId the userId
+   * @param message the message
+   */
     @Override
     public void sendNotification(int userId, String message) {
         if (userId <= 0 || message == null || message.isEmpty()) {
@@ -47,52 +48,47 @@ public class NotificationService implements NotificationInterface {
             System.out.println("ERROR: Failed to send notification to User " + userId);
         }
     }
-
-    /**
-     * Get all notifications for a user
-     * 
-     * @param userId ID of the user
-     * @return List of notifications
-     */
+  /**
+   * Get User Notifications.
+   *
+   * @param userId the userId
+   * @return the List<Notification>
+   */
     public List<Notification> getUserNotifications(int userId) {
         return notificationDAO.getNotificationsByUserId(userId);
     }
-
-    /**
-     * Get unread notifications for a user
-     * 
-     * @param userId ID of the user
-     * @return List of unread notifications
-     */
+  /**
+   * Get Unread Notifications.
+   *
+   * @param userId the userId
+   * @return the List<Notification>
+   */
     public List<Notification> getUnreadNotifications(int userId) {
         return notificationDAO.getUnreadNotificationsByUserId(userId);
     }
-
-    /**
-     * Mark notification as read
-     * 
-     * @param notificationId ID of the notification
-     * @return true if successful
-     */
+  /**
+   * Mark As Read.
+   *
+   * @param notificationId the notificationId
+   * @return the boolean
+   */
     public boolean markAsRead(int notificationId) {
         return notificationDAO.markAsRead(notificationId);
     }
-
-    /**
-     * Delete a notification
-     * 
-     * @param notificationId ID of the notification
-     * @return true if successful
-     */
+  /**
+   * Delete Notification.
+   *
+   * @param notificationId the notificationId
+   * @return the boolean
+   */
     public boolean deleteNotification(int notificationId) {
         return notificationDAO.deleteNotification(notificationId);
     }
-
-    /**
-     * View all user notifications (console output)
-     * 
-     * @param userId ID of the user
-     */
+  /**
+   * View User Notifications.
+   *
+   * @param userId the userId
+   */
     public void viewUserNotifications(int userId) {
         List<Notification> notifications = getUserNotifications(userId);
 
@@ -110,12 +106,11 @@ public class NotificationService implements NotificationInterface {
         }
         System.out.println("==================================================\n");
     }
-
-    /**
-     * Get all notifications in the system
-     * 
-     * @return List of all notifications
-     */
+  /**
+   * Get All Notifications.
+   *
+   * @return the List<Notification>
+   */
     public List<Notification> getAllNotifications() {
         return notificationDAO.getAllNotifications();
     }

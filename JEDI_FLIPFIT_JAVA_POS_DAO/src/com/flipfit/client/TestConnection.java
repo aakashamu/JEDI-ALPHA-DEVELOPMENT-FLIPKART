@@ -3,9 +3,18 @@ package com.flipfit.client;
 import com.flipfit.utils.DBConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
-
+/**
+ * The Class TestConnection.
+ *
+ * @author Ananya
+ * @ClassName  "TestConnection"
+ */
 public class TestConnection {
-    // This method allows other classes to get the connection
+  /**
+   * Get Connection.
+   *
+   * @return the Connection
+   */
     public static Connection getConnection() {
         try {
             return DBConnection.getConnection();
@@ -14,7 +23,11 @@ public class TestConnection {
             return null;
         }
     }
-
+  /**
+   * Main.
+   *
+   * @param args the args
+   */
     public static void main(String[] args) {
         Connection conn = getConnection();
         if (conn != null) {

@@ -2,7 +2,12 @@ package com.flipfit.business;
 
 import com.flipfit.bean.Slot;
 import java.util.List;
-
+/**
+ * The Interface SlotInterface.
+ *
+ * @author Ananya
+ * @ClassName  "SlotInterface"
+ */
 public interface SlotInterface {
 
     Slot addSlot(Slot slot);

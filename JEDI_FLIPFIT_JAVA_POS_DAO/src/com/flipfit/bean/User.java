@@ -2,9 +2,11 @@
  * User class representing a user in the FlipFit system
  */
 package com.flipfit.bean;
-
 /**
- * User bean class with user details and authentication methods
+ * The Class User.
+ *
+ * @author Ananya
+ * @ClassName  "User"
  */
 public class User {
     // Attributes as per class diagram
@@ -17,8 +19,11 @@ public class User {
     private String state;
     private int pincode;
     private int roleId;
-
-    // Default constructor
+  /**
+   * User.
+   *
+   * @return the public
+   */
     public User() {
     }
 
@@ -33,93 +38,162 @@ public class User {
         this.city = city;
         this.pincode = pincode;
     }
-
-    // Getters and Setters
+  /**
+   * Get User Id.
+   *
+   * @return the int
+   */
     public int getUserId() {
         return userId;
     }
-
+  /**
+   * Set User Id.
+   *
+   * @param userId the userId
+   */
     public void setUserId(int userId) {
         this.userId = userId;
     }
-
+  /**
+   * Get Full Name.
+   *
+   * @return the String
+   */
     public String getFullName() {
         return fullName;
     }
-
+  /**
+   * Set Full Name.
+   *
+   * @param fullName the fullName
+   */
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-
+  /**
+   * Get Email.
+   *
+   * @return the String
+   */
     public String getEmail() {
         return email;
     }
-
+  /**
+   * Set Email.
+   *
+   * @param email the email
+   */
     public void setEmail(String email) {
         this.email = email;
     }
-
+  /**
+   * Get Password.
+   *
+   * @return the String
+   */
     public String getPassword() {
         return password;
     }
-
+  /**
+   * Set Password.
+   *
+   * @param password the password
+   */
     public void setPassword(String password) {
         this.password = password;
     }
-
+  /**
+   * Get Phone Number.
+   *
+   * @return the long
+   */
     public long getPhoneNumber() {
         return phoneNumber;
     }
-
+  /**
+   * Set Phone Number.
+   *
+   * @param phoneNumber the phoneNumber
+   */
     public void setPhoneNumber(long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
+  /**
+   * Get City.
+   *
+   * @return the String
+   */
     public String getCity() {
         return city;
     }
-
+  /**
+   * Set City.
+   *
+   * @param city the city
+   */
     public void setCity(String city) {
         this.city = city;
     }
-
+  /**
+   * Get State.
+   *
+   * @return the String
+   */
     public String getState() {
         return state;
     }
-
+  /**
+   * Set State.
+   *
+   * @param state the state
+   */
     public void setState(String state) {
         this.state = state;
     }
-
+  /**
+   * Get Pincode.
+   *
+   * @return the int
+   */
     public int getPincode() {
         return pincode;
     }
-
+  /**
+   * Set Pincode.
+   *
+   * @param pincode the pincode
+   */
     public void setPincode(int pincode) {
         this.pincode = pincode;
     }
-
+  /**
+   * Get Role Id.
+   *
+   * @return the int
+   */
     public int getRoleId() {
         return roleId;
     }
-
+  /**
+   * Set Role Id.
+   *
+   * @param roleId the roleId
+   */
     public void setRoleId(int roleId) {
         this.roleId = roleId;
     }
-
-    // Methods as per class diagram
-    /**
-     * Login method to authenticate user
-     * 
-     * @return boolean indicating login success
-     */
+  /**
+   * Login.
+   *
+   * @return the boolean
+   */
     public boolean login() {
         return false;
     }
-
-    /**
-     * Logout method to end user session
-     */
+  /**
+   * Logout.
+   *
+   */
     public void logout() {
     }
 }

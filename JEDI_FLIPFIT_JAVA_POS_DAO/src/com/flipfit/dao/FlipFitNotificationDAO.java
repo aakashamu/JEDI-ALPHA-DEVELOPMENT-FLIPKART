@@ -9,19 +9,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 /**
- * DAO Implementation for Notification operations
- * Uses JDBC for database access
+ * The Class FlipFitNotificationDAO.
+ *
+ * @author Ananya
+ * @ClassName  "FlipFitNotificationDAO"
  */
 public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
-
-    /**
-     * Creates a new notification in the database
-     * 
-     * @param notification Notification object to create
-     * @return true if notification is created successfully
-     */
+  /**
+   * Create Notification.
+   *
+   * @param notification the notification
+   * @return the boolean
+   */
     @Override
     public boolean createNotification(Notification notification) {
         if (notification == null) {
@@ -47,13 +47,12 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
-
-    /**
-     * Retrieves a notification by its ID
-     * 
-     * @param notificationId ID of the notification
-     * @return Notification object if found, null otherwise
-     */
+  /**
+   * Get Notification By Id.
+   *
+   * @param notificationId the notificationId
+   * @return the Notification
+   */
     @Override
     public Notification getNotificationById(int notificationId) {
         String sql = "SELECT * FROM Notification WHERE notificationId = ?";
@@ -78,13 +77,12 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
         }
         return null;
     }
-
-    /**
-     * Retrieves all notifications for a specific user
-     * 
-     * @param userId ID of the user
-     * @return List of notifications for the user
-     */
+  /**
+   * Get Notifications By User Id.
+   *
+   * @param userId the userId
+   * @return the List<Notification>
+   */
     @Override
     public List<Notification> getNotificationsByUserId(int userId) {
         List<Notification> notifications = new ArrayList<>();
@@ -110,13 +108,12 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
         }
         return notifications;
     }
-
-    /**
-     * Retrieves all unread notifications for a specific user
-     * 
-     * @param userId ID of the user
-     * @return List of unread notifications
-     */
+  /**
+   * Get Unread Notifications By User Id.
+   *
+   * @param userId the userId
+   * @return the List<Notification>
+   */
     @Override
     public List<Notification> getUnreadNotificationsByUserId(int userId) {
         List<Notification> notifications = new ArrayList<>();
@@ -142,13 +139,12 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
         }
         return notifications;
     }
-
-    /**
-     * Marks a notification as read
-     * 
-     * @param notificationId ID of the notification to mark as read
-     * @return true if notification status is updated successfully
-     */
+  /**
+   * Mark As Read.
+   *
+   * @param notificationId the notificationId
+   * @return the boolean
+   */
     @Override
     public boolean markAsRead(int notificationId) {
         String sql = "UPDATE Notification SET status = 'READ' WHERE notificationId = ?";
@@ -164,13 +160,12 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
-
-    /**
-     * Deletes a notification by its ID
-     * 
-     * @param notificationId ID of the notification to delete
-     * @return true if notification is deleted successfully
-     */
+  /**
+   * Delete Notification.
+   *
+   * @param notificationId the notificationId
+   * @return the boolean
+   */
     @Override
     public boolean deleteNotification(int notificationId) {
         String sql = "DELETE FROM Notification WHERE notificationId = ?";
@@ -186,13 +181,12 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
-
-    /**
-     * Deletes all notifications for a specific user
-     * 
-     * @param userId ID of the user
-     * @return true if all notifications are deleted successfully
-     */
+  /**
+   * Delete All Notifications By User Id.
+   *
+   * @param userId the userId
+   * @return the boolean
+   */
     @Override
     public boolean deleteAllNotificationsByUserId(int userId) {
         String sql = "DELETE FROM Notification WHERE userId = ?";
@@ -208,12 +202,11 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
             return false;
         }
     }
-
-    /**
-     * Retrieves all notifications in the system
-     * 
-     * @return List of all notifications
-     */
+  /**
+   * Get All Notifications.
+   *
+   * @return the List<Notification>
+   */
     @Override
     public List<Notification> getAllNotifications() {
         List<Notification> notifications = new ArrayList<>();

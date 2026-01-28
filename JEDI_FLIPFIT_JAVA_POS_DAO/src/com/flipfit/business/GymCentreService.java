@@ -8,12 +8,22 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
+/**
+ * The Class GymCentreService.
+ *
+ * @author Ananya
+ * @ClassName  "GymCentreService"
+ */
 public class GymCentreService implements GymCentreInterface {
 
     private final SlotService slotService = new SlotService();
     private final SlotAvailabilityService availabilityService = new SlotAvailabilityService();
-
+  /**
+   * View Available Slots.
+   *
+   * @param centreId the centreId
+   * @return the List<SlotAvailability>
+   */
     @Override
     public List<SlotAvailability> viewAvailableSlots(int centreId) {
         List<SlotAvailability> centreSpecificSlots = new ArrayList<>();
@@ -35,7 +45,12 @@ public class GymCentreService implements GymCentreInterface {
         
         return centreSpecificSlots;
     }
-
+  /**
+   * Get Centre Details.
+   *
+   * @param centreId the centreId
+   * @return the GymCentre
+   */
     @Override
     public GymCentre getCentreDetails(int centreId) {
         // Direct search in your FlipFitRepository static list
@@ -46,7 +61,11 @@ public class GymCentreService implements GymCentreInterface {
         }
         return null; // Return null if center doesn't exist
     }
-
+  /**
+   * Add Gym Centre.
+   *
+   * @param centre the centre
+   */
     @Override
     public void addGymCentre(GymCentre centre) {
         if (centre != null) {
@@ -54,10 +73,12 @@ public class GymCentreService implements GymCentreInterface {
             System.out.println("✓ Gym centre added successfully: " + centre.getName());
         }
     }
-    
-    /**
-     * Get all centres in a specific city (REQUIREMENT: View centers for a given city)
-     */
+  /**
+   * View Centres By City.
+   *
+   * @param city the city
+   * @return the List<GymCentre>
+   */
     public List<GymCentre> viewCentresByCity(String city) {
         if (city == null || city.isEmpty()) {
             System.out.println("ERROR: City cannot be empty");
@@ -89,10 +110,14 @@ public class GymCentreService implements GymCentreInterface {
         
         return centresInCity;
     }
-    
-    /**
-     * BONUS FEATURE: Get the nearest available time slot for the same centre/date (REQUIREMENT: Nearest time slot)
-     */
+  /**
+   * Get Nearest Time Slot.
+   *
+   * @param centreId the centreId
+   * @param date the date
+   * @param referenceSlot the referenceSlot
+   * @return the Slot
+   */
     public Slot getNearestTimeSlot(int centreId, LocalDate date, Slot referenceSlot) {
         if (referenceSlot == null) {
             System.out.println("ERROR: Reference slot cannot be null");

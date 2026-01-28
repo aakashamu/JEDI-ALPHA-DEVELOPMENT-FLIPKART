@@ -6,9 +6,19 @@ import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * The Class GymOwnerImpl.
+ *
+ * @author Ananya
+ * @ClassName  "GymOwnerImpl"
+ */
 public class GymOwnerImpl implements GymOwnerInterface {
-
+  /**
+   * Register New Centre.
+   *
+   * @param centre the centre
+   * @return the boolean
+   */
     @Override
     public boolean registerNewCentre(GymCentre centre) {
         String query = "INSERT INTO GymCentre (centreName, city, state, ownerId, isApproved) VALUES (?, ?, ?, ?, ?)";
@@ -30,7 +40,12 @@ public class GymOwnerImpl implements GymOwnerInterface {
             return false;
         }
     }
-
+  /**
+   * View My Centres.
+   *
+   * @param ownerId the ownerId
+   * @return the List<GymCentre>
+   */
     @Override
     public List<GymCentre> viewMyCentres(int ownerId) {
         List<GymCentre> centres = new ArrayList<>();
@@ -58,7 +73,11 @@ public class GymOwnerImpl implements GymOwnerInterface {
         }
         return centres;
     }
-
+  /**
+   * Request Approval.
+   *
+   * @param gymOwnerId the gymOwnerId
+   */
     @Override
     public void requestApproval(int gymOwnerId) {
         String query = "UPDATE GymOwner SET isApproved = 0 WHERE userId = ?";
@@ -73,7 +92,12 @@ public class GymOwnerImpl implements GymOwnerInterface {
             e.printStackTrace(); 
         }
     }
-
+  /**
+   * View Customers.
+   *
+   * @param gymCentreId the gymCentreId
+   * @return the List<GymCustomer>
+   */
     @Override
     public List<GymCustomer> viewCustomers(int gymCentreId) {
         List<GymCustomer> customers = new ArrayList<>();
@@ -103,7 +127,12 @@ public class GymOwnerImpl implements GymOwnerInterface {
         }
         return customers;
     }
-
+  /**
+   * Cancel Booking.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean cancelBooking(int bookingId) {
         String query = "UPDATE Booking SET status = 'CANCELLED' WHERE bookingId = ?";

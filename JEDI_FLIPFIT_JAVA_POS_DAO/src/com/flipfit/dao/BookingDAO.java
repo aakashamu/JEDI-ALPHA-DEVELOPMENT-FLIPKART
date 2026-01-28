@@ -2,7 +2,12 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.Booking;
 import java.util.List;
-
+/**
+ * The Interface BookingDAO.
+ *
+ * @author Ananya
+ * @ClassName  "BookingDAO"
+ */
 public interface BookingDAO {
     /**
      * Creates a new booking in the database

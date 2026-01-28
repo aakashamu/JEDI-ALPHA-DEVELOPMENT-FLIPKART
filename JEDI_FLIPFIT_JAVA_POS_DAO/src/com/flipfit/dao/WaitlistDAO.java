@@ -2,7 +2,12 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.WaitListEntry;
 import java.util.List;
-
+/**
+ * The Interface WaitlistDAO.
+ *
+ * @author Ananya
+ * @ClassName  "WaitlistDAO"
+ */
 public interface WaitlistDAO {
     /**
      * Adds a booking to the waitlist

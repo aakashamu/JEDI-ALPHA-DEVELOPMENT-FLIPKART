@@ -4,11 +4,11 @@ package com.flipfit.business;
 
 import com.flipfit.bean.Booking;
 import java.util.List;
-
-
-
 /**
- * Interface for Booking Business Logic
+ * The Interface BookingInterface.
+ *
+ * @author Ananya
+ * @ClassName  "BookingInterface"
  */
 public interface BookingInterface {
 

@@ -3,9 +3,20 @@ package com.flipfit.dao;
 import com.flipfit.bean.User;
 import com.flipfit.utils.DBConnection;
 import java.sql.*;
-
+/**
+ * The Class UserDAO.
+ *
+ * @author Ananya
+ * @ClassName  "UserDAO"
+ */
 public class UserDAO implements UserInterfaceDAO {
-
+  /**
+   * Login.
+   *
+   * @param email the email
+   * @param password the password
+   * @return the boolean
+   */
     @Override
     public boolean login(String email, String password) {
         // This checks the User table for a matching email and password
@@ -23,7 +34,12 @@ public class UserDAO implements UserInterfaceDAO {
             return false;
         }
     }
-
+  /**
+   * Get User Details.
+   *
+   * @param email the email
+   * @return the User
+   */
     @Override
     public User getUserDetails(String email) {
         User user = null;
@@ -52,7 +68,11 @@ public class UserDAO implements UserInterfaceDAO {
         }
         return user;
     }
-
+  /**
+   * Update Profile.
+   *
+   * @param user the user
+   */
     @Override
     public void updateProfile(User user) {
         // Updating common fields based on the email (unique identifier)
@@ -75,7 +95,14 @@ public class UserDAO implements UserInterfaceDAO {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Change Password.
+   *
+   * @param email the email
+   * @param oldPassword the oldPassword
+   * @param newPassword the newPassword
+   * @return the boolean
+   */
     @Override
     public boolean changePassword(String email, String oldPassword, String newPassword) {
         String query = "UPDATE User SET password = ? WHERE email = ? AND password = ?";

@@ -2,7 +2,12 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.Role;
 import java.util.List;
-
+/**
+ * The Interface FlipFitRoleDAOInterface.
+ *
+ * @author Ananya
+ * @ClassName  "FlipFitRoleDAOInterface"
+ */
 public interface FlipFitRoleDAOInterface {
     void addRole(Role role);
 

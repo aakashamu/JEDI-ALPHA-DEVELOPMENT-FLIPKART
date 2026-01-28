@@ -5,9 +5,19 @@ import com.flipfit.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * The Class WaitlistDAOImpl.
+ *
+ * @author Ananya
+ * @ClassName  "WaitlistDAOImpl"
+ */
 public class WaitlistDAOImpl implements WaitlistDAO {
-
+  /**
+   * Add To Wait List.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean addToWaitList(int bookingId) {
         System.out.println("[DEBUG] addToWaitList called with bookingId=" + bookingId);
@@ -43,11 +53,14 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             return false;
         }
     }
-
-    /**
-     * Add to waitlist with customer and availability info
-     * Gets booking info and determines position based on pending bookings for that availability
-     */
+  /**
+   * Add To Wait List.
+   *
+   * @param bookingId the bookingId
+   * @param customerId the customerId
+   * @param availabilityId the availabilityId
+   * @return the int
+   */
     public int addToWaitList(int bookingId, int customerId, int availabilityId) {
         String posQuery = "SELECT COUNT(*) as cnt FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ?";
         String insertQuery = "INSERT INTO Waitlist (bookingId, position, createdAt) VALUES (?, ?, ?)";
@@ -76,10 +89,12 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             return -1;
         }
     }
-
-    /**
-     * Get waitlist count for a specific availability
-     */
+  /**
+   * Get Waitlist Count By Availability Id.
+   *
+   * @param availabilityId the availabilityId
+   * @return the int
+   */
     public int getWaitlistCountByAvailabilityId(int availabilityId) {
         String query = "SELECT COUNT(*) as cnt FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING'";
         try (Connection conn = DBConnection.getConnection();
@@ -96,10 +111,12 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return 0;
     }
-
-    /**
-     * Get first pending waitlist entry for an availability
-     */
+  /**
+   * Get First Pending Waitlist Entry.
+   *
+   * @param availabilityId the availabilityId
+   * @return the WaitListEntry
+   */
     public WaitListEntry getFirstPendingWaitlistEntry(int availabilityId) {
         String query = "SELECT w.*, b.userId, b.availabilityId FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING' ORDER BY w.position ASC LIMIT 1";
         try (Connection conn = DBConnection.getConnection();
@@ -125,10 +142,13 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return null;
     }
-
-    /**
-     * Update waitlist entry status
-     */
+  /**
+   * Update Waitlist Status.
+   *
+   * @param waitlistId the waitlistId
+   * @param status the status
+   * @return the boolean
+   */
     public boolean updateWaitlistStatus(int waitlistId, String status) {
         String query = "UPDATE Waitlist SET status = ? WHERE waitlistId = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -142,7 +162,11 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             return false;
         }
     }
-
+  /**
+   * Remove From Wait List.
+   *
+   * @param bookingId the bookingId
+   */
     @Override
     public void removeFromWaitList(int bookingId) {
         String deleteQuery = "DELETE FROM Waitlist WHERE bookingId = ?";
@@ -161,10 +185,11 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             e.printStackTrace();
         }
     }
-
-    /**
-     * Remove from waitlist by booking ID
-     */
+  /**
+   * Remove From Wait List By Booking Id.
+   *
+   * @param bookingId the bookingId
+   */
     public void removeFromWaitListByBookingId(int bookingId) {
         String deleteQuery = "DELETE FROM Waitlist WHERE bookingId = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -176,7 +201,12 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             e.printStackTrace();
         }
     }
-
+  /**
+   * Update Positions.
+   *
+   * @param conn the conn
+ * @throws SQLException 
+   */
     private void updatePositions(Connection conn) throws SQLException {
         String selectQuery = "SELECT waitlistId FROM Waitlist ORDER BY createdAt ASC";
         String updateQuery = "UPDATE Waitlist SET position = ? WHERE waitlistId = ?";
@@ -198,7 +228,11 @@ public class WaitlistDAOImpl implements WaitlistDAO {
             updateStmt.executeBatch();
         }
     }
-
+  /**
+   * Update Wait List.
+   *
+   * @return the boolean
+   */
     @Override
     public boolean updateWaitList() {
         // This usually means processing the first person in the waitlist when a slot opens up
@@ -218,7 +252,11 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return false;
     }
-
+  /**
+   * Get All Wait List Entries.
+   *
+   * @return the List<WaitListEntry>
+   */
     @Override
     public List<WaitListEntry> getAllWaitListEntries() {
         List<WaitListEntry> entries = new ArrayList<>();
@@ -239,7 +277,12 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return entries;
     }
-
+  /**
+   * Get Wait List Position.
+   *
+   * @param bookingId the bookingId
+   * @return the int
+   */
     @Override
     public int getWaitListPosition(int bookingId) {
         String query = "SELECT position FROM Waitlist WHERE bookingId = ?";
@@ -257,11 +300,11 @@ public class WaitlistDAOImpl implements WaitlistDAO {
         }
         return -1;
     }
-
-    /**
-     * Update waitlist positions for a specific availability after promotion
-     * This shifts all remaining positions down by 1
-     */
+  /**
+   * Update Waitlist Positions.
+   *
+   * @param availabilityId the availabilityId
+   */
     public void updateWaitlistPositions(int availabilityId) {
         String selectQuery = "SELECT w.waitlistId FROM Waitlist w JOIN Booking b ON w.bookingId = b.bookingId WHERE b.availabilityId = ? AND b.status = 'PENDING' ORDER BY w.position ASC";
         String updateQuery = "UPDATE Waitlist SET position = ? WHERE waitlistId = ?";

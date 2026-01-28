@@ -8,20 +8,20 @@ import com.flipfit.dao.FlipFitRepository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 /**
- * Service class for managing gym slot bookings
- * Uses DAO (FlipFitRepository) for centralized data management
+ * The Class BookingService.
+ *
+ * @author Ananya
+ * @ClassName  "BookingService"
  */
 public class BookingService implements BookingInterface {
-    
-    /**
-     * Create a new booking for a customer
-     * 
-     * @param customerId Customer ID
-     * @param availabilityId Slot Availability ID
-     * @return Created Booking object or null if creation fails
-     */
+  /**
+   * Create Booking.
+   *
+   * @param customerId the customerId
+   * @param availabilityId the availabilityId
+   * @return the Booking
+   */
     @Override
     public Booking createBooking(int customerId, int availabilityId) {
         System.out.println("\n========== CREATE BOOKING ==========");
@@ -40,13 +40,12 @@ public class BookingService implements BookingInterface {
             return null;
         }
     }
-    
-    /**
-     * Cancel an existing booking
-     * 
-     * @param bookingId Booking ID to cancel
-     * @return true if cancellation successful, false otherwise
-     */
+  /**
+   * Cancel Booking.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean cancelBooking(int bookingId) {
         System.out.println("\n========== CANCEL BOOKING ==========");
@@ -107,13 +106,12 @@ public class BookingService implements BookingInterface {
             return false;
         }
     }
-    
-    /**
-     * Get all bookings for a specific customer
-     * 
-     * @param customerId Customer ID
-     * @return List of bookings for the customer
-     */
+  /**
+   * Get Customer Bookings.
+   *
+   * @param customerId the customerId
+   * @return the List<Booking>
+   */
     @Override
     public List<Booking> getCustomerBookings(int customerId) {
         System.out.println("\n====== CUSTOMER BOOKING HISTORY ======");
@@ -137,13 +135,12 @@ public class BookingService implements BookingInterface {
         
         return customerBookingList;
     }
-    
-    /**
-     * Check the status of a specific booking
-     * 
-     * @param bookingId Booking ID to check
-     * @return true if booking exists and is confirmed, false otherwise
-     */
+  /**
+   * Check Booking Status.
+   *
+   * @param bookingId the bookingId
+   * @return the boolean
+   */
     @Override
     public boolean checkBookingStatus(int bookingId) {
         System.out.println("\n====== CHECK BOOKING STATUS ======");
@@ -167,19 +164,18 @@ public class BookingService implements BookingInterface {
         
         return confirmed;
     }
-    
-    /**
-     * Get all bookings
-     * 
-     * @return List of all bookings
-     */
+  /**
+   * Get All Bookings.
+   *
+   * @return the List<Booking>
+   */
     public List<Booking> getAllBookings() {
         return new ArrayList<>(FlipFitRepository.allBookings);
     }
-    
-    /**
-     * View all bookings (utility method)
-     */
+  /**
+   * View All Bookings.
+   *
+   */
     public void viewAllBookings() {
         System.out.println("\n====== ALL BOOKINGS ======");
         
@@ -200,20 +196,22 @@ public class BookingService implements BookingInterface {
         }
         System.out.println("===========================\n");
     }
-    
-    /**
-     * Generate next booking ID
-     */
+  /**
+   * Get Next Booking Id.
+   *
+   * @return the int
+   */
     private static int getNextBookingId() {
         if (FlipFitRepository.bookingsMap.isEmpty()) {
             return 1001;
         }
         return FlipFitRepository.bookingsMap.keySet().stream().max(Integer::compare).orElse(1000) + 1;
     }
-    
-    /**
-     * Menu-based booking operations
-     */
+  /**
+   * Booking Menu.
+   *
+   * @param scanner the scanner
+   */
     public static void bookingMenu(java.util.Scanner scanner) {
         BookingService bookingService = new BookingService();
         boolean continueBooking = true;
