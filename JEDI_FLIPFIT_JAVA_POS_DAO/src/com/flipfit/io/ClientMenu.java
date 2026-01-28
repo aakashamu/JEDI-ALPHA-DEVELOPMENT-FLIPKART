@@ -9,6 +9,9 @@ import com.flipfit.business.WaitListService;
 import com.flipfit.business.NotificationService;
 import com.flipfit.exception.*;
 import java.util.Scanner;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+
 /**
  * The Class ClientMenu.
  *
@@ -93,6 +96,16 @@ public class ClientMenu {
                 System.out.println("ERROR: Session error. Please try logging in again.");
                 return;
             }
+            
+         // Get current date and time
+            LocalDateTime now = LocalDateTime.now();
+            // Define a friendly format
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String formatDateTime = now.format(formatter);
+
+            // Print Login Greeting with Username on left and Time on right
+            System.out.println("\nWelcome " + user.getFullName() + "\t\t\t" + formatDateTime);
+            
 
             int roleId = user.getRoleId();
             System.out.println("✓ Login Successful. Role detected: "
