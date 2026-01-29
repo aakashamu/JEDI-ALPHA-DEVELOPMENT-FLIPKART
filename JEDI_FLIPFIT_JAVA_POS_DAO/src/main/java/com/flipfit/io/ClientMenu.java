@@ -8,6 +8,7 @@ import com.flipfit.business.UserService;
 import com.flipfit.business.WaitListService;
 import com.flipfit.business.NotificationService;
 import com.flipfit.exception.*;
+import com.flipfit.utils.InputValidator;
 import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
@@ -16,14 +17,14 @@ import java.time.LocalDateTime;
  * The Class ClientMenu.
  *
  * @author Ananya
- * @ClassName  "ClientMenu"
+ * @ClassName "ClientMenu"
  */
 public class ClientMenu {
-  /**
-   * Main.
-   *
-   * @param args the args
-   */
+    /**
+     * Main.
+     *
+     * @param args the args
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -70,11 +71,12 @@ public class ClientMenu {
 
         scanner.close();
     }
-  /**
-   * Handle Login.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Handle Login.
+     *
+     * @param scanner the scanner
+     */
     private static void handleLogin(Scanner scanner) {
         scanner.nextLine();
         System.out.print("Email: ");
@@ -96,8 +98,8 @@ public class ClientMenu {
                 System.out.println("ERROR: Session error. Please try logging in again.");
                 return;
             }
-            
-         // Get current date and time
+
+            // Get current date and time
             LocalDateTime now = LocalDateTime.now();
             // Define a friendly format
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
@@ -105,7 +107,6 @@ public class ClientMenu {
 
             // Print Login Greeting with Username on left and Time on right
             System.out.println("\nWelcome " + user.getFullName() + "\t\t\t" + formatDateTime);
-            
 
             int roleId = user.getRoleId();
             System.out.println("✓ Login Successful. Role detected: "
@@ -129,11 +130,12 @@ public class ClientMenu {
             System.out.println("Login Failed. Invalid email or password.");
         }
     }
-  /**
-   * Customer Dashboard.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Customer Dashboard.
+     *
+     * @param scanner the scanner
+     */
     private static void customerDashboard(Scanner scanner) {
         GymCustomerService customerService = new GymCustomerService();
         boolean session = true;
@@ -168,25 +170,26 @@ public class ClientMenu {
                     customerService.viewAvailableSlots(centreId);
 
                     System.out.println("Enter Availability ID to book (or 0 to go back): ");
-                    int availabilityId = scanner.nextInt();
-                    if (availabilityId > 0) {
-                        try {
-                            customerService.bookSlot(availabilityId);
-                            NotificationService notificationService = new NotificationService();
-                            // GymCustomerService custService = new GymCustomerService(); // Removed unused
-                            // variable
-                            // We need to get the user ID. Since we are in the dashboard,
-                            // we can get the current user from UserService.
-                            String currentUserEmail = UserService.getCurrentLoggedInUser();
-                            com.flipfit.bean.User currentUser = com.flipfit.dao.FlipFitRepository.users
-                                    .get(currentUserEmail);
-                            if (currentUser != null) {
-                                notificationService.sendNotification(currentUser.getUserId(),
-                                        "You have successfully booked a slot.");
+                    String availIdStr = scanner.next();
+                    try {
+                        int availabilityId = InputValidator.validateId(availIdStr, "Availability ID");
+                        if (availabilityId > 0) {
+                            try {
+                                customerService.bookSlot(availabilityId);
+                                NotificationService notificationService = new NotificationService();
+                                String currentUserEmail = UserService.getCurrentLoggedInUser();
+                                com.flipfit.bean.User currentUser = com.flipfit.dao.FlipFitRepository.users
+                                        .get(currentUserEmail);
+                                if (currentUser != null) {
+                                    notificationService.sendNotification(currentUser.getUserId(),
+                                            "You have successfully booked a slot.");
+                                }
+                            } catch (SlotNotAvailableException | BookingNotDoneException e) {
+                                System.out.println(e.getMessage());
                             }
-                        } catch (SlotNotAvailableException | BookingNotDoneException e) {
-                            System.out.println(e.getMessage());
                         }
+                    } catch (InvalidCentreIdException e) {
+                        System.out.println(e.getMessage());
                     }
                     break;
 
@@ -250,11 +253,12 @@ public class ClientMenu {
             }
         }
     }
-  /**
-   * Owner Dashboard.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Owner Dashboard.
+     *
+     * @param scanner the scanner
+     */
     private static void ownerDashboard(Scanner scanner) {
         GymOwnerService ownerService = new GymOwnerService();
         boolean ownerSession = true;
@@ -331,11 +335,12 @@ public class ClientMenu {
             }
         }
     }
-  /**
-   * Admin Dashboard.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Admin Dashboard.
+     *
+     * @param scanner the scanner
+     */
     private static void adminDashboard(Scanner scanner) {
         GymAdminService adminService = new GymAdminService();
         boolean adminSession = true;
@@ -373,9 +378,12 @@ public class ClientMenu {
                 case 4:
                     adminService.viewPendingCentres();
                     System.out.print("Enter Centre ID to approve: ");
-                    int centreId = scanner.nextInt();
+                    String centreIdStr = scanner.next();
                     try {
+                        int centreId = InputValidator.validateId(centreIdStr, "Centre ID");
                         adminService.approveCentre(centreId);
+                    } catch (InvalidCentreIdException e) {
+                        System.out.println(e.getMessage());
                     } catch (IssueWithApprovalException e) {
                         System.out.println(e.getMessage());
                     }
@@ -384,9 +392,12 @@ public class ClientMenu {
                 case 5:
                     adminService.viewAllGymOwners();
                     System.out.print("Enter Gym Owner ID to delete: ");
-                    int deleteOwnerId = scanner.nextInt();
+                    String delIdStr = scanner.next();
                     try {
+                        int deleteOwnerId = InputValidator.validateId(delIdStr, "Owner ID");
                         adminService.deleteOwner(deleteOwnerId);
+                    } catch (InvalidCentreIdException e) {
+                        System.out.println(e.getMessage());
                     } catch (UserNotFoundException e) {
                         System.out.println(e.getMessage());
                     }
@@ -410,11 +421,12 @@ public class ClientMenu {
             }
         }
     }
-  /**
-   * Handle Customer Registration.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Handle Customer Registration.
+     *
+     * @param scanner the scanner
+     */
     private static void handleCustomerRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Customer Registration ---");
@@ -423,8 +435,21 @@ public class ClientMenu {
         String fullName = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
+        try {
+            InputValidator.validateEmail(email);
+        } catch (InvalidEmailException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
         System.out.print("Password: ");
         String password = scanner.nextLine();
+        try {
+            InputValidator.validatePassword(password);
+        } catch (WeakPasswordException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
         System.out.print("Phone Number: ");
         long phoneNumber = scanner.nextLong();
         scanner.nextLine(); // consume newline
@@ -440,11 +465,12 @@ public class ClientMenu {
         GymCustomerService customerService = new GymCustomerService();
         customerService.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
     }
-  /**
-   * Handle Owner Registration.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Handle Owner Registration.
+     *
+     * @param scanner the scanner
+     */
     private static void handleOwnerRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Owner Registration ---");
@@ -469,6 +495,13 @@ public class ClientMenu {
         String panCard = scanner.nextLine();
         System.out.print("Aadhaar Number: ");
         String aadhaarNumber = scanner.nextLine();
+        try {
+            InputValidator.validateCard(aadhaarNumber, "Aadhaar");
+        } catch (InvalidCardDetailsException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
         System.out.print("GSTIN: ");
         String gstin = scanner.nextLine();
 
@@ -477,11 +510,12 @@ public class ClientMenu {
         ownerService.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber,
                 gstin);
     }
-  /**
-   * Handle Admin Registration.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Handle Admin Registration.
+     *
+     * @param scanner the scanner
+     */
     private static void handleAdminRegistration(Scanner scanner) {
         scanner.nextLine(); // consume leftover newline
         System.out.println("\n--- Gym Admin Registration ---");
@@ -507,11 +541,12 @@ public class ClientMenu {
         GymAdminService adminService = new GymAdminService();
         adminService.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
     }
-  /**
-   * Handle Change Password.
-   *
-   * @param scanner the scanner
-   */
+
+    /**
+     * Handle Change Password.
+     *
+     * @param scanner the scanner
+     */
     private static void handleChangePassword(Scanner scanner) {
         scanner.nextLine();
         System.out.print("Enter Email: ");
