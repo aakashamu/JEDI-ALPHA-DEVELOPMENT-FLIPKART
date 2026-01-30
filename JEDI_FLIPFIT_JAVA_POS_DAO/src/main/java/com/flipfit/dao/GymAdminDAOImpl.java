@@ -8,18 +8,19 @@ import java.sql.*;
  * The Class GymAdminDAOImpl.
  *
  * @author Ananya
- * @ClassName  "GymAdminDAOImpl"
+ * @ClassName "GymAdminDAOImpl"
  */
 public class GymAdminDAOImpl implements GymAdminDAO {
 
     @Override
-    public void registerAdmin(String fullName, String email, String password, Long phoneNumber, 
-                             String city, String state, int pincode) {
+    public void registerAdmin(String fullName, String email, String password, Long phoneNumber,
+            String city, String state, int pincode) {
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
-            
-            PreparedStatement userStmt = conn.prepareStatement(GymAdminConstants.REGISTER_ADMIN, Statement.RETURN_GENERATED_KEYS);
+
+            PreparedStatement userStmt = conn.prepareStatement(GymAdminConstants.REGISTER_ADMIN,
+                    Statement.RETURN_GENERATED_KEYS);
             userStmt.setString(1, fullName);
             userStmt.setString(2, email);
             userStmt.setString(3, password);
@@ -33,25 +34,26 @@ public class GymAdminDAOImpl implements GymAdminDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { 
-                if(conn != null) conn.close(); 
-            } catch (SQLException se) { 
-                se.printStackTrace(); 
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
             }
         }
     }
 
-  /**
-   * Is Admin Valid.
-   *
-   * @param email the email
-   * @param password the password
-   * @return the boolean
-   */
+    /**
+     * Is Admin Valid.
+     *
+     * @param email    the email
+     * @param password the password
+     * @return the boolean
+     */
     @Override
     public boolean isAdminValid(String email, String password) {
-        try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.IS_ADMIN_VALID)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.IS_ADMIN_VALID)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
@@ -65,8 +67,8 @@ public class GymAdminDAOImpl implements GymAdminDAO {
     @Override
     public java.util.List<com.flipfit.bean.GymOwner> getAllOwners() {
         java.util.List<com.flipfit.bean.GymOwner> owners = new java.util.ArrayList<>();
-        try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_OWNERS)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_OWNERS)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 com.flipfit.bean.GymOwner owner = new com.flipfit.bean.GymOwner();
@@ -90,63 +92,69 @@ public class GymAdminDAOImpl implements GymAdminDAO {
         return owners;
     }
 
-  /**
-   * Approve Owner.
-   *
-   * @param ownerId the ownerId
-   * @return the boolean
-   */
+    /**
+     * Approve Owner.
+     *
+     * @param ownerId the ownerId
+     * @return the boolean
+     */
     @Override
     public boolean approveOwner(int ownerId) {
-        try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.APPROVE_OWNER)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.APPROVE_OWNER)) {
             stmt.setInt(1, ownerId);
             int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
+            if (rowsAffected > 0) {
+                System.out.println("✓ Gym Owner " + ownerId + " approval status updated in database.");
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-  /**
-   * Delete Owner.
-   *
-   * @param ownerId the ownerId
-   * @return the boolean
-   */
+    /**
+     * Delete Owner.
+     *
+     * @param ownerId the ownerId
+     * @return the boolean
+     */
     @Override
     public boolean deleteOwner(int ownerId) {
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
-            
+
             // Delete from GymOwner table first
             PreparedStatement ownerStmt = conn.prepareStatement(GymAdminConstants.DELETE_OWNER_FROM_GYM_OWNER);
             ownerStmt.setInt(1, ownerId);
             ownerStmt.executeUpdate();
-            
+
             // Delete from User table
             PreparedStatement userStmt = conn.prepareStatement(GymAdminConstants.DELETE_OWNER_FROM_USER);
             userStmt.setInt(1, ownerId);
             int rowsAffected = userStmt.executeUpdate();
-            
+
             conn.commit();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            try { 
-                if(conn != null) conn.rollback(); 
-            } catch (SQLException se) { 
-                se.printStackTrace(); 
+            try {
+                if (conn != null)
+                    conn.rollback();
+            } catch (SQLException se) {
+                se.printStackTrace();
             }
             e.printStackTrace();
             return false;
         } finally {
-            try { 
-                if(conn != null) conn.close(); 
-            } catch (SQLException se) { 
-                se.printStackTrace(); 
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
             }
         }
     }
@@ -154,8 +162,8 @@ public class GymAdminDAOImpl implements GymAdminDAO {
     @Override
     public java.util.List<com.flipfit.bean.GymCustomer> getAllCustomers() {
         java.util.List<com.flipfit.bean.GymCustomer> customers = new java.util.ArrayList<>();
-        try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_CUSTOMERS)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_CUSTOMERS)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 com.flipfit.bean.GymCustomer customer = new com.flipfit.bean.GymCustomer();
@@ -177,8 +185,8 @@ public class GymAdminDAOImpl implements GymAdminDAO {
     @Override
     public java.util.List<com.flipfit.bean.Booking> getAllBookings() {
         java.util.List<com.flipfit.bean.Booking> bookings = new java.util.ArrayList<>();
-        try (Connection conn = DBConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_BOOKINGS)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(GymAdminConstants.GET_ALL_BOOKINGS)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 com.flipfit.bean.Booking booking = new com.flipfit.bean.Booking();

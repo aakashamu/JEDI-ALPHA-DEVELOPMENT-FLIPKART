@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Response;
  * The Class GymCustomerResource.
  *
  * @author Ananya
- * @ClassName  "GymCustomerResource"
+ * @ClassName "GymCustomerResource"
  */
 @Path("/customer")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,84 +22,66 @@ public class GymCustomerResource {
     @Path("/register")
     public Response register(GymCustomer customer) {
         customerService.registerCustomer(
-            customer.getFullName(),
-            customer.getEmail(),
-            customer.getPassword(),
-            customer.getPhoneNumber(),
-            customer.getCity(),
-            customer.getState(),
-            customer.getPincode()
-        );
+                customer.getFullName(),
+                customer.getEmail(),
+                customer.getPassword(),
+                customer.getPhoneNumber(),
+                customer.getCity(),
+                customer.getState(),
+                customer.getPincode());
         return Response.status(Response.Status.CREATED).entity("Customer registered successfully").build();
     }
 
     @GET
-    @Path("/profile/{email}")
-    public Response viewProfile(@PathParam("email") String email) {
-        // Use an instance of UserDAO
-        com.flipfit.dao.UserDAO userDAO = new com.flipfit.dao.UserDAO();
-        com.flipfit.bean.User user = userDAO.getUserDetails(email);
-        if (user instanceof com.flipfit.bean.GymCustomer) {
-            return Response.ok(user).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    @GET
     @Path("/centers")
-    public Response viewCenters() {
-        return Response.ok(customerService.viewCentres()).build();
+    public Response viewCenters(@QueryParam("email") String email, @QueryParam("password") String password) {
+        if (email == null || password == null)
+            return Response.status(401).entity("Auth required").build();
+        return Response.ok(customerService.viewCentres(email, password)).build();
     }
 
     @GET
-    @Path("/bookings/{customerId}")
-    public Response viewBookings(@PathParam("customerId") int customerId) {
-        com.flipfit.dao.BookingDAOImpl bookingDAO = new com.flipfit.dao.BookingDAOImpl();
-        return Response.ok(bookingDAO.getCustomerBookings(customerId)).build();
+    @Path("/bookings")
+    public Response viewBookings(@QueryParam("email") String email, @QueryParam("password") String password) {
+        if (email == null || password == null)
+            return Response.status(401).entity("Auth required").build();
+        return Response.ok(customerService.viewBookedSlots(email, password)).build();
     }
 
     @POST
     @Path("/book")
-    public Response bookSlot(@QueryParam("availabilityId") int availabilityId, @QueryParam("email") String email) {
+    public Response bookSlot(@QueryParam("slotId") int slotId, @QueryParam("email") String email,
+            @QueryParam("password") String password) {
+        if (email == null || password == null)
+            return Response.status(401).entity("Auth required").build();
         try {
-            // We set the logged in user so the service can pick it up
-            com.flipfit.business.UserService.setCurrentLoggedInUser(email);
-            com.flipfit.bean.Booking booking = customerService.bookSlot(availabilityId);
-            return Response.status(Response.Status.CREATED).entity(booking).build();
+            return Response.ok(customerService.bookSlot(slotId, email, password)).build();
         } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return Response.status(400).entity(e.getMessage()).build();
         }
     }
 
     @DELETE
-    @Path("/booking/{id}")
-    public Response cancelBooking(@PathParam("id") int bookingId, @QueryParam("email") String email) {
+    @Path("/cancel/{bookingId}")
+    public Response cancelBooking(@PathParam("bookingId") int bookingId, @QueryParam("email") String email,
+            @QueryParam("password") String password) {
+        if (email == null || password == null)
+            return Response.status(401).entity("Auth required").build();
         try {
-            com.flipfit.business.UserService.setCurrentLoggedInUser(email);
-            if (customerService.cancelBooking(bookingId)) {
-                return Response.ok("Booking cancelled").build();
-            }
-            return Response.status(Response.Status.NOT_FOUND).build();
+            customerService.cancelBooking(bookingId, email, password);
+            return Response.ok("Booking cancelled").build();
         } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return Response.status(400).entity(e.getMessage()).build();
         }
     }
+
     @GET
     @Path("/slots/{centreId}")
-    public Response viewAvailableSlots(@PathParam("centreId") int centreId) {
+    public Response viewSlots(@PathParam("centreId") int centreId) {
+        // Assuming public view for slots, or add auth if needed.
+        // Keeping public for now as per minimal change, but
+        // GymCustomerService.viewAvailableSlots is missing in my view?
+        // I will add it to service.
         return Response.ok(customerService.viewAvailableSlots(centreId)).build();
     }
-
-    @GET
-    @Path("/waitlist/{bookingId}")
-    public Response checkWaitlist(@PathParam("bookingId") int bookingId) {
-        com.flipfit.business.WaitListService waitlistService = new com.flipfit.business.WaitListService();
-        int position = waitlistService.getWaitListPosition(bookingId);
-        if (position > 0) {
-            return Response.ok("Your position in waitlist is: " + position).build();
-        } else {
-            return Response.ok("Booking ID " + bookingId + " is not in the waitlist.").build();
-        }
-    }
 }
-

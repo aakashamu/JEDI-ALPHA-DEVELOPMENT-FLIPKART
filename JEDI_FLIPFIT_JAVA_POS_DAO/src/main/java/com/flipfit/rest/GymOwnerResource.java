@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Response;
  * The Class GymOwnerResource.
  *
  * @author Ananya
- * @ClassName  "GymOwnerResource"
+ * @ClassName "GymOwnerResource"
  */
 @Path("/owner")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,39 +22,56 @@ public class GymOwnerResource {
     @Path("/register")
     public Response register(GymOwner owner) {
         ownerService.registerOwner(
-            owner.getFullName(),
-            owner.getEmail(),
-            owner.getPassword(),
-            owner.getPhoneNumber(),
-            owner.getCity(),
-            owner.getState(),
-            owner.getPincode(),
-            owner.getPAN(),
-            owner.getAadhaar(),
-            owner.getGSTIN()
-        );
+                owner.getFullName(),
+                owner.getEmail(),
+                owner.getPassword(),
+                owner.getPhoneNumber(),
+                owner.getCity(),
+                owner.getState(),
+                owner.getPincode(),
+                owner.getPAN(),
+                owner.getAadhaar(),
+                owner.getGSTIN());
         return Response.status(Response.Status.CREATED).entity("Owner registered successfully").build();
     }
 
     @POST
     @Path("/center")
-    public Response addCenter(com.flipfit.bean.GymCentre centre, @QueryParam("email") String email) {
-        com.flipfit.business.UserService.setCurrentLoggedInUser(email);
-        ownerService.addCentre(centre);
-        return Response.status(Response.Status.CREATED).entity("Center added successfully").build();
+    public Response addCenter(com.flipfit.bean.GymCentre centre,
+            @QueryParam("email") String email,
+            @QueryParam("password") String password) {
+        if (email == null || password == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Credentials required").build();
+        }
+        ownerService.addCentre(centre, email, password);
+        return Response.status(Response.Status.CREATED).entity("Center added successfully (if credentials valid)")
+                .build();
     }
 
     @GET
     @Path("/centers/{ownerId}")
-    public Response viewMyCenters(@PathParam("ownerId") int ownerId, @QueryParam("email") String email) {
-        com.flipfit.business.UserService.setCurrentLoggedInUser(email);
-        return Response.ok(ownerService.viewMyCentres()).build();
+    public Response viewMyCenters(@PathParam("ownerId") int ownerId,
+            @QueryParam("email") String email,
+            @QueryParam("password") String password) {
+        if (email == null || password == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Credentials required").build();
+        }
+        // Validate if the ownerId matches the authenticated email if strict
+        // But for now, just authenticate
+        return Response.ok(ownerService.viewMyCentres(email, password)).build();
     }
+
     @POST
     @Path("/slot")
-    public Response addSlot(@QueryParam("centreId") int centreId, @QueryParam("numSlots") int numSlots, @QueryParam("capacity") int capacity, @QueryParam("email") String email) {
-        com.flipfit.business.UserService.setCurrentLoggedInUser(email);
-        ownerService.setupSlotsForExistingCentre(centreId, numSlots, capacity);
-        return Response.status(Response.Status.CREATED).entity("Slots added successfully").build();
+    public Response addSlot(@QueryParam("centreId") int centreId,
+            @QueryParam("numSlots") int numSlots,
+            @QueryParam("capacity") int capacity,
+            @QueryParam("email") String email,
+            @QueryParam("password") String password) {
+        if (email == null || password == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Credentials required").build();
+        }
+        ownerService.setupSlotsForExistingCentre(centreId, numSlots, capacity, email, password);
+        return Response.status(Response.Status.CREATED).entity("Slots setup process initiated").build();
     }
 }

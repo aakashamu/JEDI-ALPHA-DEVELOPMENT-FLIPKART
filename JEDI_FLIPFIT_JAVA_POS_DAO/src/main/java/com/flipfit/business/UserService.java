@@ -5,24 +5,26 @@ import com.flipfit.dao.FlipFitRepository;
 import com.flipfit.dao.UserDAO;
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * The Class UserService.
  *
  * @author Ananya
- * @ClassName  "UserService"
+ * @ClassName "UserService"
  */
 public class UserService implements UserInterface {
 
     private static String currentLoggedInUserEmail = null;
     private static final Map<String, User> loggedInUsers = new HashMap<>();
-  /**
-   * Login.
-   *
-   * @param email the email
-   * @param password the password
-   * @return the boolean
- * @throws com.flipfit.exception.UserNotFoundException 
-   */
+
+    /**
+     * Login.
+     *
+     * @param email    the email
+     * @param password the password
+     * @return the boolean
+     * @throws com.flipfit.exception.UserNotFoundException
+     */
     @Override
     public boolean login(String email, String password) throws com.flipfit.exception.UserNotFoundException {
         // Validate email
@@ -58,12 +60,41 @@ public class UserService implements UserInterface {
 
         throw new com.flipfit.exception.UserNotFoundException("ERROR: User not found: " + email);
     }
-  /**
-   * Load Role Specific User.
-   *
-   * @param baseUser the baseUser
-   * @return the User
-   */
+
+    /**
+     * Validate User Credentials (Stateless).
+     * 
+     * @param email
+     * @param password
+     * @return true if valid
+     */
+    public boolean validateUser(String email, String password) {
+        if (email == null || password == null)
+            return false;
+        return new UserDAO().login(email, password);
+    }
+
+    /**
+     * Get user details (stateless fetch).
+     * 
+     * @param email
+     * @return User
+     */
+    public User getUser(String email) {
+        UserDAO userDAO = new UserDAO();
+        User user = userDAO.getUserDetails(email);
+        if (user != null) {
+            return loadRoleSpecificUser(user);
+        }
+        return null; // or throw exception
+    }
+
+    /**
+     * Load Role Specific User.
+     *
+     * @param baseUser the baseUser
+     * @return the User
+     */
     private User loadRoleSpecificUser(User baseUser) {
         int roleId = baseUser.getRoleId();
 
@@ -110,10 +141,11 @@ public class UserService implements UserInterface {
         // For admin or if role-specific loading fails, return base user
         return baseUser;
     }
-  /**
-   * Logout.
-   *
-   */
+
+    /**
+     * Logout.
+     *
+     */
     @Override
     public void logout() {
         if (currentLoggedInUserEmail == null || currentLoggedInUserEmail.isEmpty()) {
@@ -126,48 +158,53 @@ public class UserService implements UserInterface {
         currentLoggedInUserEmail = null;
         System.out.println("✓ User " + userEmail + " logged out successfully");
     }
-  /**
-   * Get Current User.
-   *
-   * @param email the email
-   * @return the User
-   */
+
+    /**
+     * Get Current User.
+     *
+     * @param email the email
+     * @return the User
+     */
     public static User getCurrentUser(String email) {
         return loggedInUsers.get(email);
     }
-  /**
-   * Is User Logged In.
-   *
-   * @param email the email
-   * @return the boolean
-   */
+
+    /**
+     * Is User Logged In.
+     *
+     * @param email the email
+     * @return the boolean
+     */
     public static boolean isUserLoggedIn(String email) {
         return loggedInUsers.containsKey(email);
     }
-  /**
-   * Get Current Logged In User.
-   *
-   * @return the String
-   */
+
+    /**
+     * Get Current Logged In User.
+     *
+     * @return the String
+     */
     public static String getCurrentLoggedInUser() {
         return currentLoggedInUserEmail;
     }
-  /**
-   * Set Current Logged In User.
-   *
-   * @param email the email
-   */
+
+    /**
+     * Set Current Logged In User.
+     *
+     * @param email the email
+     */
     public static void setCurrentLoggedInUser(String email) {
         currentLoggedInUserEmail = email;
     }
-  /**
-   * Update Password.
-   *
-   * @param email the email
-   * @param oldPassword the oldPassword
-   * @param newPassword the newPassword
-   * @return the boolean
-   */
+
+    /**
+     * Update Password.
+     *
+     * @param email       the email
+     * @param oldPassword the oldPassword
+     * @param newPassword the newPassword
+     * @return the boolean
+     */
     @Override
     public boolean updatePassword(String email, String oldPassword, String newPassword) {
         UserDAO userDAO = new UserDAO();

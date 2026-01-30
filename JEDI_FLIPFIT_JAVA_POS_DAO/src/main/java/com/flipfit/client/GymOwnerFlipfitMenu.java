@@ -3,21 +3,25 @@ package com.flipfit.client;
 import com.flipfit.bean.GymCentre;
 import com.flipfit.business.GymOwnerService;
 import java.util.Scanner;
+
 /**
  * The Class GymOwnerFlipfitMenu.
  *
  * @author Ananya
- * @ClassName  "GymOwnerFlipfitMenu"
+ * @ClassName "GymOwnerFlipfitMenu"
  */
 public class GymOwnerFlipfitMenu {
     private GymOwnerService gymOwnerService = new GymOwnerService();
     private Scanner scanner = new Scanner(System.in);
-  /**
-   * Display Menu.
-   *
-   * @param ownerId the ownerId
-   */
-    public void displayMenu(int ownerId) {
+
+    /**
+     * Display Menu.
+     *
+     * @param ownerId  the ownerId
+     * @param email    the email
+     * @param password the password
+     */
+    public void displayMenu(int ownerId, String email, String password) {
         while (true) {
             System.out.println("\n--- Gym Owner Dashboard ---");
             System.out.println("1. Add New Gym Centre");
@@ -47,18 +51,19 @@ public class GymOwnerFlipfitMenu {
                     newCentre.setApproved(true);
 
                     // 3. Add it to your service
-                    gymOwnerService.addCentre(newCentre);
+                    gymOwnerService.addCentre(newCentre, email, password);
                     break;
 
                 case 2:
                     System.out.println("--- Your Gym Centres ---");
-                    for(GymCentre gc : gymOwnerService.viewMyCentres()) {
-                        System.out.println("ID: " + gc.getCentreId() + " | Name: " + gc.getName() + " | City: " + gc.getCity());
+                    for (GymCentre gc : gymOwnerService.viewMyCentres(email, password)) {
+                        System.out.println(
+                                "ID: " + gc.getCentreId() + " | Name: " + gc.getName() + " | City: " + gc.getCity());
                     }
                     break;
 
                 case 3:
-                    gymOwnerService.requestApproval(ownerId);
+                    gymOwnerService.requestApproval(ownerId, email, password);
                     break;
 
                 case 4:
