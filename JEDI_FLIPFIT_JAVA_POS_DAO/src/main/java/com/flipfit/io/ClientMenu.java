@@ -42,7 +42,14 @@ public class ClientMenu {
             System.out.println("========================================");
             System.out.print("Enter your choice: ");
 
-            int choice = scanner.nextInt();
+            int choice = 0;
+            try {
+                String choiceStr = scanner.next();
+                choice = Integer.parseInt(choiceStr);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                continue;
+            }
 
             switch (choice) {
                 case 1:
@@ -152,7 +159,14 @@ public class ClientMenu {
             System.out.println("6. Logout");
             System.out.print("Choice: ");
 
-            int choice = scanner.nextInt();
+            int choice = 0;
+            try {
+                String choiceStr = scanner.next();
+                choice = Integer.parseInt(choiceStr);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                continue;
+            }
 
             switch (choice) {
                 case 1:
@@ -166,8 +180,14 @@ public class ClientMenu {
                 case 3:
                     customerService.viewCentres();
                     System.out.print("Enter Centre ID to see available slots: ");
-                    int centreId = scanner.nextInt();
-                    customerService.viewAvailableSlots(centreId);
+                    String centreIdStr = scanner.next();
+                    try {
+                        int centreId = InputValidator.validateId(centreIdStr, "Centre ID");
+                        customerService.viewAvailableSlots(centreId);
+                    } catch (InvalidCentreIdException e) {
+                        System.out.println(e.getMessage());
+                        break;
+                    }
 
                     System.out.println("Enter Availability ID to book (or 0 to go back): ");
                     String availIdStr = scanner.next();
@@ -195,18 +215,24 @@ public class ClientMenu {
 
                 case 4:
                     System.out.print("Enter Booking ID to cancel: ");
-                    int bookingIdToCancel = scanner.nextInt();
+                    String bookingIdStr = scanner.next();
                     try {
-                        customerService.cancelBooking(bookingIdToCancel);
-                        NotificationService notificationService = new NotificationService();
-                        String currentUserEmail = UserService.getCurrentLoggedInUser();
-                        com.flipfit.bean.User currentUser = com.flipfit.dao.FlipFitRepository.users
-                                .get(currentUserEmail);
-                        if (currentUser != null) {
-                            notificationService.sendNotification(currentUser.getUserId(),
-                                    "You have cancelled your booking.");
+                        int bookingIdToCancel = InputValidator.validateId(bookingIdStr, "Booking ID");
+                        try {
+                            customerService.cancelBooking(bookingIdToCancel);
+                            NotificationService notificationService = new NotificationService();
+                            String currentUserEmail = UserService.getCurrentLoggedInUser();
+                            com.flipfit.bean.User currentUser = com.flipfit.dao.FlipFitRepository.users
+                                    .get(currentUserEmail);
+                            if (currentUser != null) {
+                                notificationService.sendNotification(currentUser.getUserId(),
+                                        "You have cancelled your booking.");
+                            }
+                        } catch (BookingNotDoneException e) {
+                            System.out.println(e.getMessage());
                         }
-                    } catch (BookingNotDoneException e) {
+                    } catch (InvalidCentreIdException e) { // Actually InputValidator throws InvalidCentreIdException
+                                                           // for ID validation
                         System.out.println(e.getMessage());
                     }
                     break;
@@ -223,16 +249,39 @@ public class ClientMenu {
                     String newName = scanner.nextLine();
 
                     System.out.print("Enter New Phone Number: ");
-                    long newPhone = scanner.nextLong();
-                    scanner.nextLine();
+                    try {
+                        String newPhoneStr = scanner.next();
+                        long newPhone = 0;
+                        try {
+                            newPhone = Long.parseLong(newPhoneStr);
+                        } catch (NumberFormatException e) {
+                            throw new Exception("Phone number must be a valid number");
+                        }
+                        if (String.valueOf(newPhone).length() != 10) {
+                            throw new Exception("Phone number must be 10 digits");
+                        }
 
-                    System.out.print("Enter New City: ");
-                    String newCity = scanner.nextLine();
+                        scanner.nextLine();
 
-                    System.out.print("Enter New Pincode: ");
-                    int newPin = scanner.nextInt();
+                        System.out.print("Enter New City: ");
+                        String newCity = scanner.nextLine();
 
-                    customerService.editDetails(newName, confirmEmail, newPhone, newCity, newPin);
+                        System.out.print("Enter New Pincode: ");
+                        String newPinStr = scanner.next();
+                        int newPin = 0;
+                        try {
+                            newPin = Integer.parseInt(newPinStr);
+                        } catch (NumberFormatException e) {
+                            throw new Exception("Pincode must be a valid number");
+                        }
+                        if (String.valueOf(newPin).length() != 6) {
+                            throw new Exception("Pincode must be 6 digits");
+                        }
+
+                        customerService.editDetails(newName, confirmEmail, newPhone, newCity, newPin);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
 
                 // case 6:
@@ -275,8 +324,15 @@ public class ClientMenu {
             System.out.println("8. Logout");
             System.out.print("Enter your choice: ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            System.out.print("Enter your choice: ");
+
+            int choice = 0;
+            try {
+                String choiceStr = scanner.next();
+                choice = Integer.parseInt(choiceStr);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
 
             switch (choice) {
                 case 1:
@@ -285,11 +341,18 @@ public class ClientMenu {
                     System.out.print("Enter City: ");
                     String city = scanner.nextLine();
                     System.out.print("Enter Number of Slots: ");
-                    int slots = scanner.nextInt();
-                    System.out.print("Enter Capacity per Slot: ");
-                    int capacity = scanner.nextInt();
+                    try {
+                        String slotsStr = scanner.next();
+                        int slots = InputValidator.validateId(slotsStr, "Slots");
 
-                    ownerService.registerNewCentre(name, city, slots, capacity);
+                        System.out.print("Enter Capacity per Slot: ");
+                        String capacityStr = scanner.next();
+                        int capacity = InputValidator.validateId(capacityStr, "Capacity");
+
+                        ownerService.registerNewCentre(name, city, slots, capacity);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 2:
@@ -317,12 +380,22 @@ public class ClientMenu {
                 case 7:
                     ownerService.viewMyCentres();
                     System.out.print("Enter Centre ID to setup slots: ");
-                    int cId = scanner.nextInt();
-                    System.out.print("Enter Number of Slots: ");
-                    int nSlots = scanner.nextInt();
-                    System.out.print("Enter Capacity per Slot: ");
-                    int cap = scanner.nextInt();
-                    ownerService.setupSlotsForExistingCentre(cId, nSlots, cap);
+                    try {
+                        String cIdStr = scanner.next();
+                        int cId = InputValidator.validateId(cIdStr, "Centre ID");
+
+                        System.out.print("Enter Number of Slots: ");
+                        String nSlotsStr = scanner.next();
+                        int nSlots = InputValidator.validateId(nSlotsStr, "Slots");
+
+                        System.out.print("Enter Capacity per Slot: ");
+                        String capStr = scanner.next();
+                        int cap = InputValidator.validateId(capStr, "Capacity");
+
+                        ownerService.setupSlotsForExistingCentre(cId, nSlots, cap);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 8:
@@ -357,7 +430,13 @@ public class ClientMenu {
             System.out.println("8. Exit to Main Menu");
             System.out.print("Enter your choice: ");
 
-            int choice = scanner.nextInt();
+            int choice = 0;
+            try {
+                String choiceStr = scanner.next();
+                choice = Integer.parseInt(choiceStr);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
 
             switch (choice) {
                 case 1:
@@ -371,8 +450,13 @@ public class ClientMenu {
                 case 3:
                     adminService.viewPendingOwners();
                     System.out.print("Enter Gym Owner ID to Approve: ");
-                    int ownerId = scanner.nextInt();
-                    adminService.approveOwner(ownerId);
+                    String ownerIdStr = scanner.next();
+                    try {
+                        int ownerId = InputValidator.validateId(ownerIdStr, "Owner ID");
+                        adminService.approveOwner(ownerId);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 4:
@@ -450,20 +534,44 @@ public class ClientMenu {
             System.out.println(e.getMessage());
             return;
         }
-        System.out.print("Phone Number: ");
-        long phoneNumber = scanner.nextLong();
-        scanner.nextLine(); // consume newline
-        System.out.print("City: ");
-        String city = scanner.nextLine();
-        System.out.print("State: ");
-        String state = scanner.nextLine();
-        System.out.print("Pincode: ");
-        int pincode = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        try {
+            System.out.print("Phone Number: ");
+            String phoneStr = scanner.next();
+            long phoneNumber = 0;
+            try {
+                phoneNumber = Long.parseLong(phoneStr);
+            } catch (NumberFormatException e) {
+                throw new Exception("Phone number must be a valid number");
+            }
+            if (String.valueOf(phoneNumber).length() != 10) {
+                throw new Exception("Phone number must be 10 digits");
+            }
+            scanner.nextLine(); // consume newline
 
-        // Actually register the customer in the database
-        GymCustomerService customerService = new GymCustomerService();
-        customerService.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
+            System.out.print("City: ");
+            String city = scanner.nextLine();
+            System.out.print("State: ");
+            String state = scanner.nextLine();
+            System.out.print("Pincode: ");
+            String pinStr = scanner.next();
+            int pincode = 0;
+            try {
+                pincode = Integer.parseInt(pinStr);
+            } catch (NumberFormatException e) {
+                throw new Exception("Pincode must be a valid number");
+            }
+            if (String.valueOf(pincode).length() != 6) {
+                throw new Exception("Pincode must be 6 digits");
+            }
+            scanner.nextLine(); // consume newline
+
+            GymCustomerService customerService = new GymCustomerService();
+            customerService.registerCustomer(fullName, email, password, phoneNumber, city, state, pincode);
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            return;
+        }
     }
 
     /**
@@ -479,36 +587,85 @@ public class ClientMenu {
         String fullName = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
-        System.out.print("Password: ");
-        String password = scanner.nextLine();
-        System.out.print("Phone Number: ");
-        long phoneNumber = scanner.nextLong();
-        scanner.nextLine(); // consume newline
-        System.out.print("City: ");
-        String city = scanner.nextLine();
-        System.out.print("State: ");
-        String state = scanner.nextLine();
-        System.out.print("Pincode: ");
-        int pincode = scanner.nextInt();
-        scanner.nextLine(); // consume newline
-        System.out.print("PAN Card Number: ");
-        String panCard = scanner.nextLine();
-        System.out.print("Aadhaar Number: ");
-        String aadhaarNumber = scanner.nextLine();
         try {
-            InputValidator.validateCard(aadhaarNumber, "Aadhaar");
-        } catch (InvalidCardDetailsException e) {
+            InputValidator.validateEmail(email);
+        } catch (InvalidEmailException e) {
             System.out.println(e.getMessage());
             return;
         }
 
-        System.out.print("GSTIN: ");
-        String gstin = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+        try {
+            InputValidator.validatePassword(password);
+        } catch (WeakPasswordException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
-        // Actually register the owner in the database
-        GymOwnerService ownerService = new GymOwnerService();
-        ownerService.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard, aadhaarNumber,
-                gstin);
+        try {
+            System.out.print("Phone Number: ");
+            String phoneStr = scanner.next();
+            long phoneNumber = 0;
+            try {
+                phoneNumber = Long.parseLong(phoneStr);
+            } catch (NumberFormatException e) {
+                throw new Exception("Phone number must be a valid number");
+            }
+            if (String.valueOf(phoneNumber).length() != 10) {
+                throw new Exception("Phone number must be 10 digits");
+            }
+            scanner.nextLine(); // consume newline
+
+            System.out.print("City: ");
+            String city = scanner.nextLine();
+            System.out.print("State: ");
+            String state = scanner.nextLine();
+            System.out.print("Pincode: ");
+            String pinStr = scanner.next();
+            int pincode = 0;
+            try {
+                pincode = Integer.parseInt(pinStr);
+            } catch (NumberFormatException e) {
+                throw new Exception("Pincode must be a valid number");
+            }
+            if (String.valueOf(pincode).length() != 6) {
+                throw new Exception("Pincode must be 6 digits");
+            }
+            scanner.nextLine(); // consume newline
+
+            System.out.print("PAN Card Number: ");
+            String panCard = scanner.nextLine();
+            try {
+                InputValidator.validatePan(panCard);
+            } catch (InvalidCardDetailsException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+
+            System.out.print("Aadhaar Number: ");
+            String aadhaarNumber = scanner.nextLine();
+            try {
+                InputValidator.validateCard(aadhaarNumber, "Aadhaar");
+            } catch (InvalidCardDetailsException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+
+            System.out.print("GSTIN: ");
+            String gstin = scanner.nextLine();
+            if (gstin.length() != 15) {
+                throw new Exception("GSTIN must be 15 characters long");
+            }
+
+            // Actually register the owner in the database
+            GymOwnerService ownerService = new GymOwnerService();
+            ownerService.registerOwner(fullName, email, password, phoneNumber, city, state, pincode, panCard,
+                    aadhaarNumber, gstin);
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
     }
 
     /**
@@ -524,22 +681,60 @@ public class ClientMenu {
         String fullName = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
+        try {
+            InputValidator.validateEmail(email);
+        } catch (InvalidEmailException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
         System.out.print("Password: ");
         String password = scanner.nextLine();
-        System.out.print("Phone Number: ");
-        long phoneNumber = scanner.nextLong();
-        scanner.nextLine(); // consume newline
-        System.out.print("City: ");
-        String city = scanner.nextLine();
-        System.out.print("State: ");
-        String state = scanner.nextLine();
-        System.out.print("Pincode: ");
-        int pincode = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        try {
+            InputValidator.validatePassword(password);
+        } catch (WeakPasswordException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
-        // Actually register the admin in the database
-        GymAdminService adminService = new GymAdminService();
-        adminService.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
+        try {
+            System.out.print("Phone Number: ");
+            String phoneStr = scanner.next();
+            long phoneNumber = 0;
+            try {
+                phoneNumber = Long.parseLong(phoneStr);
+            } catch (NumberFormatException e) {
+                throw new Exception("Phone number must be a valid number");
+            }
+            if (String.valueOf(phoneNumber).length() != 10) {
+                throw new Exception("Phone number must be 10 digits");
+            }
+            scanner.nextLine(); // consume newline
+
+            System.out.print("City: ");
+            String city = scanner.nextLine();
+            System.out.print("State: ");
+            String state = scanner.nextLine();
+            System.out.print("Pincode: ");
+            String pinStr = scanner.next();
+            int pincode = 0;
+            try {
+                pincode = Integer.parseInt(pinStr);
+            } catch (NumberFormatException e) {
+                throw new Exception("Pincode must be a valid number");
+            }
+            if (String.valueOf(pincode).length() != 6) {
+                throw new Exception("Pincode must be 6 digits");
+            }
+            scanner.nextLine(); // consume newline
+
+            // Actually register the admin in the database
+            GymAdminService adminService = new GymAdminService();
+            adminService.registerAdmin(fullName, email, password, phoneNumber, city, state, pincode);
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
     }
 
     /**
