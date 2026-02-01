@@ -1,65 +1,38 @@
 package com.flipfit.client;
 
-import com.flipfit.bean.GymCentre;
-import com.flipfit.bean.GymOwner;
 import com.flipfit.business.GymAdminService;
 import java.util.List;
+import com.flipfit.bean.GymOwner;
+
 /**
  * The Class GymAdminDemo.
  *
  * @author Ananya
- * @ClassName  "GymAdminDemo"
+ * @ClassName "GymAdminDemo"
  */
 public class GymAdminDemo {
-  /**
-   * Run demo.
-   */
+
+    /**
+     * Run demo.
+     */
     public static void runDemo() {
-        System.out.println("========== Gym Admin Demo ==========\n");
+        System.out.println("\n========== Gym Admin Demo ==========\n");
 
         GymAdminService gymAdminService = new GymAdminService();
 
-        // Test 1: View pending approvals
-        System.out.println("Test 1: View Pending Approvals");
-        System.out.println("------------------------------");
-        List<GymCentre> pendingCentres = gymAdminService.getPendingApprovals();
-        if (pendingCentres.isEmpty()) {
-            System.out.println("No pending approvals.");
-        } else {
-            for (GymCentre centre : pendingCentres) {
-                System.out.println("Centre ID: " + centre.getCentreId() + ", Name: " + centre.getName() 
-                    + ", City: " + centre.getCity());
-            }
-        }
-
-        // Test 2: Approve gym centre
-        System.out.println("\nTest 2: Approve Gym Centre");
-        System.out.println("--------------------------");
-        boolean approved = gymAdminService.approveCentre(1001);
-        System.out.println("Centre approved: " + approved);
-
-        // Test 3: View all gym centres
-        System.out.println("\nTest 3: View All Gym Centres");
+        // Test 1: Register admin
+        System.out.println("Test 1: Registering Gym Admin");
         System.out.println("-----------------------------");
-        List<GymCentre> centres = gymAdminService.getAllGymCentres();
-        for (GymCentre centre : centres) {
-            System.out.println("Centre ID: " + centre.getCentreId() + ", Name: " + centre.getName() 
-                + ", Approved: " + centre.isApproved());
-        }
+        gymAdminService.registerAdmin("Admin User", "admin@test.com", "Pass@123", 9999999999L,
+                "Bangalore", "Karnataka", 560001);
+        System.out.println("Admin registered successfully!\n");
 
-        // Test 4: View all gym owners
-        System.out.println("\nTest 4: View All Gym Owners");
+        // Test 2: View all gym owners
+        System.out.println("Test 2: View All Gym Owners");
         System.out.println("---------------------------");
-        List<GymOwner> owners = gymAdminService.getAllGymOwners();
-        for (GymOwner owner : owners) {
-            System.out.println("Owner ID: " + owner.getOwnerId() + ", Name: " + owner.getName());
-        }
+        List<GymOwner> owners = gymAdminService.viewAllGymOwners("admin@test.com", "Pass@123");
+        System.out.println("Total owners retrieved: " + owners.size() + "\n");
 
-        // Test 5: Display system statistics
-        System.out.println("\nTest 5: System Statistics");
-        System.out.println("------------------------");
-        gymAdminService.displaySystemStatistics();
-
-        System.out.println("\n========== Demo Complete ==========");
+        System.out.println("========== Demo Complete ==========\n");
     }
 }
