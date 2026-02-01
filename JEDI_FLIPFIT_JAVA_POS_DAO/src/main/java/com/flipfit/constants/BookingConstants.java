@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for Booking DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "BookingConstants"
  */
 public class BookingConstants {
     public static final String INSERT_BOOKING = "INSERT INTO Booking (userId, availabilityId, status, bookingDate, createdAt) VALUES (?, ?, ?, ?, ?)";

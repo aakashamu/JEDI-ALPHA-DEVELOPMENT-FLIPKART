@@ -42,7 +42,7 @@ public class SlotDAOImpl implements SlotDAO {
    *
    * @param slotId the slotId
    * @param slot the slot
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean updateSlot(int slotId, Slot slot) {
@@ -66,7 +66,7 @@ public class SlotDAOImpl implements SlotDAO {
    * Delete Slot.
    *
    * @param slotId the slotId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean deleteSlot(int slotId) {

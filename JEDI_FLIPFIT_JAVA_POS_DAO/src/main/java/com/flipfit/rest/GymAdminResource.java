@@ -18,6 +18,12 @@ import jakarta.ws.rs.core.Response;
 public class GymAdminResource {
     private final GymAdminService adminService = new GymAdminService();
 
+    /**
+     * Registers a new gym admin.
+     *
+     * @param admin the admin details (name, email, password, contact, address)
+     * @return 201 on success, 500 on error
+     */
     @POST
     @Path("/register")
     public Response register(GymAdmin admin) {
@@ -37,6 +43,13 @@ public class GymAdminResource {
         }
     }
 
+    /**
+     * Returns list of gym owners (pending/approved) for the authenticated admin.
+     *
+     * @param email    admin email
+     * @param password admin password
+     * @return 200 with list of owners, 401 if auth missing
+     */
     @GET
     @Path("/owners")
     public Response viewOwners(@QueryParam("email") String email, @QueryParam("password") String password) {
@@ -45,6 +58,13 @@ public class GymAdminResource {
         return Response.ok(adminService.viewAllGymOwners(email, password)).build();
     }
 
+    /**
+     * Returns list of centres for the authenticated admin.
+     *
+     * @param email    admin email
+     * @param password admin password
+     * @return 200 with list of centres, 401 if auth missing
+     */
     @GET
     @Path("/centers")
     public Response viewCenters(@QueryParam("email") String email, @QueryParam("password") String password) {
@@ -53,6 +73,14 @@ public class GymAdminResource {
         return Response.ok(adminService.viewAllCentres(email, password)).build();
     }
 
+    /**
+     * Approves or validates a gym owner.
+     *
+     * @param ownerId  the owner user ID
+     * @param email    admin email
+     * @param password admin password
+     * @return 200 on success, 404 if not found, 400 on error
+     */
     @PUT
     @Path("/owner/approve/{ownerId}")
     public Response approveOwner(@PathParam("ownerId") int ownerId, @QueryParam("email") String email,
@@ -67,6 +95,14 @@ public class GymAdminResource {
         }
     }
 
+    /**
+     * Approves a centre.
+     *
+     * @param centerId the centre ID
+     * @param email    admin email
+     * @param password admin password
+     * @return 200 on success, 404 if not found, 400 on error
+     */
     @PUT
     @Path("/center/approve/{centerId}")
     public Response approveCenter(@PathParam("centerId") int centerId, @QueryParam("email") String email,
@@ -81,6 +117,13 @@ public class GymAdminResource {
         }
     }
 
+    /**
+     * Returns customer metrics for the authenticated admin (e.g. displayed in console).
+     *
+     * @param email    admin email
+     * @param password admin password
+     * @return 200 with metrics message, 401 if auth missing
+     */
     @GET
     @Path("/metrics/customer")
     public Response getCustomerMetrics(@QueryParam("email") String email, @QueryParam("password") String password) {

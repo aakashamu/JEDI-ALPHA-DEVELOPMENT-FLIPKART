@@ -51,7 +51,7 @@ public class SlotService implements SlotInterface {
    * Delete Slot.
    *
    * @param slotId the slotId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean deleteSlot(int slotId) {
@@ -82,7 +82,7 @@ public class SlotService implements SlotInterface {
    * Get Slot Info.
    *
    * @param slotId the slotId
-   * @return the String
+   * @return the slot info string
    */
     @Override
     public String getSlotInfo(int slotId) {

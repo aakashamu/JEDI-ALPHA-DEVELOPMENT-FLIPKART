@@ -22,7 +22,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    * Create Notification.
    *
    * @param notification the notification
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean createNotification(Notification notification) {
@@ -143,7 +143,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    * Mark As Read.
    *
    * @param notificationId the notificationId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean markAsRead(int notificationId) {
@@ -163,7 +163,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    * Delete Notification.
    *
    * @param notificationId the notificationId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean deleteNotification(int notificationId) {
@@ -183,7 +183,7 @@ public class FlipFitNotificationDAO implements FlipFitNotificationDAOInterface {
    * Delete All Notifications By User Id.
    *
    * @param userId the userId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean deleteAllNotificationsByUserId(int userId) {

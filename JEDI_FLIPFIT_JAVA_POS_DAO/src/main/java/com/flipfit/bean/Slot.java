@@ -14,22 +14,20 @@ public class Slot {
     private LocalTime endTime;
     private int capacity;
     private int centreId;
-  /**
-   * Slot.
-   *
-   * @return the public
-   */
+    /**
+     * Default constructor.
+     */
     public Slot() {}
-  /**
-   * Slot.
-   *
-   * @param slotId the slotId
-   * @param startTime the startTime
-   * @param endTime the endTime
-   * @param capacity the capacity
-   * @param centreId the centreId
-   * @return the public
-   */
+
+    /**
+     * Constructor with all slot fields.
+     *
+     * @param slotId    the slot id
+     * @param startTime the start time
+     * @param endTime   the end time
+     * @param capacity  the capacity
+     * @param centreId  the centre id
+     */
     public Slot(int slotId, LocalTime startTime, LocalTime endTime, int capacity,int centreId) {
         this.slotId = slotId;
         this.startTime = startTime;
@@ -37,73 +35,82 @@ public class Slot {
         this.capacity = capacity;
         this.centreId=centreId;
     }
-  /**
-   * Get Centre Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the centre id.
+     *
+     * @return the centre id
+     */
     public int getCentreId() { 
         return centreId; 
     }
-  /**
-   * Set Centre Id.
-   *
-   * @param centreId the centreId
-   */
-   public void setCentreId(int centreId) {this.centreId=centreId;}
-  /**
-   * Get Slot Id.
-   *
-   * @return the int
-   */
+    /**
+     * Sets the centre id.
+     *
+     * @param centreId the centre id
+     */
+    public void setCentreId(int centreId) {this.centreId=centreId;}
+
+    /**
+     * Gets the slot id.
+     *
+     * @return the slot id
+     */
     public int getSlotId() { return slotId; }
-  /**
-   * Set Slot Id.
-   *
-   * @param slotId the slotId
-   */
+
+    /**
+     * Sets the slot id.
+     *
+     * @param slotId the slot id
+     */
     public void setSlotId(int slotId) { this.slotId = slotId; }
-  /**
-   * Get Start Time.
-   *
-   * @return the LocalTime
-   */
+
+    /**
+     * Gets the start time.
+     *
+     * @return the start time
+     */
     public LocalTime getStartTime() { return startTime; }
-  /**
-   * Set Start Time.
-   *
-   * @param startTime the startTime
-   */
+
+    /**
+     * Sets the start time.
+     *
+     * @param startTime the start time
+     */
     public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
-  /**
-   * Get End Time.
-   *
-   * @return the LocalTime
-   */
+
+    /**
+     * Gets the end time.
+     *
+     * @return the end time
+     */
     public LocalTime getEndTime() { return endTime; }
-  /**
-   * Set End Time.
-   *
-   * @param endTime the endTime
-   */
+
+    /**
+     * Sets the end time.
+     *
+     * @param endTime the end time
+     */
     public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
-  /**
-   * Get Capacity.
-   *
-   * @return the int
-   */
+
+    /**
+     * Gets the capacity.
+     *
+     * @return the capacity
+     */
     public int getCapacity() { return capacity; }
-  /**
-   * Set Capacity.
-   *
-   * @param capacity the capacity
-   */
+
+    /**
+     * Sets the capacity.
+     *
+     * @param capacity the capacity
+     */
     public void setCapacity(int capacity) { this.capacity = capacity; }
-  /**
-   * Get Slot Info.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets slot info as a formatted string.
+     *
+     * @return the slot info string
+     */
     public String getSlotInfo() {
         return "Slot ID: " + slotId +
                 " | " + startTime + " - " + endTime +

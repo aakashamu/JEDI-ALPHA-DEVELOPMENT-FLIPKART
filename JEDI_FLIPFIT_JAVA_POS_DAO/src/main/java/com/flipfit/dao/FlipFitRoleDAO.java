@@ -15,11 +15,9 @@ import java.util.List;
 public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
     private Connection connection;
 
-  /**
-   * Flip Fit Role Dao.
-   *
-   * @return the public
-   */
+    /**
+     * Default constructor.
+     */
     public FlipFitRoleDAO() {
     }
 
@@ -41,12 +39,11 @@ public class FlipFitRoleDAO implements FlipFitRoleDAOInterface {
         return connection;
     }
 
-  /**
-   * Flip Fit Role Dao.
-   *
-   * @param connection the connection
-   * @return the public
-   */
+    /**
+     * Constructor with existing connection.
+     *
+     * @param connection the database connection
+     */
     public FlipFitRoleDAO(Connection connection) {
         this.connection = connection;
     }

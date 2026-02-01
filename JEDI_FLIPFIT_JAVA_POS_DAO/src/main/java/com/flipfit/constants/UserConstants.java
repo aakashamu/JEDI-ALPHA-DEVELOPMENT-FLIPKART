@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for User DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "UserConstants"
  */
 public class UserConstants {
     public static final String LOGIN_QUERY = "SELECT * FROM User WHERE email = ? AND password = ?";

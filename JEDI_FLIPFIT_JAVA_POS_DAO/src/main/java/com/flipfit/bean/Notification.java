@@ -13,83 +13,83 @@ public class Notification {
     private String message;
     private Timestamp timestamp;
     private String status; // UNREAD, READ
-  /**
-   * Get Notification Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the notification id.
+     *
+     * @return the notification id
+     */
     public int getNotificationId() {
         return notificationId;
     }
-  /**
-   * Set Notification Id.
-   *
-   * @param notificationId the notificationId
-   */
+    /**
+     * Sets the notification id.
+     *
+     * @param notificationId the notification id
+     */
     public void setNotificationId(int notificationId) {
         this.notificationId = notificationId;
     }
-  /**
-   * Get User Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the user id.
+     *
+     * @return the user id
+     */
     public int getUserId() {
         return userId;
     }
-  /**
-   * Set User Id.
-   *
-   * @param userId the userId
-   */
+    /**
+     * Sets the user id.
+     *
+     * @param userId the user id
+     */
     public void setUserId(int userId) {
         this.userId = userId;
     }
-  /**
-   * Get Message.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the message.
+     *
+     * @return the message
+     */
     public String getMessage() {
         return message;
     }
-  /**
-   * Set Message.
-   *
-   * @param message the message
-   */
+    /**
+     * Sets the message.
+     *
+     * @param message the message
+     */
     public void setMessage(String message) {
         this.message = message;
     }
-  /**
-   * Get Timestamp.
-   *
-   * @return the Timestamp
-   */
+    /**
+     * Gets the timestamp.
+     *
+     * @return the timestamp
+     */
     public Timestamp getTimestamp() {
         return timestamp;
     }
-  /**
-   * Set Timestamp.
-   *
-   * @param timestamp the timestamp
-   */
+    /**
+     * Sets the timestamp.
+     *
+     * @param timestamp the timestamp
+     */
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
-  /**
-   * Get Status.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the status (UNREAD, READ).
+     *
+     * @return the status
+     */
     public String getStatus() {
         return status;
     }
-  /**
-   * Set Status.
-   *
-   * @param status the status
-   */
+    /**
+     * Sets the status.
+     *
+     * @param status the status (UNREAD, READ)
+     */
     public void setStatus(String status) {
         this.status = status;
     }

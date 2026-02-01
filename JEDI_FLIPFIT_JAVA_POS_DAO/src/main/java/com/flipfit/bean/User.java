@@ -19,15 +19,23 @@ public class User {
     private String state;
     private int pincode;
     private int roleId;
-  /**
-   * User.
-   *
-   * @return the public
-   */
+    /**
+     * Default constructor.
+     */
     public User() {
     }
 
-    // Parameterized constructor
+    /**
+     * Constructor with all user fields.
+     *
+     * @param userId     the user id
+     * @param fullName   the full name
+     * @param email      the email
+     * @param password   the password
+     * @param phoneNumber the phone number
+     * @param city       the city
+     * @param pincode    the pincode
+     */
     public User(int userId, String fullName, String email, String password,
             long phoneNumber, String city, int pincode) {
         this.userId = userId;
@@ -38,162 +46,161 @@ public class User {
         this.city = city;
         this.pincode = pincode;
     }
-  /**
-   * Get User Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the user id.
+     *
+     * @return the user id
+     */
     public int getUserId() {
         return userId;
     }
-  /**
-   * Set User Id.
-   *
-   * @param userId the userId
-   */
+    /**
+     * Sets the user id.
+     *
+     * @param userId the user id
+     */
     public void setUserId(int userId) {
         this.userId = userId;
     }
-  /**
-   * Get Full Name.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the full name.
+     *
+     * @return the full name
+     */
     public String getFullName() {
         return fullName;
     }
-  /**
-   * Set Full Name.
-   *
-   * @param fullName the fullName
-   */
+    /**
+     * Sets the full name.
+     *
+     * @param fullName the full name
+     */
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-  /**
-   * Get Email.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the email.
+     *
+     * @return the email
+     */
     public String getEmail() {
         return email;
     }
-  /**
-   * Set Email.
-   *
-   * @param email the email
-   */
+    /**
+     * Sets the email.
+     *
+     * @param email the email
+     */
     public void setEmail(String email) {
         this.email = email;
     }
-  /**
-   * Get Password.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the password.
+     *
+     * @return the password
+     */
     public String getPassword() {
         return password;
     }
-  /**
-   * Set Password.
-   *
-   * @param password the password
-   */
+    /**
+     * Sets the password.
+     *
+     * @param password the password
+     */
     public void setPassword(String password) {
         this.password = password;
     }
-  /**
-   * Get Phone Number.
-   *
-   * @return the long
-   */
+    /**
+     * Gets the phone number.
+     *
+     * @return the phone number
+     */
     public long getPhoneNumber() {
         return phoneNumber;
     }
-  /**
-   * Set Phone Number.
-   *
-   * @param phoneNumber the phoneNumber
-   */
+    /**
+     * Sets the phone number.
+     *
+     * @param phoneNumber the phone number
+     */
     public void setPhoneNumber(long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-  /**
-   * Get City.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the city.
+     *
+     * @return the city
+     */
     public String getCity() {
         return city;
     }
-  /**
-   * Set City.
-   *
-   * @param city the city
-   */
+    /**
+     * Sets the city.
+     *
+     * @param city the city
+     */
     public void setCity(String city) {
         this.city = city;
     }
-  /**
-   * Get State.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the state.
+     *
+     * @return the state
+     */
     public String getState() {
         return state;
     }
-  /**
-   * Set State.
-   *
-   * @param state the state
-   */
+    /**
+     * Sets the state.
+     *
+     * @param state the state
+     */
     public void setState(String state) {
         this.state = state;
     }
-  /**
-   * Get Pincode.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the pincode.
+     *
+     * @return the pincode
+     */
     public int getPincode() {
         return pincode;
     }
-  /**
-   * Set Pincode.
-   *
-   * @param pincode the pincode
-   */
+    /**
+     * Sets the pincode.
+     *
+     * @param pincode the pincode
+     */
     public void setPincode(int pincode) {
         this.pincode = pincode;
     }
-  /**
-   * Get Role Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the role id.
+     *
+     * @return the role id
+     */
     public int getRoleId() {
         return roleId;
     }
-  /**
-   * Set Role Id.
-   *
-   * @param roleId the roleId
-   */
+    /**
+     * Sets the role id.
+     *
+     * @param roleId the role id
+     */
     public void setRoleId(int roleId) {
         this.roleId = roleId;
     }
-  /**
-   * Login.
-   *
-   * @return the boolean
-   */
+    /**
+     * Performs login.
+     *
+     * @return true if login succeeds
+     */
     public boolean login() {
         return false;
     }
-  /**
-   * Logout.
-   *
-   */
+    /**
+     * Performs logout.
+     */
     public void logout() {
     }
 }

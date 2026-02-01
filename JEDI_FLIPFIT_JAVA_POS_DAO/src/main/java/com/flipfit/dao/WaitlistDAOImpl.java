@@ -18,7 +18,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * Add To Wait List.
    *
    * @param bookingId the bookingId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean addToWaitList(int bookingId) {
@@ -59,7 +59,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * @param bookingId the bookingId
    * @param customerId the customerId
    * @param availabilityId the availabilityId
-   * @return the int
+   * @return the result id or count
    */
     public int addToWaitList(int bookingId, int customerId, int availabilityId) {
         try (Connection conn = DBConnection.getConnection()) {
@@ -91,7 +91,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * Get Waitlist Count By Availability Id.
    *
    * @param availabilityId the availabilityId
-   * @return the int
+   * @return the result id or count
    */
     public int getWaitlistCountByAvailabilityId(int availabilityId) {
         try (Connection conn = DBConnection.getConnection(); 
@@ -145,7 +145,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    *
    * @param waitlistId the waitlistId
    * @param status the status
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     public boolean updateWaitlistStatus(int waitlistId, String status) {
         try (Connection conn = DBConnection.getConnection(); 
@@ -222,7 +222,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
   /**
    * Update Wait List.
    *
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean updateWaitList() {
@@ -270,7 +270,7 @@ public class WaitlistDAOImpl implements WaitlistDAO {
    * Get Wait List Position.
    *
    * @param bookingId the bookingId
-   * @return the int
+   * @return the result id or count
    */
     @Override
     public int getWaitListPosition(int bookingId) {

@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for Waitlist DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "WaitlistConstants"
  */
 public class WaitlistConstants {
     public static final String GET_WAITLIST_COUNT = "SELECT COUNT(*) FROM Waitlist";

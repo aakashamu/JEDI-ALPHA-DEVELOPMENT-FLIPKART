@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for Role DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "RoleConstants"
  */
 public class RoleConstants {
     public static final String ADD_ROLE = "INSERT INTO Role (roleName) VALUES (?)";

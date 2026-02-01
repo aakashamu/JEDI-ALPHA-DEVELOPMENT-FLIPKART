@@ -18,6 +18,13 @@ import jakarta.ws.rs.core.Response;
 public class UserResource {
     private final UserService userService = new UserService();
 
+    /**
+     * Authenticates a user by email and password.
+     *
+     * @param email    user email
+     * @param password user password
+     * @return 200 with user details if valid, 401 if invalid, 500 on error
+     */
     @POST
     @Path("/login")
     public Response login(@QueryParam("email") String email, @QueryParam("password") String password) {
@@ -33,6 +40,14 @@ public class UserResource {
         }
     }
 
+    /**
+     * Updates the user password after validating the old password.
+     *
+     * @param email       user email
+     * @param oldPassword current password
+     * @param newPassword new password to set
+     * @return 200 on success, 400 if update fails
+     */
     @POST
     @Path("/change-password")
     public Response changePassword(@QueryParam("email") String email, 
@@ -43,6 +58,13 @@ public class UserResource {
         }
         return Response.status(Response.Status.BAD_REQUEST).entity("Failed to update password").build();
     }
+
+    /**
+     * Returns all notifications for the given user.
+     *
+     * @param userId the user ID
+     * @return 200 with list of notifications
+     */
     @GET
     @Path("/notifications/{userId}")
     public Response getNotifications(@PathParam("userId") int userId) {

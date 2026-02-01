@@ -291,7 +291,7 @@ public class FlipFitRepository {
    *
    * @param email the email
    * @param password the password
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     public static boolean validateUser(String email, String password) {
         User user = users.get(email);
@@ -314,7 +314,7 @@ public class FlipFitRepository {
    * User Exists.
    *
    * @param email the email
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     public static boolean userExists(String email) {
         return users.containsKey(email);

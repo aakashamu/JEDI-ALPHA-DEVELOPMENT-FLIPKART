@@ -50,7 +50,7 @@ public class SlotAvailabilityService implements SlotAvailabilityInterface {
    * Delete Slot Availability.
    *
    * @param id the id
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
 	@Override
 	public boolean deleteSlotAvailability(int id) {

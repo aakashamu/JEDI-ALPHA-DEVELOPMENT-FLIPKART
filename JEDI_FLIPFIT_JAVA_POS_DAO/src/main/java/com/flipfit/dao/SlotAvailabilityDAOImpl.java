@@ -42,7 +42,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    *
    * @param id the id
    * @param slotAvailability the slotAvailability
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean updateSlotAvailability(int id, SlotAvailability slotAvailability) {
@@ -65,7 +65,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    * Delete Slot Availability.
    *
    * @param id the id
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean deleteSlotAvailability(int id) {
@@ -200,7 +200,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    * Decrement Seats.
    *
    * @param availabilityId the availabilityId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     public boolean decrementSeats(int availabilityId) {
         try (Connection conn = DBConnection.getConnection();
@@ -218,7 +218,7 @@ public class SlotAvailabilityDAOImpl implements SlotAvailabilityDAO {
    * Increment Seats.
    *
    * @param availabilityId the availabilityId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     public boolean incrementSeats(int availabilityId) {
         try (Connection conn = DBConnection.getConnection();

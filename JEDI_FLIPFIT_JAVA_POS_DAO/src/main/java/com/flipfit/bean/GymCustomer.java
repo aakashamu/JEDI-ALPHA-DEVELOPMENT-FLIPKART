@@ -6,11 +6,9 @@ package com.flipfit.bean;
  * @ClassName  "GymCustomer"
  */
 public class GymCustomer extends User {
-  /**
-   * Gym Customer.
-   *
-   * @return the public
-   */
+    /**
+     * Default constructor.
+     */
     public GymCustomer() {
         super();
     }

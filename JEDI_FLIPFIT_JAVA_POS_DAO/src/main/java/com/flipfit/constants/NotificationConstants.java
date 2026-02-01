@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for Notification DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "NotificationConstants"
  */
 public class NotificationConstants {
     public static final String INSERT_NOTIFICATION = "INSERT INTO Notification (userId, message, status, timestamp) VALUES (?, ?, ?, ?)";

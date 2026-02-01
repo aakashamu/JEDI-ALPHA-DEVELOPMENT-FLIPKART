@@ -22,7 +22,7 @@ public class UserService implements UserInterface {
      *
      * @param email    the email
      * @param password the password
-     * @return the boolean
+     * @return true if successful, false otherwise
      * @throws com.flipfit.exception.UserNotFoundException
      */
     @Override
@@ -173,16 +173,16 @@ public class UserService implements UserInterface {
      * Is User Logged In.
      *
      * @param email the email
-     * @return the boolean
+     * @return true if successful, false otherwise
      */
     public static boolean isUserLoggedIn(String email) {
         return loggedInUsers.containsKey(email);
     }
 
     /**
-     * Get Current Logged In User.
-     *
-     * @return the String
+ * Gets the current logged-in user for the given email.
+   *
+   * @return the user object, or null
      */
     public static String getCurrentLoggedInUser() {
         return currentLoggedInUserEmail;
@@ -203,7 +203,7 @@ public class UserService implements UserInterface {
      * @param email       the email
      * @param oldPassword the oldPassword
      * @param newPassword the newPassword
-     * @return the boolean
+     * @return true if successful, false otherwise
      */
     @Override
     public boolean updatePassword(String email, String oldPassword, String newPassword) {

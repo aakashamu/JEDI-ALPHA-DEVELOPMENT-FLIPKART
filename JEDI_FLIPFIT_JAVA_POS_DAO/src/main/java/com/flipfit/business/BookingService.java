@@ -44,7 +44,7 @@ public class BookingService implements BookingInterface {
    * Cancel Booking.
    *
    * @param bookingId the bookingId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean cancelBooking(int bookingId) {
@@ -138,7 +138,7 @@ public class BookingService implements BookingInterface {
      * Check Booking Status.
      *
      * @param bookingId the bookingId
-     * @return the boolean
+     * @return true if successful, false otherwise
      */
     @Override
     public boolean checkBookingStatus(int bookingId) {
@@ -198,7 +198,7 @@ public class BookingService implements BookingInterface {
     /**
      * Get Next Booking Id.
      *
-     * @return the int
+     * @return the next booking id
      */
     private static int getNextBookingId() {
         if (FlipFitRepository.bookingsMap.isEmpty()) {

@@ -21,8 +21,19 @@ public class SlotAvailability {
 	private int seatsAvailable;
 	private int seatsTotal;
 
+	/**
+	 * Default constructor.
+	 */
 	public SlotAvailability() {}
 
+	/**
+	 * Constructor with id, slot, date and availability flag.
+	 *
+	 * @param id          the availability id
+	 * @param slotId      the slot id
+	 * @param date        the date
+	 * @param isAvailable the availability flag
+	 */
 	public SlotAvailability(int id, int slotId, LocalDate date, boolean isAvailable) {
 		this.id = id;
 		this.slotId = slotId;
@@ -30,6 +41,15 @@ public class SlotAvailability {
 		this.isAvailable = isAvailable;
 	}
 
+	/**
+	 * Constructor with id, slot, date and seat counts.
+	 *
+	 * @param id             the availability id
+	 * @param slotId         the slot id
+	 * @param date           the date
+	 * @param seatsAvailable the seats available
+	 * @param seatsTotal     the total seats
+	 */
 	public SlotAvailability(int id, int slotId, LocalDate date, int seatsAvailable, int seatsTotal) {
 		this.id = id;
 		this.slotId = slotId;
@@ -38,99 +58,99 @@ public class SlotAvailability {
 		this.seatsTotal = seatsTotal;
 		this.isAvailable = seatsAvailable > 0;
 	}
-  /**
-   * Get Id.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the availability id.
+	 *
+	 * @return the availability id
+	 */
 	public int getId() {
 		return id;
 	}
-  /**
-   * Set Id.
-   *
-   * @param id the id
-   */
+	/**
+	 * Sets the availability id.
+	 *
+	 * @param id the availability id
+	 */
 	public void setId(int id) {
 		this.id = id;
 	}
-  /**
-   * Get Slot Id.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the slot id.
+	 *
+	 * @return the slot id
+	 */
 	public int getSlotId() {
 		return slotId;
 	}
-  /**
-   * Set Slot Id.
-   *
-   * @param slotId the slotId
-   */
+	/**
+	 * Sets the slot id.
+	 *
+	 * @param slotId the slot id
+	 */
 	public void setSlotId(int slotId) {
 		this.slotId = slotId;
 	}
-  /**
-   * Get Date.
-   *
-   * @return the LocalDate
-   */
+	/**
+	 * Gets the date.
+	 *
+	 * @return the date
+	 */
 	public LocalDate getDate() {
 		return date;
 	}
-  /**
-   * Set Date.
-   *
-   * @param date the date
-   */
+	/**
+	 * Sets the date.
+	 *
+	 * @param date the date
+	 */
 	public void setDate(LocalDate date) {
 		this.date = date;
 	}
-  /**
-   * Is Available.
-   *
-   * @return the boolean
-   */
+	/**
+	 * Checks if the slot is available.
+	 *
+	 * @return true if available
+	 */
 	public boolean isAvailable() {
 		return isAvailable;
 	}
-  /**
-   * Set Available.
-   *
-   * @param available the available
-   */
+	/**
+	 * Sets the availability flag.
+	 *
+	 * @param available the availability flag
+	 */
 	public void setAvailable(boolean available) {
 		isAvailable = available;
 	}
-  /**
-   * Get Seats Available.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the seats available.
+	 *
+	 * @return the seats available
+	 */
 	public int getSeatsAvailable() {
 		return seatsAvailable;
 	}
-  /**
-   * Set Seats Available.
-   *
-   * @param seatsAvailable the seatsAvailable
-   */
+	/**
+	 * Sets the seats available.
+	 *
+	 * @param seatsAvailable the seats available
+	 */
 	public void setSeatsAvailable(int seatsAvailable) {
 		this.seatsAvailable = seatsAvailable;
 	}
-  /**
-   * Get Seats Total.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the total seats.
+	 *
+	 * @return the total seats
+	 */
 	public int getSeatsTotal() {
 		return seatsTotal;
 	}
-  /**
-   * Set Seats Total.
-   *
-   * @param seatsTotal the seatsTotal
-   */
+	/**
+	 * Sets the total seats.
+	 *
+	 * @param seatsTotal the total seats
+	 */
 	public void setSeatsTotal(int seatsTotal) {
 		this.seatsTotal = seatsTotal;
 	}

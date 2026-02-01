@@ -70,7 +70,7 @@ public class GymOwnerDAOImpl implements GymOwnerDAO {
    *
    * @param email the email
    * @param password the password
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean isOwnerValid(String email, String password) {

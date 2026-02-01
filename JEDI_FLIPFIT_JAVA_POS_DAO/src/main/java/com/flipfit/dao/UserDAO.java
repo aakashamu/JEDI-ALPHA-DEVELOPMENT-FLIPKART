@@ -17,7 +17,7 @@ public class UserDAO implements UserInterfaceDAO {
    *
    * @param email the email
    * @param password the password
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean login(String email, String password) {
@@ -100,7 +100,7 @@ public class UserDAO implements UserInterfaceDAO {
    * @param email the email
    * @param oldPassword the oldPassword
    * @param newPassword the newPassword
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean changePassword(String email, String oldPassword, String newPassword) {

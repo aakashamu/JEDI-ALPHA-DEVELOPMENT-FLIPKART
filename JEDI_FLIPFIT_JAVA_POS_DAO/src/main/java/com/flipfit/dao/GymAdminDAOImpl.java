@@ -48,7 +48,7 @@ public class GymAdminDAOImpl implements GymAdminDAO {
      *
      * @param email    the email
      * @param password the password
-     * @return the boolean
+     * @return true if successful, false otherwise
      */
     @Override
     public boolean isAdminValid(String email, String password) {
@@ -96,7 +96,7 @@ public class GymAdminDAOImpl implements GymAdminDAO {
      * Approve Owner.
      *
      * @param ownerId the ownerId
-     * @return the boolean
+     * @return true if successful, false otherwise
      */
     @Override
     public boolean approveOwner(int ownerId) {
@@ -119,7 +119,7 @@ public class GymAdminDAOImpl implements GymAdminDAO {
      * Delete Owner.
      *
      * @param ownerId the ownerId
-     * @return the boolean
+     * @return true if successful, false otherwise
      */
     @Override
     public boolean deleteOwner(int ownerId) {

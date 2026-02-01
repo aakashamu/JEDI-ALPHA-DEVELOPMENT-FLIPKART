@@ -20,7 +20,7 @@ public class WaitListService implements WaitListInterface {
    * Add To Wait List.
    *
    * @param bookingId the bookingId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean addToWaitList(int bookingId) {

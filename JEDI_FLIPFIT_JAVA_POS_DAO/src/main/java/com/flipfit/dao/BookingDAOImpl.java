@@ -113,7 +113,7 @@ public class BookingDAOImpl implements BookingDAO {
    * Cancel Booking.
    *
    * @param bookingId the bookingId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean cancelBooking(int bookingId) {
@@ -163,7 +163,7 @@ public class BookingDAOImpl implements BookingDAO {
    * Check Booking Status.
    *
    * @param bookingId the bookingId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean checkBookingStatus(int bookingId) {
@@ -214,7 +214,7 @@ public class BookingDAOImpl implements BookingDAO {
    * Confirm Waitlist Booking.
    *
    * @param bookingId the bookingId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     public boolean confirmWaitlistBooking(int bookingId) {
         try (Connection conn = DBConnection.getConnection();

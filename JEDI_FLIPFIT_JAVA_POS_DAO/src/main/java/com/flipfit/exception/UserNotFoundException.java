@@ -6,12 +6,11 @@ package com.flipfit.exception;
  * @ClassName  "UserNotFoundException"
  */
 public class UserNotFoundException extends Exception {
-  /**
-   * User Not Found Exception.
-   *
-   * @param message the message
-   * @return the public
-   */
+    /**
+     * Creates an exception with the given detail message.
+     *
+     * @param message the detail message
+     */
     public UserNotFoundException(String message) {
         super(message);
     }

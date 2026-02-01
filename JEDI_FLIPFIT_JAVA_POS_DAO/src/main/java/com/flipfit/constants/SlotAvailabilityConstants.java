@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for Slot Availability DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "SlotAvailabilityConstants"
  */
 public class SlotAvailabilityConstants {
     public static final String ADD_SLOT_AVAILABILITY = "INSERT INTO SlotAvailability (slotId, date, seatsTotal, seatsAvailable) VALUES (?, ?, ?, ?)";

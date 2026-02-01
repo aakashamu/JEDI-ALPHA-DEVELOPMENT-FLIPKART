@@ -18,6 +18,12 @@ import jakarta.ws.rs.core.Response;
 public class GymCustomerResource {
     private final GymCustomerService customerService = new GymCustomerService();
 
+    /**
+     * Registers a new gym customer.
+     *
+     * @param customer the customer details (name, email, password, contact, address)
+     * @return 201 on success
+     */
     @POST
     @Path("/register")
     public Response register(GymCustomer customer) {
@@ -32,6 +38,13 @@ public class GymCustomerResource {
         return Response.status(Response.Status.CREATED).entity("Customer registered successfully").build();
     }
 
+    /**
+     * Returns list of centres visible to the authenticated customer.
+     *
+     * @param email    customer email
+     * @param password customer password
+     * @return 200 with list of centres, 401 if auth missing
+     */
     @GET
     @Path("/centers")
     public Response viewCenters(@QueryParam("email") String email, @QueryParam("password") String password) {
@@ -40,6 +53,13 @@ public class GymCustomerResource {
         return Response.ok(customerService.viewCentres(email, password)).build();
     }
 
+    /**
+     * Returns the customer's bookings.
+     *
+     * @param email    customer email
+     * @param password customer password
+     * @return 200 with list of bookings, 401 if auth missing
+     */
     @GET
     @Path("/bookings")
     public Response viewBookings(@QueryParam("email") String email, @QueryParam("password") String password) {
@@ -48,6 +68,14 @@ public class GymCustomerResource {
         return Response.ok(customerService.viewBookedSlots(email, password)).build();
     }
 
+    /**
+     * Books a slot for the authenticated customer.
+     *
+     * @param slotId   the slot/availability ID to book
+     * @param email    customer email
+     * @param password customer password
+     * @return 200 with booking details, 400 on failure, 401 if auth missing
+     */
     @POST
     @Path("/book")
     public Response bookSlot(@QueryParam("slotId") int slotId, @QueryParam("email") String email,
@@ -61,6 +89,14 @@ public class GymCustomerResource {
         }
     }
 
+    /**
+     * Cancels a booking for the authenticated customer.
+     *
+     * @param bookingId the booking ID to cancel
+     * @param email     customer email
+     * @param password  customer password
+     * @return 200 on success, 400 on failure, 401 if auth missing
+     */
     @DELETE
     @Path("/cancel/{bookingId}")
     public Response cancelBooking(@PathParam("bookingId") int bookingId, @QueryParam("email") String email,
@@ -75,6 +111,12 @@ public class GymCustomerResource {
         }
     }
 
+    /**
+     * Returns available slots for a centre.
+     *
+     * @param centreId the centre ID
+     * @return 200 with list of available slots
+     */
     @GET
     @Path("/slots/{centreId}")
     public Response viewSlots(@PathParam("centreId") int centreId) {

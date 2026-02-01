@@ -6,12 +6,11 @@ package com.flipfit.exception;
  * @ClassName  "IssueWithApprovalException"
  */
 public class IssueWithApprovalException extends Exception {
-  /**
-   * Issue With Approval Exception.
-   *
-   * @param message the message
-   * @return the public
-   */
+    /**
+     * Creates an exception with the given detail message.
+     *
+     * @param message the detail message
+     */
     public IssueWithApprovalException(String message) {
         super(message);
     }

@@ -18,6 +18,12 @@ import jakarta.ws.rs.core.Response;
 public class GymOwnerResource {
     private final GymOwnerService ownerService = new GymOwnerService();
 
+    /**
+     * Registers a new gym owner (with PAN, Aadhaar, GSTIN).
+     *
+     * @param owner the owner details
+     * @return 201 on success
+     */
     @POST
     @Path("/register")
     public Response register(GymOwner owner) {
@@ -35,6 +41,14 @@ public class GymOwnerResource {
         return Response.status(Response.Status.CREATED).entity("Owner registered successfully").build();
     }
 
+    /**
+     * Adds a new centre for the authenticated owner.
+     *
+     * @param centre   the centre details
+     * @param email    owner email
+     * @param password owner password
+     * @return 201 on success, 401 if credentials missing
+     */
     @POST
     @Path("/center")
     public Response addCenter(com.flipfit.bean.GymCentre centre,
@@ -48,6 +62,14 @@ public class GymOwnerResource {
                 .build();
     }
 
+    /**
+     * Returns centres owned by the authenticated owner.
+     *
+     * @param ownerId  the owner user ID (path)
+     * @param email    owner email
+     * @param password owner password
+     * @return 200 with list of centres, 401 if credentials missing
+     */
     @GET
     @Path("/centers/{ownerId}")
     public Response viewMyCenters(@PathParam("ownerId") int ownerId,
@@ -61,6 +83,16 @@ public class GymOwnerResource {
         return Response.ok(ownerService.viewMyCentres(email, password)).build();
     }
 
+    /**
+     * Adds slots for an existing centre.
+     *
+     * @param centreId  the centre ID
+     * @param numSlots  number of slots to create
+     * @param capacity  capacity per slot
+     * @param email     owner email
+     * @param password  owner password
+     * @return 201 on success, 401 if credentials missing
+     */
     @POST
     @Path("/slot")
     public Response addSlot(@QueryParam("centreId") int centreId,

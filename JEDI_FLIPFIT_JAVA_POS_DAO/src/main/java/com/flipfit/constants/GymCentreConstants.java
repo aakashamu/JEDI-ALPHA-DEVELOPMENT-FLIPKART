@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for Gym Centre DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "GymCentreConstants"
  */
 public class GymCentreConstants {
     public static final String INSERT_GYM_CENTRE = "INSERT INTO GymCentre (centreName, city, state, ownerId, isApproved) VALUES (?, ?, ?, ?, ?)";

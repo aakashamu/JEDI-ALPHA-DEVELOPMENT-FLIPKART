@@ -17,11 +17,21 @@ public class FlipFitConfiguration extends Configuration {
     @NotNull
     private DataSourceFactory database = new DataSourceFactory();
 
+    /**
+     * Sets the database data source factory from configuration.
+     *
+     * @param factory the data source factory (e.g. from config YAML)
+     */
     @JsonProperty("database")
     public void setDataSourceFactory(DataSourceFactory factory) {
         this.database = factory;
     }
 
+    /**
+     * Returns the database data source factory for JDBC connections.
+     *
+     * @return the configured data source factory
+     */
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
         return database;

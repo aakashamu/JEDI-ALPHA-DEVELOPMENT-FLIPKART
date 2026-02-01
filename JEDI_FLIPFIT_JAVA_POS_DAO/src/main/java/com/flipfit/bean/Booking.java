@@ -17,24 +17,22 @@ public class Booking {
     private String createdAt; 
     private int customerId;       
     private int availabilityId;   
-  /**
-   * Booking.
-   *
-   * @return the public
-   */
+    /**
+     * Default constructor.
+     */
     public Booking() {
     }
-  /**
-   * Booking.
-   *
-   * @param bookingId the bookingId
-   * @param bookingDate the bookingDate
-   * @param status the status
-   * @param createdAt the createdAt
-   * @param customerId the customerId
-   * @param availabilityId the availabilityId
-   * @return the public
-   */
+
+    /**
+     * Constructor with all booking fields.
+     *
+     * @param bookingId     the booking id
+     * @param bookingDate   the booking date
+     * @param status        the status
+     * @param createdAt     the created at timestamp
+     * @param customerId    the customer id
+     * @param availabilityId the availability id
+     */
     public Booking(int bookingId, Date bookingDate, String status, String createdAt, int customerId, int availabilityId) {
         this.bookingId = bookingId;
         this.bookingDate = bookingDate;
@@ -43,76 +41,87 @@ public class Booking {
         this.customerId = customerId;
         this.availabilityId = availabilityId;
     }
-  /**
-   * Get Booking Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the booking id.
+     *
+     * @return the booking id
+     */
     public int getBookingId() { return bookingId; }
-  /**
-   * Set Booking Id.
-   *
-   * @param bookingId the bookingId
-   */
+
+    /**
+     * Sets the booking id.
+     *
+     * @param bookingId the booking id
+     */
     public void setBookingId(int bookingId) { this.bookingId = bookingId; }
-  /**
-   * Get Booking Date.
-   *
-   * @return the Date
-   */
+
+    /**
+     * Gets the booking date.
+     *
+     * @return the booking date
+     */
     public Date getBookingDate() { return bookingDate; }
-  /**
-   * Set Booking Date.
-   *
-   * @param bookingDate the bookingDate
-   */
+
+    /**
+     * Sets the booking date.
+     *
+     * @param bookingDate the booking date
+     */
     public void setBookingDate(Date bookingDate) { this.bookingDate = bookingDate; }
-  /**
-   * Get Status.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets the status.
+     *
+     * @return the status
+     */
     public String getStatus() { return status; }
-  /**
-   * Set Status.
-   *
-   * @param status the status
-   */
+
+    /**
+     * Sets the status.
+     *
+     * @param status the status
+     */
     public void setStatus(String status) { this.status = status; }
-  /**
-   * Get Created At.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets the created at timestamp.
+     *
+     * @return the created at
+     */
     public String getCreatedAt() { return createdAt; }
-  /**
-   * Set Created At.
-   *
-   * @param createdAt the createdAt
-   */
+
+    /**
+     * Sets the created at timestamp.
+     *
+     * @param createdAt the created at
+     */
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
-  /**
-   * Get Customer Id.
-   *
-   * @return the int
-   */
+
+    /**
+     * Gets the customer id.
+     *
+     * @return the customer id
+     */
     public int getCustomerId() { return customerId; }
-  /**
-   * Set Customer Id.
-   *
-   * @param customerId the customerId
-   */
+
+    /**
+     * Sets the customer id.
+     *
+     * @param customerId the customer id
+     */
     public void setCustomerId(int customerId) { this.customerId = customerId; }
-  /**
-   * Get Availability Id.
-   *
-   * @return the int
-   */
+
+    /**
+     * Gets the availability id.
+     *
+     * @return the availability id
+     */
     public int getAvailabilityId() { return availabilityId; }
-  /**
-   * Set Availability Id.
-   *
-   * @param availabilityId the availabilityId
-   */
+
+    /**
+     * Sets the availability id.
+     *
+     * @param availabilityId the availability id
+     */
     public void setAvailabilityId(int availabilityId) { this.availabilityId = availabilityId; }
 }

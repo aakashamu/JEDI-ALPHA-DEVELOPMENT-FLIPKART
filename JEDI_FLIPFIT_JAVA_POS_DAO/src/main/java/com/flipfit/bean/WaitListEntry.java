@@ -18,8 +18,19 @@ public class WaitListEntry {
 	private String status;  // "PENDING", "CONFIRMED", "CANCELLED"
 	private Timestamp createdAt;
 	
+	/**
+	 * Default constructor.
+	 */
 	public WaitListEntry() {}
-	
+
+	/**
+	 * Constructor with booking, customer, availability and position.
+	 *
+	 * @param bookingId     the booking id
+	 * @param customerId   the customer id
+	 * @param availabilityId the availability id
+	 * @param position     the position in waitlist
+	 */
 	public WaitListEntry(int bookingId, int customerId, int availabilityId, int position) {
 		this.bookingId = bookingId;
 		this.customerId = customerId;
@@ -27,115 +38,115 @@ public class WaitListEntry {
 		this.position = position;
 		this.status = "PENDING";
 	}
-  /**
-   * Get Waitlistid.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the waitlist id.
+	 *
+	 * @return the waitlist id
+	 */
 	public int getWaitlistid() {
 		return waitlistid;
 	}
-  /**
-   * Set Waitlistid.
-   *
-   * @param waitlistid the waitlistid
-   */
+	/**
+	 * Sets the waitlist id.
+	 *
+	 * @param waitlistid the waitlist id
+	 */
 	public void setWaitlistid(int waitlistid) {
 		this.waitlistid = waitlistid;
 	}
-  /**
-   * Get Booking Id.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the booking id.
+	 *
+	 * @return the booking id
+	 */
 	public int getBookingId() {
 		return bookingId;
 	}
-  /**
-   * Set Booking Id.
-   *
-   * @param bookingId the bookingId
-   */
+	/**
+	 * Sets the booking id.
+	 *
+	 * @param bookingId the booking id
+	 */
 	public void setBookingId(int bookingId) {
 		this.bookingId = bookingId;
 	}
-  /**
-   * Get Customer Id.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the customer id.
+	 *
+	 * @return the customer id
+	 */
 	public int getCustomerId() {
 		return customerId;
 	}
-  /**
-   * Set Customer Id.
-   *
-   * @param customerId the customerId
-   */
+	/**
+	 * Sets the customer id.
+	 *
+	 * @param customerId the customer id
+	 */
 	public void setCustomerId(int customerId) {
 		this.customerId = customerId;
 	}
-  /**
-   * Get Availability Id.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the availability id.
+	 *
+	 * @return the availability id
+	 */
 	public int getAvailabilityId() {
 		return availabilityId;
 	}
-  /**
-   * Set Availability Id.
-   *
-   * @param availabilityId the availabilityId
-   */
+	/**
+	 * Sets the availability id.
+	 *
+	 * @param availabilityId the availability id
+	 */
 	public void setAvailabilityId(int availabilityId) {
 		this.availabilityId = availabilityId;
 	}
-  /**
-   * Get Position.
-   *
-   * @return the int
-   */
+	/**
+	 * Gets the position in waitlist.
+	 *
+	 * @return the position
+	 */
 	public int getPosition() {
 		return position;
 	}
-  /**
-   * Set Position.
-   *
-   * @param position the position
-   */
+	/**
+	 * Sets the position.
+	 *
+	 * @param position the position in waitlist
+	 */
 	public void setPosition(int position) {
 		this.position = position;
 	}
-  /**
-   * Get Status.
-   *
-   * @return the String
-   */
+	/**
+	 * Gets the status (PENDING, CONFIRMED, CANCELLED).
+	 *
+	 * @return the status
+	 */
 	public String getStatus() {
 		return status;
 	}
-  /**
-   * Set Status.
-   *
-   * @param status the status
-   */
+	/**
+	 * Sets the status.
+	 *
+	 * @param status the status (PENDING, CONFIRMED, CANCELLED)
+	 */
 	public void setStatus(String status) {
 		this.status = status;
 	}
-  /**
-   * Get Created At.
-   *
-   * @return the Timestamp
-   */
+	/**
+	 * Gets the created at timestamp.
+	 *
+	 * @return the created at timestamp
+	 */
 	public Timestamp getCreatedAt() {
 		return createdAt;
 	}
-  /**
-   * Set Created At.
-   *
-   * @param createdAt the createdAt
-   */
+	/**
+	 * Sets the created at timestamp.
+	 *
+	 * @param createdAt the created at timestamp
+	 */
 	public void setCreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	}

@@ -63,7 +63,7 @@ public class GymCustomerDAO implements GymCustomerInterfaceDAO {
    *
    * @param email the email
    * @param password the password
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean isUserValid(String email, String password) {

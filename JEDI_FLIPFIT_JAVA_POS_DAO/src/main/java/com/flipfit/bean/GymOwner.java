@@ -10,16 +10,27 @@ public class GymOwner extends User {
     private String Aadhaar;
     private String GSTIN;
     private int isApproved; // 0 for pending, 1 for approved
-  /**
-   * Gym Owner.
-   *
-   * @return the public
-   */
+    /**
+     * Default constructor.
+     */
     public GymOwner() {
         super();
     }
 
-    // Parametrized Constructor (Matches your UML and terminal run requirements)
+    /**
+     * Constructor with all owner fields.
+     *
+     * @param userId     the user id
+     * @param fullName   the full name
+     * @param email      the email
+     * @param password   the password
+     * @param phoneNumber the phone number
+     * @param city       the city
+     * @param pincode    the pincode
+     * @param PAN        the PAN
+     * @param Aadhaar    the Aadhaar
+     * @param GSTIN      the GSTIN
+     */
     public GymOwner(int userId, String fullName, String email, String password,
                     long phoneNumber, String city, int pincode,
                     String PAN, String Aadhaar, String GSTIN) {
@@ -29,52 +40,59 @@ public class GymOwner extends User {
         this.GSTIN = GSTIN;
         this.isApproved = 0;
     }
-  /**
-   * Get Pan.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the PAN.
+     *
+     * @return the PAN
+     */
     public String getPAN() { return PAN; }
-  /**
-   * Set Pan.
-   *
-   * @param PAN the PAN
-   */
+
+    /**
+     * Sets the PAN.
+     *
+     * @param PAN the PAN
+     */
     public void setPAN(String PAN) { this.PAN = PAN; }
-  /**
-   * Get Aadhaar.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets the Aadhaar.
+     *
+     * @return the Aadhaar
+     */
     public String getAadhaar() { return Aadhaar; }
-  /**
-   * Set Aadhaar.
-   *
-   * @param Aadhaar the Aadhaar
-   */
+
+    /**
+     * Sets the Aadhaar.
+     *
+     * @param Aadhaar the Aadhaar
+     */
     public void setAadhaar(String Aadhaar) { this.Aadhaar = Aadhaar; }
-  /**
-   * Get Gstin.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets the GSTIN.
+     *
+     * @return the GSTIN
+     */
     public String getGSTIN() { return GSTIN; }
-  /**
-   * Set Gstin.
-   *
-   * @param GSTIN the GSTIN
-   */
+
+    /**
+     * Sets the GSTIN.
+     *
+     * @param GSTIN the GSTIN
+     */
     public void setGSTIN(String GSTIN) { this.GSTIN = GSTIN; }
-  /**
-   * Get Is Approved.
-   *
-   * @return the int
-   */
+
+    /**
+     * Gets the approval status (0 pending, 1 approved).
+     *
+     * @return the approval status
+     */
     public int getIsApproved() { return isApproved; }
-  /**
-   * Set Is Approved.
-   *
-   * @param isApproved the isApproved
-   */
+
+    /**
+     * Sets the approval status.
+     *
+     * @param isApproved the approval status (0 pending, 1 approved)
+     */
     public void setIsApproved(int isApproved) { this.isApproved = isApproved; }
 }

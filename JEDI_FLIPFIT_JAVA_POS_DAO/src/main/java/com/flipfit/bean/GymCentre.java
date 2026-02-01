@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.flipfit.bean;
 /**
  * The Class GymCentre.
@@ -17,88 +14,101 @@ public class GymCentre {
     private int pincode;
     private boolean approved;
     private int ownerId;  // Track which owner registered this centre
-  /**
-   * Get Centre Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the centre id.
+     *
+     * @return the centre id
+     */
     public int getCentreId() { return centreId; }
-  /**
-   * Set Centre Id.
-   *
-   * @param centreId the centreId
-   */
+
+    /**
+     * Sets the centre id.
+     *
+     * @param centreId the centre id
+     */
     public void setCentreId(int centreId) { this.centreId = centreId; }
-  /**
-   * Get Name.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
     public String getName() { return name; }
-  /**
-   * Set Name.
-   *
-   * @param name the name
-   */
+
+    /**
+     * Sets the name.
+     *
+     * @param name the name
+     */
     public void setName(String name) { this.name = name; }
-  /**
-   * Get City.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets the city.
+     *
+     * @return the city
+     */
     public String getCity() { return city; }
-  /**
-   * Set City.
-   *
-   * @param city the city
-   */
+
+    /**
+     * Sets the city.
+     *
+     * @param city the city
+     */
     public void setCity(String city) { this.city = city; }
-  /**
-   * Get State.
-   *
-   * @return the String
-   */
+
+    /**
+     * Gets the state.
+     *
+     * @return the state
+     */
     public String getState() { return state; }
-  /**
-   * Set State.
-   *
-   * @param state the state
-   */
+
+    /**
+     * Sets the state.
+     *
+     * @param state the state
+     */
     public void setState(String state) { this.state = state; }
-  /**
-   * Get Pincode.
-   *
-   * @return the int
-   */
+
+    /**
+     * Gets the pincode.
+     *
+     * @return the pincode
+     */
     public int getPincode() { return pincode; }
-  /**
-   * Set Pincode.
-   *
-   * @param pincode the pincode
-   */
+
+    /**
+     * Sets the pincode.
+     *
+     * @param pincode the pincode
+     */
     public void setPincode(int pincode) { this.pincode = pincode; }
-  /**
-   * Is Approved.
-   *
-   * @return the boolean
-   */
+
+    /**
+     * Checks if the centre is approved.
+     *
+     * @return true if approved
+     */
     public boolean isApproved() { return approved; }
-  /**
-   * Set Approved.
-   *
-   * @param approved the approved
-   */
+
+    /**
+     * Sets the approved flag.
+     *
+     * @param approved the approved flag
+     */
     public void setApproved(boolean approved) { this.approved = approved; }
-  /**
-   * Get Owner Id.
-   *
-   * @return the int
-   */
+
+    /**
+     * Gets the owner id.
+     *
+     * @return the owner id
+     */
     public int getOwnerId() { return ownerId; }
-  /**
-   * Set Owner Id.
-   *
-   * @param ownerId the ownerId
-   */
+
+    /**
+     * Sets the owner id.
+     *
+     * @param ownerId the owner id
+     */
     public void setOwnerId(int ownerId) { this.ownerId = ownerId; }
 }

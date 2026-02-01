@@ -6,12 +6,11 @@ package com.flipfit.exception;
  * @ClassName  "RegistrationNotDoneException"
  */
 public class RegistrationNotDoneException extends Exception {
-  /**
-   * Registration Not Done Exception.
-   *
-   * @param message the message
-   * @return the public
-   */
+    /**
+     * Creates an exception with the given detail message.
+     *
+     * @param message the detail message
+     */
     public RegistrationNotDoneException(String message) {
         super(message);
     }

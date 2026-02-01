@@ -8,53 +8,51 @@ package com.flipfit.bean;
 public class Role {
     private int roleId;
     private String roleName;
-  /**
-   * Role.
-   *
-   * @return the public
-   */
+    /**
+     * Default constructor.
+     */
     public Role() {
     }
-  /**
-   * Role.
-   *
-   * @param roleId the roleId
-   * @param roleName the roleName
-   * @return the public
-   */
+
+    /**
+     * Constructor with role id and name.
+     *
+     * @param roleId   the role id
+     * @param roleName the role name
+     */
     public Role(int roleId, String roleName) {
         this.roleId = roleId;
         this.roleName = roleName;
     }
-  /**
-   * Get Role Id.
-   *
-   * @return the int
-   */
+    /**
+     * Gets the role id.
+     *
+     * @return the role id
+     */
     public int getRoleId() {
         return roleId;
     }
-  /**
-   * Set Role Id.
-   *
-   * @param roleId the roleId
-   */
+    /**
+     * Sets the role id.
+     *
+     * @param roleId the role id
+     */
     public void setRoleId(int roleId) {
         this.roleId = roleId;
     }
-  /**
-   * Get Role Name.
-   *
-   * @return the String
-   */
+    /**
+     * Gets the role name.
+     *
+     * @return the role name
+     */
     public String getRoleName() {
         return roleName;
     }
-  /**
-   * Set Role Name.
-   *
-   * @param roleName the roleName
-   */
+    /**
+     * Sets the role name.
+     *
+     * @param roleName the role name
+     */
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }

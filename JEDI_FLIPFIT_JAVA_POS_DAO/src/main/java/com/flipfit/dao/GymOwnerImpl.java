@@ -17,7 +17,7 @@ public class GymOwnerImpl implements GymOwnerInterface {
    * Register New Centre.
    *
    * @param centre the centre
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean registerNewCentre(GymCentre centre) {
@@ -131,7 +131,7 @@ public class GymOwnerImpl implements GymOwnerInterface {
    * Cancel Booking.
    *
    * @param bookingId the bookingId
-   * @return the boolean
+   * @return true if successful, false otherwise
    */
     @Override
     public boolean cancelBooking(int bookingId) {

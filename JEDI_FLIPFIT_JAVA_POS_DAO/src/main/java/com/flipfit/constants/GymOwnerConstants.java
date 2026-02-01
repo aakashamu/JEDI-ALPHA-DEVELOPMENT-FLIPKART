@@ -2,6 +2,9 @@ package com.flipfit.constants;
 
 /**
  * Constants for Gym Owner DAO SQL Queries.
+ *
+ * @author Ananya
+ * @ClassName "GymOwnerConstants"
  */
 public class GymOwnerConstants {
     public static final String REGISTER_USER = "INSERT INTO User (fullName, email, password, phoneNumber, city, state, pincode, roleId) VALUES (?, ?, ?, ?, ?, ?, ?, 3)";

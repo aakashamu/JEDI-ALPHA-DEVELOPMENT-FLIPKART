@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.flipfit.bean;
 /**
  * The Class GymAdmin.
@@ -9,7 +6,11 @@ package com.flipfit.bean;
  * @ClassName  "GymAdmin"
  */
 public class GymAdmin extends User {
-	public GymAdmin() {
-		super();
-	}
+
+    /**
+     * Default constructor.
+     */
+    public GymAdmin() {
+        super();
+    }
 }

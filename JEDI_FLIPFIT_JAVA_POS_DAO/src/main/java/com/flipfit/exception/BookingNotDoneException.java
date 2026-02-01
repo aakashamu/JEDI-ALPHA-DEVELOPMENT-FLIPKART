@@ -6,12 +6,11 @@ package com.flipfit.exception;
  * @ClassName  "BookingNotDoneException"
  */
 public class BookingNotDoneException extends Exception {
-  /**
-   * Booking Not Done Exception.
-   *
-   * @param message the message
-   * @return the public
-   */
+    /**
+     * Creates an exception with the given detail message.
+     *
+     * @param message the detail message
+     */
     public BookingNotDoneException(String message) {
         super(message);
     }
