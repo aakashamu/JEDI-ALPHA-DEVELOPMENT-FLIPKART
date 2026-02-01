@@ -4,19 +4,17 @@ import com.flipfit.bean.Notification;
 import com.flipfit.business.NotificationService;
 import java.util.List;
 /**
- * The Class NotificationDAODemo.
+ * The Class NotificationDemo.
  *
  * @author Ananya
- * @ClassName  "NotificationDAODemo"
+ * @ClassName  "NotificationDemo"
  */
-public class NotificationDAODemo {
+public class NotificationDemo {
   /**
-   * Main.
-   *
-   * @param args the args
+   * Run demo.
    */
-    public static void main(String[] args) {
-        System.out.println("========== Notification DAO Demo ==========\n");
+    public static void runDemo() {
+        System.out.println("========== Notification Demo ==========\n");
 
         // Create notification service
         NotificationService notificationService = new NotificationService();

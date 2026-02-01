@@ -4,19 +4,17 @@ import com.flipfit.bean.Role;
 import com.flipfit.business.RoleService;
 import java.util.List;
 /**
- * The Class RoleServiceDemo.
+ * The Class RoleDemo.
  *
  * @author Ananya
- * @ClassName  "RoleServiceDemo"
+ * @ClassName  "RoleDemo"
  */
-public class RoleServiceDemo {
+public class RoleDemo {
   /**
-   * Main.
-   *
-   * @param args the args
+   * Run demo.
    */
-    public static void main(String[] args) {
-        System.out.println("========== Role Service Demo ==========\n");
+    public static void runDemo() {
+        System.out.println("========== Role Demo ==========\n");
 
         RoleService roleService = new RoleService();
 

@@ -4,11 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+
 /**
  * The Class DBConnection.
  *
  * @author Ananya
- * @ClassName  "DBConnection"
+ * @ClassName "DBConnection"
  */
 public class DBConnection {
 
@@ -16,12 +17,13 @@ public class DBConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/FlipFitDB";
     private static final String USER = "root";
     private static final String PASSWORD = "password@123";
-  /**
-   * Get Connection.
-   *
-   * @return the Connection
- * @throws SQLException 
-   */
+
+    /**
+     * Get Connection.
+     *
+     * @return the Connection
+     * @throws SQLException
+     */
     public static Connection getConnection() throws SQLException {
         try {
             // Load the MySQL JDBC driver

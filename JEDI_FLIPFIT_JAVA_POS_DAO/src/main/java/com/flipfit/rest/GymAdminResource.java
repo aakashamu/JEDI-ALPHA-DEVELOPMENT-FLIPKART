@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Response;
  * The Class GymAdminResource.
  *
  * @author Ananya
- * @ClassName  "GymAdminResource"
+ * @ClassName "GymAdminResource"
  */
 @Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
@@ -21,41 +21,44 @@ public class GymAdminResource {
     @POST
     @Path("/register")
     public Response register(GymAdmin admin) {
-        adminService.registerAdmin(
-            admin.getFullName(),
-            admin.getEmail(),
-            admin.getPassword(),
-            admin.getPhoneNumber(),
-            admin.getCity(),
-            admin.getState(),
-            admin.getPincode()
-        );
-        return Response.status(Response.Status.CREATED).entity("Admin registered successfully").build();
+        try {
+            adminService.registerAdmin(
+                    admin.getFullName(),
+                    admin.getEmail(),
+                    admin.getPassword(),
+                    admin.getPhoneNumber(),
+                    admin.getCity(),
+                    admin.getState(),
+                    admin.getPincode());
+            return Response.status(Response.Status.CREATED).entity("Admin registered successfully").build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500).entity("Error registering admin: " + e.getMessage()).build();
+        }
     }
 
     @GET
     @Path("/owners")
-    public Response viewOwners() {
-        // adminService.viewAllGymOwners() prints to console but also syncs repository
-        adminService.viewAllGymOwners();
-        return Response.ok(com.flipfit.dao.FlipFitRepository.owners).build();
+    public Response viewOwners(@QueryParam("email") String email, @QueryParam("password") String password) {
+        if (email == null || password == null)
+            return Response.status(401).entity("Auth fail").build();
+        return Response.ok(adminService.viewAllGymOwners(email, password)).build();
     }
 
     @GET
     @Path("/centers")
-    public Response viewCenters() {
-        adminService.viewAllCentres();
-        return Response.ok(com.flipfit.dao.FlipFitRepository.gymCentres).build();
+    public Response viewCenters(@QueryParam("email") String email, @QueryParam("password") String password) {
+        if (email == null || password == null)
+            return Response.status(401).entity("Auth fail").build();
+        return Response.ok(adminService.viewAllCentres(email, password)).build();
     }
 
     @PUT
     @Path("/owner/approve/{ownerId}")
-    public Response approveOwner(@PathParam("ownerId") int ownerId) {
+    public Response approveOwner(@PathParam("ownerId") int ownerId, @QueryParam("email") String email,
+            @QueryParam("password") String password) {
         try {
-            if (adminService.validateGymOwner(ownerId)) {
-                // The validateGymOwner just checks if it exists. 
-                // We might need an actual approve method in AdminDAO.
-                // Looking at GymAdminService, it has validateGymOwner but updateGymOwnerApproval is what we need.
+            if (adminService.validateGymOwner(ownerId, email, password)) {
                 return Response.ok("Owner validated").build();
             }
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -66,9 +69,10 @@ public class GymAdminResource {
 
     @PUT
     @Path("/center/approve/{centerId}")
-    public Response approveCenter(@PathParam("centerId") int centerId) {
+    public Response approveCenter(@PathParam("centerId") int centerId, @QueryParam("email") String email,
+            @QueryParam("password") String password) {
         try {
-            if (adminService.approveCentre(centerId)) {
+            if (adminService.approveCentre(centerId, email, password)) {
                 return Response.ok("Center approved").build();
             }
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -79,8 +83,10 @@ public class GymAdminResource {
 
     @GET
     @Path("/metrics/customer")
-    public Response getCustomerMetrics() {
-        adminService.viewCustomerMetrics();
-        return Response.ok("Metrics displayed in console, but logic for returning JSON can be added").build();
+    public Response getCustomerMetrics(@QueryParam("email") String email, @QueryParam("password") String password) {
+        if (email == null || password == null)
+            return Response.status(401).entity("Auth fail").build();
+        adminService.viewCustomerMetrics(email, password);
+        return Response.ok("Metrics displayed in console").build();
     }
 }
