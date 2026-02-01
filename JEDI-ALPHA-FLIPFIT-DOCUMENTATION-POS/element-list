@@ -1,8 +1,0 @@
-module:JEDI_FLIPFIT_JAVA_POS_DAO
-com.flipfit.bean
-com.flipfit.business
-com.flipfit.client
-com.flipfit.dao
-com.flipfit.exception
-com.flipfit.io
-com.flipfit.utils
